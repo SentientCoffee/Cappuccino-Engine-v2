@@ -23,14 +23,14 @@ os.execute("mkdir " .. solutionDir .. "\\src")
 
 print("Copying necessary files...")
 -- Copy engine libraries into libs folder
-os.execute("robocopy ..\\Externals\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /ns /np /ndl /njh /njs")
-os.execute("robocopy ..\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Externals\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs")
 
 -- Copy external header, inline, and dll files
-os.execute("robocopy ..\\Externals " .. solutionDir .. "\\Engine\\Externals *.dll *.h *.hpp *.inl /s /xo /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Externals " .. solutionDir .. "\\Engine\\Externals *.dll *.h *.hpp *.inl /s /xo /xx /ns /np /ndl /njh /njs")
 
 -- Copy engine header files
-os.execute("robocopy ..\\Cappuccino\\include " .. solutionDir .. "\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Cappuccino\\include " .. solutionDir .. "\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs")
 
 os.execute("echo.")
 print("Starting premake build...")

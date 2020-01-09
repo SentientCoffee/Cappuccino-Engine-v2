@@ -1,0 +1,19 @@
+# Cappuccino Engine v2 gitignore
+
+# Build folders for projects
+[Bb]uild/
+[Ee]xternals/[Bb]uild/
+
+# Hidden .vs folder
+.vs/
+
+# ReSharper things
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings
+*.DotSettings.user
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln

@@ -21,7 +21,7 @@ namespace Capp {
 
 	private:
 
-		unsigned _rendererId = 0;
+		unsigned _id = 0;
 		unsigned _vertexCount = 0;
 		BufferLayout _layout;
 
@@ -41,7 +41,7 @@ namespace Capp {
 
 	private:
 
-		unsigned _rendererId = 0;
+		unsigned _id = 0;
 		unsigned _indexCount = 0;
 
 	};

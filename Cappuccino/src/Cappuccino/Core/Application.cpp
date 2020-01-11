@@ -15,8 +15,8 @@ Application::Application() :
 Application::Application(const unsigned width, const unsigned height, const std::string& title) {
 	CAPP_ASSERT(!_instance, "Application already exists!");
 	_instance = this;
-
 	_window = new Window({ title, width, height, true, BIND_EVENT_FN(Application::onEvent) });
+	RenderCommand::init();
 }
 
 Application::~Application() {

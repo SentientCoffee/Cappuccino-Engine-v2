@@ -40,7 +40,7 @@ VertexArray::~VertexArray() {
 }
 
 void VertexArray::bind() const { glBindVertexArray(_rendererId); }
-void VertexArray::unbind() const { glBindVertexArray(0); }
+void VertexArray::unbind() { glBindVertexArray(0); }
 
 void VertexArray::addVertexBuffer(VertexBuffer* vertexBuffer) {
 	CAPP_ASSERT(vertexBuffer->getLayout().size(), "Vertex buffer has no layout!");
@@ -71,5 +71,5 @@ void VertexArray::setIndexBuffer(IndexBuffer* indexBuffer) {
 	indexBuffer->bind();
 }
 
-const std::vector<VertexBuffer*> VertexArray::getVertexBuffers() const { return _vertexBuffers; }
+const std::vector<VertexBuffer*>& VertexArray::getVertexBuffers() const { return _vertexBuffers; }
 const IndexBuffer* VertexArray::getIndexBuffer() const { return _indexBuffer; }

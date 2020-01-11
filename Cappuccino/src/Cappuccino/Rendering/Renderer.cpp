@@ -5,12 +5,14 @@
 
 using namespace Capp;
 
-void Renderer::beginScene() {}
-void Renderer::endScene() {}
+Renderer::RenderData* Renderer::_renderData = new RenderData;
+
+void Renderer::start() {}
+void Renderer::finish() {}
 
 void Renderer::addToRenderList(VertexArray* vertexArray) {
 	vertexArray->bind();
-	if(vertexArray->getIndexBuffer()->getCount() > 0) {
+	if(vertexArray->getIndexBuffer() != nullptr) {
 		RenderCommand::drawIndexed(vertexArray);
 	}
 	else {

@@ -50,12 +50,12 @@ unsigned BufferElement::getComponentCount() const {
 // ----------------------------------------
 
 BufferLayout::BufferLayout(const std::vector<BufferElement>& elements) :
-	_elements(elements), _stride(0) {
+	_elements(elements) {
 	strideOffsetCalc();
 }
 
 BufferLayout::BufferLayout(const std::initializer_list<BufferElement>& elements) :
-	_elements(elements), _stride(0) {
+	_elements(elements) {
 	strideOffsetCalc();
 }
 

@@ -46,10 +46,7 @@ void ImguiLayer::begin() {
 	ImGui::NewFrame();
 }
 
-void ImguiLayer::drawImgui() {
-	static bool show = true;
-	ImGui::ShowDemoWindow(&show);
-}
+void ImguiLayer::drawImgui() {}
 
 void ImguiLayer::end() {
 	ImGuiIO& io = ImGui::GetIO();

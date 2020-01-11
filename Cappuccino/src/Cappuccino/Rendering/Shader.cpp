@@ -11,7 +11,7 @@ std::string loadFileAsString(const std::string& filepath) {
 	std::stringstream fileContent;
 
 	if(!inStream.good()) {
-		CAPP_PRINT_CRITICAL("File: {0}", filepath);
+		CAPP_PRINT_ERROR("File: {0}", filepath);
 		CAPP_ASSERT(false, "File could not be read!");
 	}
 	
@@ -20,7 +20,7 @@ std::string loadFileAsString(const std::string& filepath) {
 }
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
-	_rendererId = glCreateProgram();
+	_id = glCreateProgram();
 
 	_vertexSrcPath = vertexPath;
 	_fragmentSrcPath = vertexPath;
@@ -41,7 +41,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, c
 		CAPP_ASSERT(!geometryPath.value().empty(), "Invalid geometry shader file path!");
 		_geometrySrcPath = geometryPath.value();
 		
-		const std::string& geometrySrc = loadFileAsString(vertexPath);
+		const std::string& geometrySrc = loadFileAsString(geometryPath.value());
 		CAPP_ASSERT(!geometrySrc.empty(), "Geometry shader could not be read!");
 		
 		const unsigned int geomShader = createShader(geometrySrc, ShaderType::Fragment);
@@ -52,7 +52,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, c
 	}
 }
 
-Shader::~Shader() { glDeleteProgram(_rendererId); }
+Shader::~Shader() { glDeleteProgram(_id); }
 
 unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType shaderType) {
 	unsigned int shaderHandle = 0;
@@ -83,20 +83,27 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType sha
 		glDeleteShader(shaderHandle);
 
 		std::string type;
+		std::string path;
 		switch(shaderType) {
 			case ShaderType::Vertex:
 				type = "Vertex";
+				path = _vertexSrcPath;
 				break;
 			case ShaderType::Fragment:
 				type = "Fragment";
+				path = _fragmentSrcPath;
 				break;
 			case ShaderType::Geometry:
 				type = "Geometry";
+				path = _geometrySrcPath;
+				break;
+			default:
+				type = "Unknown";
+				path = "";
 				break;
 		}
 
-		CAPP_PRINT_CRITICAL("{0} shader:", type);
-		CAPP_PRINT_CRITICAL("{0}", infoLog.data());
+		CAPP_PRINT_ERROR("{0} shader at {1}:\n{2}", type, path, infoLog.data());
 		CAPP_ASSERT(false, "Failed to compile shader!");
 		return 0;
 	}
@@ -108,25 +115,25 @@ void Shader::compileProgram(const unsigned int vertShader, const unsigned int fr
 	CAPP_ASSERT(vertShader, "No vertex shader linked!");
 	CAPP_ASSERT(fragShader, "No fragment shader linked!");
 
-	glAttachShader(_rendererId, vertShader);
-	glAttachShader(_rendererId, fragShader);
+	glAttachShader(_id, vertShader);
+	glAttachShader(_id, fragShader);
 
 	if(geomShader) {
 		CAPP_ASSERT(!geomShader.value(), "No geometry shader linked!");
-		glAttachShader(_rendererId, geomShader.value());
+		glAttachShader(_id, geomShader.value());
 	}
 
-	glLinkProgram(_rendererId);
+	glLinkProgram(_id);
 
 	int success;
-	glGetProgramiv(_rendererId, GL_LINK_STATUS, &success);
+	glGetProgramiv(_id, GL_LINK_STATUS, &success);
 	if(!success) {
 		int logLength;
-		glGetProgramiv(_rendererId, GL_INFO_LOG_LENGTH, &logLength);
+		glGetProgramiv(_id, GL_INFO_LOG_LENGTH, &logLength);
 		std::vector<char> infoLog(logLength);
-		glGetProgramInfoLog(_rendererId, logLength, &logLength, infoLog.data());
+		glGetProgramInfoLog(_id, logLength, &logLength, infoLog.data());
 
-		glDeleteProgram(_rendererId);
+		glDeleteProgram(_id);
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);
 		if(geomShader) {
@@ -136,13 +143,13 @@ void Shader::compileProgram(const unsigned int vertShader, const unsigned int fr
 		CAPP_ASSERT(success, "Failed to link shader program!\n{0}", infoLog.data());
 	}
 
-	glDetachShader(_rendererId, vertShader);
-	glDetachShader(_rendererId, fragShader);
+	glDetachShader(_id, vertShader);
+	glDetachShader(_id, fragShader);
 	if(geomShader) {
-		glDetachShader(_rendererId, geomShader.value());
+		glDetachShader(_id, geomShader.value());
 	}
 }
 
 
-void Shader::bind() const { glUseProgram(_rendererId); }
+void Shader::bind() const { glUseProgram(_id); }
 void Shader::unbind() { glUseProgram(0); }

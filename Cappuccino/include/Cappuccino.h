@@ -20,5 +20,6 @@
 
 // Rendering
 #include "Cappuccino/Rendering/Shader.h"
+#include "Cappuccino/Rendering/Texture.h"
 #include "Cappuccino/Rendering/Renderer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"

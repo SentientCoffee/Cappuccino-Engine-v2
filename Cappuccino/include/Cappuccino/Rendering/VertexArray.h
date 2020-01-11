@@ -11,12 +11,12 @@ namespace Capp {
 		~VertexArray();
 
 		void bind() const;
-		void unbind() const;
+		static void unbind();
 		
 		void addVertexBuffer(VertexBuffer* vertexBuffer);
 		void setIndexBuffer(IndexBuffer* indexBuffer);
 
-		const std::vector<VertexBuffer*> getVertexBuffers() const;
+		const std::vector<VertexBuffer*>& getVertexBuffers() const;
 		const IndexBuffer* getIndexBuffer() const;
 
 	private:

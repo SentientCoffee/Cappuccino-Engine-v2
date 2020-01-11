@@ -9,6 +9,8 @@ namespace Capp {
 	class RenderCommand {
 	public:
 
+		static void init();
+		
 		static void setClearColour(const glm::vec4& colour);
 		static void setClearColour(float r, float g, float b, float a);
 		static void clearScreen();

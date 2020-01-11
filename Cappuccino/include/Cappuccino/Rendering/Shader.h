@@ -5,12 +5,6 @@
 
 namespace Capp {
 
-	enum class ShaderType : unsigned int {
-		Vertex = 0,
-		Fragment,
-		Geometry
-	};
-
 	class Shader {
 	public:
 
@@ -22,12 +16,18 @@ namespace Capp {
 		static void unbind();
 
 	private:
-
+		
+		enum class ShaderType : unsigned int {
+			Vertex = 0,
+			Fragment,
+			Geometry
+		};
+		
 		void compileProgram(unsigned int vertShader, unsigned int fragShader, const std::optional<unsigned>& geomShader = std::nullopt) const;
 
-		static unsigned int createShader(const std::string& shaderSrc, ShaderType shaderType);
+		unsigned int createShader(const std::string& shaderSrc, ShaderType shaderType);
 
-		unsigned int _rendererId;
+		unsigned int _id = 0;
 		std::string _vertexSrcPath;
 		std::string _fragmentSrcPath;
 		std::string _geometrySrcPath;

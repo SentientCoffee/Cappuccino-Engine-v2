@@ -6,6 +6,7 @@
 #include "Cappuccino/Events/WindowEvents.h"
 
 #include <glad/glad.h>
+#include <glfw/glfw3.h>
 
 using namespace Capp;
 
@@ -51,8 +52,7 @@ Window::~Window() {
 
 GLFWwindow* Window::getGlfwWindow() const { return _window; }
 
-void Window::update() {
-	
+void Window::update() const {
 	// Swap the buffers and poll events for the next frame
 	glfwPollEvents();
 	glfwSwapBuffers(_window);

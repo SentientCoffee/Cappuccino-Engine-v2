@@ -23,6 +23,7 @@ namespace Capp {
 		void run();
 		void onEvent(Event& e);
 
+		const SceneManager& getSceneManager() const;
 		Window* getWindow() const;
 
 		static Application* getInstance();

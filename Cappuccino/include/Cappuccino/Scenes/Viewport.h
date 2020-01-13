@@ -1,36 +1,45 @@
 #pragma once
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <functional>
 
-struct ViewportProperties {
-	using SpecialDrawFunc = std::function<void()>;
+namespace Capp {
+	
+	enum class DrawMode : unsigned int {
+		Point = 0x1B00,
+		Line = 0x1B01,
+		Fill = 0x1B02
+	};
 
-	glm::vec4 bounds;
-	glm::vec4 borderColour;
-	GLenum drawMode;
+	struct ViewportProperties {
+		using SpecialDrawFunc = std::function<void()>;
 
-	SpecialDrawFunc callback;
+		glm::vec4 bounds;
+		glm::vec4 borderColour;
+		DrawMode drawMode;
 
-	ViewportProperties(
-		const glm::vec4& bounds,
-		const glm::vec4& borderColour,
-		GLenum           drawMode = GL_FILL,
-		SpecialDrawFunc  specialDrawInstructions = []() {}
-	);
-};
+		SpecialDrawFunc callback;
 
-class Viewport {
+		ViewportProperties(
+			const glm::vec4&       bounds,
+			const glm::vec4&       borderColour,
+			DrawMode               drawMode = DrawMode::Fill,
+			const SpecialDrawFunc& specialDrawInstructions = []() {}
+		);
+	};
 
-public:
+	class Viewport {
 
-	Viewport(const ViewportProperties& properties);
-	void use() const;
+	public:
 
-private:
+		Viewport(const ViewportProperties& properties);
+		void use() const;
 
-	ViewportProperties _properties;
+	private:
 
-};
+		ViewportProperties _properties;
+
+	};
+	
+}

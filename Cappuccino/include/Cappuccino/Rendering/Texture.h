@@ -31,6 +31,7 @@ namespace Capp {
 	public:
 
 		Texture2D() = default;
+		Texture2D(unsigned width, unsigned height, unsigned channels = 4);
 		Texture2D(const std::string& filepath);
 		~Texture2D();
 
@@ -39,6 +40,8 @@ namespace Capp {
 
 		void bind(unsigned slot = 0) const;
 		static void unbind(unsigned slot = 0);
+
+		void setData(void* data, unsigned size) const;
 		
 		void setParameters(const TextureParams& params);
 
@@ -47,7 +50,7 @@ namespace Capp {
 		unsigned _id = 0;
 		unsigned _width = 0, _height = 0;
 		unsigned _mipLevels;
-		unsigned char* _imageData;
+		unsigned char* _imageData = nullptr;
 		
 		std::string _texturePath;
 

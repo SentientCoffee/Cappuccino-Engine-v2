@@ -50,10 +50,13 @@ void Application::onEvent(Event& e) {
 	sceneManager.getCurrentScene()->onEvent(e);
 }
 
+
 bool Application::onWindowClosed(WindowClosedEvent& e) {
 	_isRunning = false;
 	return true;
 }
 
+const SceneManager& Application::getSceneManager() const { return sceneManager; }
 Window* Application::getWindow() const { return _window; }
+
 Application* Application::getInstance() { return _instance; }

@@ -1,7 +1,13 @@
 #include "CappPCH.h"
 #include "Cappuccino/Scenes/Viewport.h"
 
-ViewportProperties::ViewportProperties(const glm::vec4& bounds, const glm::vec4& borderColour, const GLenum drawMode, const SpecialDrawFunc specialDrawInstructions) :
+#include "Cappuccino/Rendering/RenderCommand.h"
+
+#include <glad/glad.h>
+
+using namespace Capp;
+
+ViewportProperties::ViewportProperties(const glm::vec4& bounds, const glm::vec4& borderColour, const DrawMode drawMode, const SpecialDrawFunc& specialDrawInstructions) :
 	bounds(bounds), borderColour(borderColour), drawMode(drawMode), callback(specialDrawInstructions) {}
 
 Viewport::Viewport(const ViewportProperties& properties) :
@@ -12,8 +18,8 @@ void Viewport::use() const {
 	glScissor(static_cast<int>(_properties.bounds.x), static_cast<int>(_properties.bounds.y), static_cast<int>(_properties.bounds.z), static_cast<int>(_properties.bounds.w));
 
 	glClearColor(_properties.borderColour.r, _properties.borderColour.g, _properties.borderColour.b, _properties.borderColour.a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	RenderCommand::clearScreen();
 
-	glPolygonMode(GL_FRONT_AND_BACK, _properties.drawMode);
+	glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(_properties.drawMode));
 	_properties.callback != nullptr ? _properties.callback() : 0;
 }

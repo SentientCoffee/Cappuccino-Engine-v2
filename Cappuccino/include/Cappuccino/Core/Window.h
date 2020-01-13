@@ -2,10 +2,10 @@
 
 #include "Cappuccino/Events/Event.h"
 
-#include <glfw/glfw3.h>
-
 #include <functional>
 #include <string>
+
+struct GLFWwindow;
 
 namespace Capp {
 
@@ -29,7 +29,7 @@ namespace Capp {
 
 		GLFWwindow* getGlfwWindow() const;
 
-		void update();
+		void update() const;
 
 		unsigned getWidth() const;
 		unsigned getHeight() const;

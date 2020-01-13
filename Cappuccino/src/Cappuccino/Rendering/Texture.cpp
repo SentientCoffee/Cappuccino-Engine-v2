@@ -25,6 +25,24 @@ TextureParams::TextureParams(const WrapMode s, const WrapMode t, const WrapMode 
 	anisotropyEnabled = anisotropy;
 }
 
+Texture2D::Texture2D(const unsigned width, const unsigned height, const unsigned channels) :
+	_width(width), _height(height), _texturePath(""), _parameters({}) {
+	_formats.internalFormat = channels == 4 ? InternalFormat::RGBA8 : InternalFormat::RGB8;
+	_formats.pixelFormat = channels == 4 ? PixelFormat::RGBA : PixelFormat::RGB;
+	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
+
+	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
+	
+	// Default texture parameters
+	const TextureParams params = {
+		WrapMode::Repeat,
+		MinFilter::Linear,
+		MagFilter::Nearest
+	};
+
+	setParameters(params);
+}
+
 Texture2D::Texture2D(const std::string& filepath) :
 	_texturePath(filepath), _parameters({}) {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
@@ -56,6 +74,15 @@ Texture2D::Texture2D(const std::string& filepath) :
 	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None || _formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
 	
 	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
+
+	// Default texture parameters
+	const TextureParams params = {
+		WrapMode::Repeat,
+		MinFilter::Linear,
+		MagFilter::Nearest
+	};
+
+	setParameters(params);
 }
 
 Texture2D::~Texture2D() {
@@ -71,6 +98,17 @@ void Texture2D::bind(const unsigned slot) const {
 }
 void Texture2D::unbind(const unsigned slot) {
 	glBindTextureUnit(slot, 0);
+}
+
+void Texture2D::setData(void* data, const unsigned size) const {
+	const unsigned bytesPerPixel = _formats.pixelFormat == PixelFormat::RGBA ? 4 : 3;
+	CAPP_ASSERT(size == _width * _height * bytesPerPixel, "Data must cover entire texture!");
+	
+	glTextureSubImage2D(_id, 0,
+	                    0, 0, _width, _height,
+	                    static_cast<GLenum>(_formats.pixelFormat),
+	                    static_cast<GLenum>(_formats.pixelType),
+	                    data);
 }
 
 void Texture2D::setParameters(const TextureParams& params) {
@@ -90,6 +128,8 @@ void Texture2D::setParameters(const TextureParams& params) {
 		glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
 	}
 
+	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+	
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
 	                    static_cast<GLenum>(_formats.pixelFormat),

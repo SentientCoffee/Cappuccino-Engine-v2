@@ -20,11 +20,15 @@
 
 // Rendering
 #include "Cappuccino/Rendering/Camera.h"
-#include "Cappuccino/Rendering/Mesh.h"
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/Texture.h"
-#include "Cappuccino/Rendering/Renderer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
+
+#include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/3D/Renderer.h"
+
+#include "Cappuccino/Rendering/2D/2DQuad.h"
+#include "Cappuccino/Rendering/2D/Renderer2D.h"
 
 // Game objects
 #include "Cappuccino/Objects/Transform.h"

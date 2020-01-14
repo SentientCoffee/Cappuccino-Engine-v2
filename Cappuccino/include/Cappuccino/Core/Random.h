@@ -6,9 +6,8 @@
 namespace Capp {
 
 	class Random {
-
-		using HRC_TimePoint = std::chrono::high_resolution_clock::time_point;
-		using HRC_Duration = std::chrono::high_resolution_clock::time_point;
+		
+		using HRC = std::chrono::high_resolution_clock;
 		using DefaultRandomEngine = std::default_random_engine;
 		
 	public:
@@ -19,8 +18,8 @@ namespace Capp {
 
 	private:
 
-		static HRC_TimePoint _timeNow;
-		static HRC_Duration _seed;
+		static HRC::time_point _timeNow;
+		static HRC::duration _seed;
 		static DefaultRandomEngine _generator;
 		
 	};

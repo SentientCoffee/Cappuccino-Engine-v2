@@ -1,5 +1,5 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/Mesh.h"
+#include "Cappuccino/Rendering/3D/Mesh.h"
 
 using namespace Capp;
 
@@ -23,9 +23,6 @@ Mesh::Mesh(const std::string& filepath) :
 	vbo->setLayout(layout);	
 	_vao->addVertexBuffer(vbo);
 	_vao->setIndexBuffer(ibo);
-
-	delete vbo;
-	delete ibo;
 }
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices) {
@@ -42,9 +39,6 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& ind
 	vbo->setLayout(layout);
 	_vao->addVertexBuffer(vbo);
 	_vao->setIndexBuffer(ibo);
-
-	delete vbo;
-	delete ibo;
 }
 
 Mesh::~Mesh() {

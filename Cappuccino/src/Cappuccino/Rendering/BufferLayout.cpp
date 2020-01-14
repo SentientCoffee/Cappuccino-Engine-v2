@@ -59,6 +59,10 @@ BufferLayout::BufferLayout(const std::initializer_list<BufferElement>& elements)
 	strideOffsetCalc();
 }
 
+BufferLayout::~BufferLayout() {
+	_elements.clear();
+}
+
 std::vector<BufferElement> BufferLayout::getElements() const { return _elements; }
 unsigned int BufferLayout::size() const { return static_cast<unsigned int>(_elements.size()); }
 

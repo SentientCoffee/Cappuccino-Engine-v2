@@ -89,19 +89,25 @@ project (projName)
 		
 		prebuildcommands {
 			-- Update header files from engine
-			"robocopy " .. engineDir .. "\\Cappuccino\\include %{prj.location}\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /ns /np /ndl /njh /njs",
+			"robocopy " .. engineDir .. "\\Cappuccino\\include %{prj.location}\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs",
 			
 			-- Update lib files from engine
 			"robocopy " .. engineDir .. "\\Externals\\Build\\bin %{prj.location}\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs",
 			"robocopy " .. engineDir .. "\\Build\\bin %{prj.location}\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs",
+			
+			-- Update any default assets
+			"robocopy " .. engineDir .. "\\Cappuccino\\Assets %{prj.location}\\Assets\\Cappuccino /s /xo /xx /ns /np /ndl /njh /njs",
+			
 			"exit 0"
 		}
 		
 		postbuildcommands {
 			-- Copy all dll files next to executable
 			"robocopy %{prj.location}\\Engine\\Externals\\dll %{cfg.targetdir} /e /xo /xx /ns /np /ndl /njh /njs",
+			
 			-- Copy assets directory next to executable
 			"robocopy %{prj.location}\\Assets %{cfg.targetdir}\\Assets /mir /xo /xx /ns /np /ndl /njh /njs",
+			
 			"exit 0"
 		}
 		

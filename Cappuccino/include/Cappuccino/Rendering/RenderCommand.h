@@ -10,6 +10,7 @@ namespace Capp {
 	public:
 
 		static void init();
+		static void shutdown();
 		
 		static void setClearColour(const glm::vec4& colour);
 		static void setClearColour(float r, float g, float b, float a);

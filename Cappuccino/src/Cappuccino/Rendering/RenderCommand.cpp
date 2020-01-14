@@ -1,6 +1,9 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 
+#include "Cappuccino/Rendering/3D/Renderer.h"
+#include "Cappuccino/Rendering/2D/Renderer2D.h"
+
 #include <glad/glad.h>
 
 using namespace Capp;
@@ -15,6 +18,15 @@ void RenderCommand::init() {
 
 	// Scissor testing (for multiple viewports)
 	glEnable(GL_SCISSOR_TEST);
+
+	// Initialize 2D and 3D renderers
+	Renderer::init();
+	Renderer2D::init();
+}
+
+void RenderCommand::shutdown() {
+	Renderer::shutdown();
+	Renderer2D::shutdown();
 }
 
 void RenderCommand::setClearColour(const glm::vec4& colour) {

@@ -37,6 +37,7 @@ namespace Capp {
 		BufferLayout() = default;
 		BufferLayout(const BufferElemVector& elements);
 		BufferLayout(const BufferElemInitList& elements);
+		~BufferLayout();
 
 		BufferElemVector getElements() const;
 		unsigned int size() const;

@@ -25,8 +25,8 @@ TextureParams::TextureParams(const WrapMode s, const WrapMode t, const WrapMode 
 	anisotropyEnabled = anisotropy;
 }
 
-Texture2D::Texture2D(const unsigned width, const unsigned height, const unsigned channels) :
-	_width(width), _height(height), _texturePath(""), _parameters({}) {
+Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const unsigned channels) :
+	_width(width), _height(height), _imageData(static_cast<unsigned char*>(data)), _texturePath(""), _parameters({}) {
 	_formats.internalFormat = channels == 4 ? InternalFormat::RGBA8 : InternalFormat::RGB8;
 	_formats.pixelFormat = channels == 4 ? PixelFormat::RGBA : PixelFormat::RGB;
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
@@ -41,6 +41,18 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, const unsigned
 	};
 
 	setParameters(params);
+
+	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+
+	glTextureSubImage2D(_id, 0,
+	                    0, 0, _width, _height,
+	                    static_cast<GLenum>(_formats.pixelFormat),
+	                    static_cast<GLenum>(_formats.pixelType),
+	                    _imageData);
+
+	if(static_cast<bool>(_parameters.enableMipmaps)) {
+		glGenerateTextureMipmap(_id);
+	}
 }
 
 Texture2D::Texture2D(const std::string& filepath) :
@@ -83,6 +95,18 @@ Texture2D::Texture2D(const std::string& filepath) :
 	};
 
 	setParameters(params);
+	
+	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+
+	glTextureSubImage2D(_id, 0,
+	                    0, 0, _width, _height,
+	                    static_cast<GLenum>(_formats.pixelFormat),
+	                    static_cast<GLenum>(_formats.pixelType),
+	                    _imageData);
+
+	if(static_cast<bool>(_parameters.enableMipmaps)) {
+		glGenerateTextureMipmap(_id);
+	}
 }
 
 Texture2D::~Texture2D() {
@@ -100,15 +124,23 @@ void Texture2D::unbind(const unsigned slot) {
 	glBindTextureUnit(slot, 0);
 }
 
-void Texture2D::setData(void* data, const unsigned size) const {
+void Texture2D::setData(void* data, const unsigned size) {
 	const unsigned bytesPerPixel = _formats.pixelFormat == PixelFormat::RGBA ? 4 : 3;
 	CAPP_ASSERT(size == _width * _height * bytesPerPixel, "Data must cover entire texture!");
+
+	_imageData = static_cast<unsigned char*>(data);
 	
+	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
 	                    static_cast<GLenum>(_formats.pixelFormat),
 	                    static_cast<GLenum>(_formats.pixelType),
-	                    data);
+	                    _imageData);
+
+	if(static_cast<bool>(_parameters.enableMipmaps)) {
+		glGenerateTextureMipmap(_id);
+	}
 }
 
 void Texture2D::setParameters(const TextureParams& params) {
@@ -126,17 +158,5 @@ void Texture2D::setParameters(const TextureParams& params) {
 
 	if(static_cast<bool>(_parameters.anisotropyEnabled)) {
 		glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
-	}
-
-	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
-	
-	glTextureSubImage2D(_id, 0,
-	                    0, 0, _width, _height,
-	                    static_cast<GLenum>(_formats.pixelFormat),
-	                    static_cast<GLenum>(_formats.pixelType),
-	                    _imageData);
-
-	if(static_cast<bool>(_parameters.enableMipmaps)) {
-		glGenerateTextureMipmap(_id);
 	}
 }

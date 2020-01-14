@@ -7,15 +7,15 @@ Cappuccino Engine supports .obj file loading, image loading (using [stb_image](h
 - Scenes and Layers
 - Basic Rendering (basic geometry)
 - Texture loading
+- Mesh loading and rendering (with index buffers)
 
 More on the way:
-- Mesh loading and rendering
 - Text rendering and font loading
 - Game objects
 - Collisions & Rigidbodies
+- Material system
 - Raycasting
 - Lighting system
-- Material system
 - Animation system (morph targets and skeletal animation)
 - Viewports
 - Sound system
@@ -27,6 +27,7 @@ Currently, only Windows builds are supported. Other platforms will be supported 
 
 ### Building
 All you have to do to build Cappuccino Engine is run `CappEngineGeneration.bat`, which is included in the files.
+Then you can make a game project using the `CappGameGeneraion.bat` file in the `GameGeneration` folder, which will make a new project that links into the Cappuccino Engine.
 
 ### One Last Thing
 [Jewel3D](https://github.com/EmilianC/Jewel3D) was a big part of our learning over the summer of 2019, and we would like to personally thank the creator. Please go check it out!

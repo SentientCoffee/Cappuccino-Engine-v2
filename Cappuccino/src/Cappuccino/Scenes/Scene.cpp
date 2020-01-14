@@ -11,17 +11,23 @@ Scene::Scene(const std::string& name) :
 
 void Scene::init() {}
 void Scene::exit() {}
+void Scene::drawImgui() {}
 
 void Scene::update(const float dt) {
 	for(auto layer : _layerStack) {
 		layer->update(dt);
 	}
 
+	#if CAPP_DEBUG
+	
 	_imguiLayer->begin();
+	drawImgui();
 	for(auto layer : _layerStack) {
 		layer->updateImgui(dt);
 	}
 	_imguiLayer->end();
+	
+	#endif
 
 }
 

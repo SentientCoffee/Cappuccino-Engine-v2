@@ -2,6 +2,8 @@
 
 // Core engine files
 #include "Cappuccino/Core/Application.h"
+#include "Cappuccino/Core/Random.h"
+#include "Cappuccino/Core/Time.h"
 
 // Debugging tools
 #include "Cappuccino/Debugging/Logging.h"
@@ -25,10 +27,15 @@
 #include "Cappuccino/Rendering/RenderCommand.h"
 
 #include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Renderer.h"
 
 #include "Cappuccino/Rendering/2D/2DQuad.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
+
+//#include "Cappuccino/Rendering/Text/Text.h"
+//#include "Cappuccino/Rendering/Text/Font.h"
+//#include "Cappuccino/Rendering/Text/FontManager.h"
 
 // Game objects
 #include "Cappuccino/Objects/Transform.h"

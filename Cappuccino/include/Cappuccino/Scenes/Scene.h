@@ -19,6 +19,7 @@ namespace Capp {
 
 		virtual void init();
 		virtual void exit();
+		virtual void drawImgui();
 		void update(float dt);
 		void onEvent(Event& e);
 

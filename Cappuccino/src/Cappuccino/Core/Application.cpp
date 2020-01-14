@@ -1,7 +1,9 @@
 #include "CappPCH.h"
 #include "Cappuccino/Core/Application.h"
 
+#include "Cappuccino/Core/Time.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
+#include "Cappuccino/Rendering/Text/FontManager.h"
 
 #include <glfw/glfw3.h>
 
@@ -16,8 +18,6 @@ Application::Application(const unsigned width, const unsigned height, const std:
 	CAPP_ASSERT(!_instance, "Application already exists!");
 	_instance = this;
 	_window = new Window({ title, width, height, true, BIND_EVENT_FN(Application::onEvent) });
-
-	RenderCommand::init();
 }
 
 Application::~Application() {
@@ -28,6 +28,9 @@ Application::~Application() {
 }
 
 void Application::run() {
+	RenderCommand::init();
+	FontManager::init();
+	
 	if(sceneManager.getCurrentScene() == nullptr) {
 		sceneManager.changeScene(0);
 	}
@@ -36,11 +39,8 @@ void Application::run() {
 	while(_isRunning) {
 		RenderCommand::clearScreen();
 
-		const auto currentTime = static_cast<float>(glfwGetTime());
-		const float currentFrameTime = currentTime - _lastFrameTime;
-		_lastFrameTime = currentFrameTime;
-		
-		sceneManager.getCurrentScene()->update(currentFrameTime);
+		Time::calculateDeltaTime();
+		sceneManager.getCurrentScene()->update(Time::getDeltaTime());
 		
 		_window->update();
 	}

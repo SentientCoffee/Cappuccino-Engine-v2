@@ -2,6 +2,7 @@
 #include "Cappuccino/Debugging/ImguiLayer.h"
 
 #include "Cappuccino/Core/Application.h"
+#include "Cappuccino/Core/Time.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glfw/glfw3.h>
@@ -45,6 +46,9 @@ void ImguiLayer::begin() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.DeltaTime = Time::getDeltaTime();
 }
 
 void ImguiLayer::drawImgui() {}

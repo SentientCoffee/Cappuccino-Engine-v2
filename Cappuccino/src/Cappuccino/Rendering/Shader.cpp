@@ -25,7 +25,7 @@ Shader::Shader(const std::string& name, const std::string& vertexPath, const std
 	_name = name;
 	
 	_vertexSrcPath = vertexPath;
-	_fragmentSrcPath = vertexPath;
+	_fragmentSrcPath = fragmentPath;
 	
 	CAPP_ASSERT(!vertexPath.empty(), "Invalid vertex shader file path!");
 	CAPP_ASSERT(!fragmentPath.empty(), "Invalid fragment shader file path!");

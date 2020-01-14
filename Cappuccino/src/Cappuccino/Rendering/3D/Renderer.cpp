@@ -23,10 +23,19 @@ void Renderer::shutdown() {
 	delete rendererStorage;
 }
 
-void Renderer::start() {}
-void Renderer::finish() {}
+void Renderer::start(const PerspectiveCamera& camera) {
+	rendererStorage->viewProjection = camera.getViewProjection();
+}
+void Renderer::finish() {
+	Shader::unbind();
+	Texture2D::unbind();
+	VertexArray::unbind();
+}
 
-void Renderer::addToRenderList(VertexArray* vertexArray) {
+void Renderer::addToRenderList(Shader* shader, VertexArray* vertexArray) {
+	shader->bind();
+	shader->setUniform("uViewProjection", rendererStorage->viewProjection);
+	
 	vertexArray->bind();
 	if(vertexArray->getIndexBuffer() != nullptr) {
 		RenderCommand::drawIndexed(vertexArray);
@@ -36,6 +45,16 @@ void Renderer::addToRenderList(VertexArray* vertexArray) {
 	}
 }
 
-void Renderer::addToRenderList(Mesh* mesh) {
-	addToRenderList(mesh->getVAO());
+void Renderer::addToRenderList(Material* material, VertexArray* vertexArray) {
+	material->apply();
+	addToRenderList(material->getShader(), vertexArray);
+}
+
+void Renderer::addToRenderList(Shader* shader, Mesh* mesh) {
+	addToRenderList(shader, mesh->getVAO());
+}
+
+void Renderer::addToRenderList(Material* material, Mesh* mesh) {
+	material->apply();
+	addToRenderList(material->getShader(), mesh);
 }

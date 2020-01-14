@@ -5,38 +5,38 @@ namespace Capp {
 	enum class InternalFormat : unsigned int {
 		// From glad.h
 		None                 = 0,
-		R8                   = 0x8229,
-		R16                  = 0x822A,
-		RGB8                 = 0x8051,
-		RGB16                = 0x8054,
-		RGBA8                = 0x8058,
-		RGBA16               = 0x805B,
-		Depth                = 0x1902,
-		DepthStencil         = 0x84F9
+		R8                   = 0x8229,		// GL_R8
+		R16                  = 0x822A,		// GL_R16
+		RGB8                 = 0x8051,		// GL_RGB8
+		RGB16                = 0x8054,		// GL_RGB16
+		RGBA8                = 0x8058,		// GL_RGBA8
+		RGBA16               = 0x805B,		// GL_RGBA16
+		Depth                = 0x1902,		// GL_DEPTH
+		DepthStencil         = 0x84F9		// GL_DEPTH_STENCIL
 	};
 
 	enum class PixelFormat : unsigned int {
 		// From glad.h
 		None                 = 0,
-		Red                  = 0x1903,
-		RG                   = 0x8227,
-		RGB                  = 0x1907,
-		BGR                  = 0x80E0,
-		RGBA                 = 0x1908,
-		BGRA                 = 0x80E1,
-		Depth                = 0x1902,
-		DepthStencil         = 0x84F9
+		Red                  = 0x1903,		//  GL_RED
+		RG                   = 0x8227,		//  GL_RG
+		RGB                  = 0x1907,		//  GL_RGB
+		BGR                  = 0x80E0,		//  GL_BGR
+		RGBA                 = 0x1908,		//  GL_RGBA
+		BGRA                 = 0x80E1,		//  GL_BGRA
+		Depth                = 0x1902,		//  GL_DEPTH
+		DepthStencil         = 0x84F9		//  GL_DEPTH_STENCIL
 	};
 
 	enum class PixelType : unsigned int {
 		// From glad.h
-		UnsignedByte         = 0x1401,
-		Byte                 = 0x1400,
-		UnsignedShort        = 0x1403,
-		Short                = 0x1402,
-		UnsignedInt          = 0x1405,
-		Int                  = 0x1404,
-		Float                = 0x1406
+		UnsignedByte         = 0x1401,		// GL_UNSIGNED_BYTE
+		Byte                 = 0x1400,		// GL_BYTE
+		UnsignedShort        = 0x1403,		// GL_UNSIGNED_SHORT
+		Short                = 0x1402,		// GL_SHORT
+		UnsignedInt          = 0x1405,		// GL_UNSIGNED_INT
+		Int                  = 0x1404,		// GL_INT
+		Float                = 0x1406		// GL_FLOAT
 	};
 	
 }

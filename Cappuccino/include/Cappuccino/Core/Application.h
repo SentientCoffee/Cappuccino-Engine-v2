@@ -39,7 +39,6 @@ namespace Capp {
 		Window* _window;
 
 		bool _isRunning = true;
-		float _lastFrameTime = 0.0f;
 		
 		static Application* _instance;
 		

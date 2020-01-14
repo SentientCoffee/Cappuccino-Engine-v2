@@ -2,6 +2,7 @@
 
 #include "Cappuccino/Rendering/Camera.h"
 #include "Cappuccino/Rendering/2D/2DQuad.h"
+//#include "Cappuccino/Rendering/Text/Text.h"
 
 namespace Capp {
 
@@ -16,6 +17,8 @@ namespace Capp {
 
 		static void drawQuad(const ColouredQuad& properties);
 		static void drawQuad(const TexturedQuad& properties);
+
+		//static void drawText(Text* text);
 		
 	};
 	

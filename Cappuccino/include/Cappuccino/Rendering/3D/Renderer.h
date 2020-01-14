@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Cappuccino/Rendering/Camera.h"
+#include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/VertexArray.h"
+#include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 
 namespace Capp {
@@ -11,11 +14,14 @@ namespace Capp {
 		static void init();
 		static void shutdown();
 		
-		static void start();
+		static void start(const PerspectiveCamera& camera);
 		static void finish();
 
-		static void addToRenderList(VertexArray* vertexArray);
-		static void addToRenderList(Mesh* mesh);
+		static void addToRenderList(Shader* shader, VertexArray* vertexArray);
+		static void addToRenderList(Material* material, VertexArray* vertexArray);
+		
+		static void addToRenderList(Shader* shader, Mesh* mesh);
+		static void addToRenderList(Material* material, Mesh* mesh);
 		
 	};
 	

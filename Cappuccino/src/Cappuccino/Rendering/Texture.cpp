@@ -27,10 +27,31 @@ TextureParams::TextureParams(const WrapMode s, const WrapMode t, const WrapMode 
 
 Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const unsigned channels) :
 	_width(width), _height(height), _imageData(static_cast<unsigned char*>(data)), _texturePath(""), _parameters({}) {
-	_formats.internalFormat = channels == 4 ? InternalFormat::RGBA8 : InternalFormat::RGB8;
-	_formats.pixelFormat = channels == 4 ? PixelFormat::RGBA : PixelFormat::RGB;
+	switch(channels) {
+		case 1: {
+			_formats.internalFormat = InternalFormat::R8;
+			_formats.pixelFormat = PixelFormat::Red;
+			break;
+		}
+		case 3: {
+			_formats.internalFormat = InternalFormat::RGB8;
+			_formats.pixelFormat = PixelFormat::RGB;
+			break;
+		}
+		case 4: {
+			_formats.internalFormat = InternalFormat::RGB8;
+			_formats.pixelFormat = PixelFormat::RGB;
+			break;
+		}
+		default: {
+			_formats.internalFormat = InternalFormat::None;
+			_formats.pixelFormat = PixelFormat::None;
+			break;
+		}
+	}
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 
+	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None || _formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
 	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
 	
 	// Default texture parameters
@@ -41,8 +62,8 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 	};
 
 	setParameters(params);
-
-	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+	
+	//CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
 
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
@@ -70,17 +91,27 @@ Texture2D::Texture2D(const std::string& filepath) :
 
 	_width = width; _height = height;
 	
-	if(channels == 4) {
-		_formats.internalFormat = InternalFormat::RGBA8;
-		_formats.pixelFormat = PixelFormat::RGBA;
-	}
-	else if(channels == 3) {
-		_formats.internalFormat = InternalFormat::RGB8;
-		_formats.pixelFormat = PixelFormat::RGB;
-	}
-	else if(channels == 1) {
-		_formats.internalFormat = InternalFormat::R8;
-		_formats.pixelFormat = PixelFormat::Red;
+	switch(channels) {
+		case 1: {
+			_formats.internalFormat = InternalFormat::R8;
+			_formats.pixelFormat = PixelFormat::Red;
+			break;
+		}
+		case 3: {
+			_formats.internalFormat = InternalFormat::RGB8;
+			_formats.pixelFormat = PixelFormat::RGB;
+			break;
+		}
+		case 4: {
+			_formats.internalFormat = InternalFormat::RGB8;
+			_formats.pixelFormat = PixelFormat::RGB;
+			break;
+		}
+		default: {
+			_formats.internalFormat = InternalFormat::None;
+			_formats.pixelFormat = PixelFormat::None;
+			break;
+		}
 	}
 
 	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None || _formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
@@ -96,7 +127,7 @@ Texture2D::Texture2D(const std::string& filepath) :
 
 	setParameters(params);
 	
-	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+	//CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
 
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
@@ -125,12 +156,27 @@ void Texture2D::unbind(const unsigned slot) {
 }
 
 void Texture2D::setData(void* data, const unsigned size) {
-	const unsigned bytesPerPixel = _formats.pixelFormat == PixelFormat::RGBA ? 4 : 3;
+	unsigned bytesPerPixel;
+	switch(_formats.pixelFormat) {
+		case PixelFormat::Red:
+			bytesPerPixel = 1;
+			break;
+		case PixelFormat::RGB:
+			bytesPerPixel = 3;
+			break;
+		case PixelFormat::RGBA:
+			bytesPerPixel = 4;
+			break;
+		default:
+			bytesPerPixel = 0;
+			break;
+	}
+	
 	CAPP_ASSERT(size == _width * _height * bytesPerPixel, "Data must cover entire texture!");
 
 	_imageData = static_cast<unsigned char*>(data);
 	
-	CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
+	//CAPP_ASSERT(_imageData != nullptr, "No image data to create texture!");
 
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,

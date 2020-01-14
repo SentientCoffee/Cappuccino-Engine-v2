@@ -20,13 +20,13 @@ const glm::mat4& Camera::getViewProjection() const { return _viewProjection; }
 // -------------------------------------------------------------
 
 OrthographicCamera::OrthographicCamera(const float left, const float right, const float top, const float bottom) {
-	_projectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 100.0f);
 	_viewMatrix = glm::mat4(1.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
 
-void OrthographicCamera::setProjection(const float left, const float right, const float bottom, const float top) {
-	_projectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+void OrthographicCamera::setProjection(const float left, const float right, const float top, const float bottom) {
+	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 100.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
 
@@ -35,6 +35,7 @@ void OrthographicCamera::setPosition(const glm::vec3& position) {
 	_position = position;
 	viewMatrixCalc();
 }
+void OrthographicCamera::setPosition(const float x, const float y, const float z) { setPosition({ x, y, z }); }
 
 bool OrthographicCamera::isRotatable() const { return _isRotatable; }
 void OrthographicCamera::setRotatable(const bool rotatable) { _isRotatable = rotatable; }
@@ -78,6 +79,7 @@ void PerspectiveCamera::lookAt(const glm::vec3& target, const glm::vec3& up) {
 	_viewMatrix = glm::lookAt(_position, target, up);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
+void PerspectiveCamera::lookAt(const float targetX, const float targetY, const float targetZ, const glm::vec3& up) { lookAt({ targetX, targetY, targetZ }, up); }
 
 glm::vec3 PerspectiveCamera::getForward() const { return { -_backX, -_backY, -_backZ }; }
 glm::vec3 PerspectiveCamera::getUp() const { return { -_upX, -_upY, -_upZ }; }
@@ -88,11 +90,14 @@ void PerspectiveCamera::setPosition(const glm::vec3& position) {
 	_position = position;
 	viewMatrixCalc();
 }
+void PerspectiveCamera::setPosition(const float x, const float y, const float z) { setPosition({ x, y ,z }); }
+
 const glm::vec3& PerspectiveCamera::getRotation() const { return _rotation; }
 void PerspectiveCamera::setRotation(const glm::vec3& rotation) {
 	_rotation = rotation;
 	viewMatrixCalc();
 }
+void PerspectiveCamera::setRotation(const float x, const float y, const float z) { setRotation({ x, y, z }); }
 
 void PerspectiveCamera::viewMatrixCalc() {
 	const glm::mat4 transform = glm::translate(glm::mat4(1.0f), _position) *

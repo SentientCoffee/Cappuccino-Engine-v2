@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cappuccino/Rendering/VertexArray.h"
+#include "Cappuccino/Rendering/Mesh.h"
 
 #include <glm/glm.hpp>
 
@@ -13,6 +14,7 @@ namespace Capp {
 		static void finish();
 
 		static void addToRenderList(VertexArray* vertexArray);
+		static void addToRenderList(Mesh* mesh);
 
 	private:
 

@@ -19,7 +19,12 @@
 #include "Cappuccino/Scenes/Layer.h"
 
 // Rendering
+#include "Cappuccino/Rendering/Camera.h"
+#include "Cappuccino/Rendering/Mesh.h"
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/Texture.h"
 #include "Cappuccino/Rendering/Renderer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
+
+// Game objects
+#include "Cappuccino/Objects/Transform.h"

@@ -15,9 +15,6 @@ void RenderCommand::init() {
 
 	// Scissor testing (for multiple viewports)
 	glEnable(GL_SCISSOR_TEST);
-
-	// Face culling
-	glEnable(GL_CULL_FACE);
 }
 
 void RenderCommand::setClearColour(const glm::vec4& colour) {
@@ -30,6 +27,14 @@ void RenderCommand::setClearColour(const float r, const float g, const float b, 
 
 void RenderCommand::clearScreen() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void RenderCommand::enableCulling() {
+	glEnable(GL_CULL_FACE);
+}
+
+void RenderCommand::disableCulling() {
+	glDisable(GL_CULL_FACE);
 }
 
 void RenderCommand::drawArray(VertexArray* vertexArray) {

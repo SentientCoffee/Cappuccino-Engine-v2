@@ -2,6 +2,7 @@
 #include "Cappuccino/Rendering/Shader.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Capp;
 
@@ -19,9 +20,10 @@ std::string loadFileAsString(const std::string& filepath) {
 	return fileContent.str();
 }
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
+Shader::Shader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
 	_id = glCreateProgram();
-
+	_name = name;
+	
 	_vertexSrcPath = vertexPath;
 	_fragmentSrcPath = vertexPath;
 	
@@ -153,3 +155,40 @@ void Shader::compileProgram(const unsigned int vertShader, const unsigned int fr
 
 void Shader::bind() const { glUseProgram(_id); }
 void Shader::unbind() { glUseProgram(0); }
+
+void Shader::setName(const std::string& name) { _name = name; }
+const std::string& Shader::getName() const { return _name; }
+
+int Shader::getUniformLocation(const std::string& uniformName) const {
+	const int uniformLocation = glGetUniformLocation(_id, uniformName.c_str());
+	if(uniformLocation == -1) {
+		CAPP_PRINT_ERROR("Uniform \"{0}\" in shader \"{1}\"", uniformName, _name);
+		CAPP_ASSERT(!uniformLocation, "Could not find uniform!");
+	}
+	return uniformLocation;
+}
+
+void Shader::setUniform(const std::string& uniformName, const bool value) const {
+	glUniform1i(getUniformLocation(uniformName), static_cast<int>(value));
+}
+void Shader::setUniform(const std::string& uniformName, const int value) const {
+	glUniform1i(getUniformLocation(uniformName), value);
+}
+void Shader::setUniform(const std::string& uniformName, const float value) const {
+	glUniform1f(getUniformLocation(uniformName), value);
+}
+void Shader::setUniform(const std::string& uniformName, const glm::vec2& value) const {
+	glUniform2fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
+}
+void Shader::setUniform(const std::string& uniformName, const glm::vec3& value) const {
+	glUniform3fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
+}
+void Shader::setUniform(const std::string& uniformName, const glm::vec4& value) const {
+	glUniform4fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
+}
+void Shader::setUniform(const std::string& uniformName, const glm::mat3& value) const {
+	glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
+}
+void Shader::setUniform(const std::string& uniformName, const glm::mat4& value) const {
+	glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
+}

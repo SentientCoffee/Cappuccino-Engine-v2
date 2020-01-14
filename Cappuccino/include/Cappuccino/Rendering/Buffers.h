@@ -2,13 +2,26 @@
 
 #include "Cappuccino/Rendering/BufferLayout.h"
 
+#include <glm/glm.hpp>
+
 namespace Capp {
+
+	struct Vertex {
+		glm::vec3 position = { 0.0f, 0.0f, 0.0f };
+		glm::vec2 uvCoords = { 0.0f, 0.0f };
+		glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
+
+		bool operator<(const Vertex other) const {
+			return memcmp(static_cast<void const*>(this), static_cast<void const*>(&other), sizeof(Vertex)) > 0;
+		};
+	};
 
 	class VertexBuffer {
 	public:
 
 		VertexBuffer() = default;
 		VertexBuffer(const std::vector<float>& vertices);
+		VertexBuffer(const std::vector<Vertex>& vertices);
 		~VertexBuffer();
 
 		void bind() const;

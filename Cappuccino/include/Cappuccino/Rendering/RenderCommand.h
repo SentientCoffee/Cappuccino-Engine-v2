@@ -15,6 +15,9 @@ namespace Capp {
 		static void setClearColour(float r, float g, float b, float a);
 		static void clearScreen();
 
+		static void enableCulling();
+		static void disableCulling();
+
 		static void drawArray(VertexArray* vertexArray);
 		static void drawIndexed(VertexArray* vertexArray);
 		

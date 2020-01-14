@@ -61,7 +61,7 @@ void VertexArray::addVertexBuffer(VertexBuffer* vertexBuffer) {
 
 		++i;
 	}
-
+	glBindVertexArray(0);
 }
 
 void VertexArray::setIndexBuffer(IndexBuffer* indexBuffer) {
@@ -69,6 +69,7 @@ void VertexArray::setIndexBuffer(IndexBuffer* indexBuffer) {
 	
 	glBindVertexArray(_rendererId);
 	indexBuffer->bind();
+	glBindVertexArray(0);
 }
 
 const std::vector<VertexBuffer*>& VertexArray::getVertexBuffers() const { return _vertexBuffers; }

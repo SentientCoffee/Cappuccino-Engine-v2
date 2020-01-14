@@ -36,13 +36,15 @@ namespace Capp {
 	class OrthographicCamera : public Camera {
 	public:
 		
+		OrthographicCamera() = default;
 		OrthographicCamera(float left, float right, float top, float bottom);
 		~OrthographicCamera() = default;
 		
-		void setProjection(float left, float right, float bottom, float top);
+		void setProjection(float left, float right, float top, float bottom);
 
 		const glm::vec3& getPosition() const;
 		void setPosition(const glm::vec3& position);
+		void setPosition(float x, float y, float z);
 		
 		bool isRotatable() const;
 		void setRotatable(bool rotatable);
@@ -63,12 +65,14 @@ namespace Capp {
 	class PerspectiveCamera : public Camera {
 	public:
 
+		PerspectiveCamera() = default;
 		PerspectiveCamera(float fovY, unsigned width, unsigned height);
 		~PerspectiveCamera() = default;
 
 		void setProjection(float fovY, unsigned width, unsigned height);
 
 		void lookAt(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
+		void lookAt(float targetX, float targetY, float targetZ, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glm::vec3 getForward() const;
 		glm::vec3 getUp() const;
@@ -76,9 +80,11 @@ namespace Capp {
 
 		const glm::vec3& getPosition() const;
 		void setPosition(const glm::vec3& position);
+		void setPosition(float x, float y, float z);
 
 		const glm::vec3& getRotation() const;
 		void setRotation(const glm::vec3& rotation);
+		void setRotation(float x, float y, float z);
 		
 	private:
 

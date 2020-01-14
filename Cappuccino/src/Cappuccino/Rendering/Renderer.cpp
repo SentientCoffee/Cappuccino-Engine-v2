@@ -19,3 +19,9 @@ void Renderer::addToRenderList(VertexArray* vertexArray) {
 		RenderCommand::drawArray(vertexArray);
 	}
 }
+
+void Renderer::addToRenderList(Mesh* mesh) {
+	addToRenderList(mesh->getVAO());
+	//mesh->getVAO()->bind();
+	//RenderCommand::drawArray(mesh->getVAO());
+}

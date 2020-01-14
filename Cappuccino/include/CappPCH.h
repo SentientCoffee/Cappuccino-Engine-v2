@@ -6,9 +6,11 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <optional>
 #include <random>
+#include <set>
 #include <string>
 #include <sstream>
 #include <thread>

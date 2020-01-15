@@ -58,3 +58,8 @@ void Renderer::addToRenderList(Material* material, Mesh* mesh) {
 	material->apply();
 	addToRenderList(material->getShader(), mesh);
 }
+
+void Renderer::addToRenderList(Model* model) {
+	model->getMaterial()->setValue("uTransform", model->getTransform().getWorldTransform());
+	addToRenderList(model->getMaterial(), model->getMesh());
+}

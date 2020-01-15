@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Cappuccino/Events/Event.h"
+#include "Cappuccino/Objects/Transform.h"
+#include "Cappuccino/Rendering/3D/Model.h"
 
 #include <string>
-#include "Transform.h"
 
 namespace Capp {
 
@@ -50,6 +51,7 @@ namespace Capp {
 		std::string _tag;
 
 		Transform _transform;
+		std::vector<Model*> _models;
 
 	private:
 		

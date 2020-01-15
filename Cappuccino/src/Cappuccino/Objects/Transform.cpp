@@ -2,7 +2,6 @@
 #include "Cappuccino/Objects/Transform.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 using namespace Capp;

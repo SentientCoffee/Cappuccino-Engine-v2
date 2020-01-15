@@ -3,7 +3,7 @@
 
 #include "Cappuccino/Core/Time.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
-#include "Cappuccino/Rendering/Text/FontManager.h"
+#include "Cappuccino/Resource/ResourceManager.h"
 
 #include <glfw/glfw3.h>
 
@@ -21,17 +21,18 @@ Application::Application(const unsigned width, const unsigned height, const std:
 
 	// Initialize renderers and resource managers
 	RenderCommand::init();
-	FontManager::init();
+	ResourceManager::init();
 }
 
 Application::~Application() {
 	RenderCommand::shutdown();
+	ResourceManager::shutdown();
 
 	delete _window;
 	_instance = nullptr;
 }
 
-void Application::run() {	
+void Application::run() {
 	if(sceneManager.getCurrentScene() == nullptr) {
 		sceneManager.changeScene(0);
 	}

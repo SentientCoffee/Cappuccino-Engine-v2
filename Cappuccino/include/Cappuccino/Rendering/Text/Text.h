@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Cappuccino/Rendering/Text/FontManager.h"
 #include "Cappuccino/Objects/Transform.h"
 #include "Cappuccino/Rendering/VertexArray.h"
+#include "Cappuccino/Resource/FontLibrary.h"
 
 namespace Capp {
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Cappuccino/Objects/Transform.h"
+
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 namespace Capp {
 
@@ -43,22 +44,21 @@ namespace Capp {
 		void setProjection(float left, float right, float top, float bottom);
 
 		const glm::vec3& getPosition() const;
-		void setPosition(const glm::vec3& position);
-		void setPosition(float x, float y, float z);
+		Transform& setPosition(const glm::vec3& position);
+		Transform& setPosition(float x, float y, float z);
 		
 		bool isRotatable() const;
 		void setRotatable(bool rotatable);
 
 		float getRotation() const;
-		void setRotation(float rotation);
+		Transform& setRotation(float rotation);
 
 	private:
 
 		void viewMatrixCalc() override;
 
-		glm::vec3 _position = { 0.0f, 0.0f, 0.0f };
+		Transform _transform;
 		bool _isRotatable = false;
-		float _rotation = 0.0f;
 		
 	};
 
@@ -79,19 +79,18 @@ namespace Capp {
 		glm::vec3 getRight() const;
 
 		const glm::vec3& getPosition() const;
-		void setPosition(const glm::vec3& position);
-		void setPosition(float x, float y, float z);
+		Transform& setPosition(const glm::vec3& position);
+		Transform& setPosition(float x, float y, float z);
 
 		const glm::vec3& getRotation() const;
-		void setRotation(const glm::vec3& rotation);
-		void setRotation(float x, float y, float z);
+		Transform& setRotation(const glm::vec3& rotation);
+		Transform& setRotation(float x, float y, float z);
 		
 	private:
 
 		void viewMatrixCalc() override;
-
-		glm::vec3 _position = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 _rotation = { 0.0f, 0.0f, 0.0f };
+		
+		Transform _transform;
 		
 	};
 }

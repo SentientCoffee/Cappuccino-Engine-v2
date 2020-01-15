@@ -36,7 +36,7 @@ void Renderer2D::init() {
 		0, 2, 3
 	};
 	
-	renderer2DStorage->quadMesh = new Mesh(quadVertices, quadIndices);
+	renderer2DStorage->quadMesh = new Mesh("DefaultQuad", quadVertices, quadIndices);
 
 	renderer2DStorage->quadShader = new Shader("Default2D", "Assets/Cappuccino/Shaders/2DShader.vert", "Assets/Cappuccino/Shaders/2DShader.frag");
 	renderer2DStorage->textShader = new Shader("DefaultText", "Assets/Cappuccino/Shaders/TextShader.vert", "Assets/Cappuccino/Shaders/TextShader.frag");

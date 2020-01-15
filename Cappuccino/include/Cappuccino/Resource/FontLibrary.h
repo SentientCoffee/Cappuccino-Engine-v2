@@ -4,13 +4,14 @@
 
 namespace Capp {
 	
-	class FontManager {
+	class FontLibrary {
 	public:
 
 		static void init();
 		static void shutdown();
 
-		static void loadFont(const std::string& name, const std::string& filepath);
+		static void addFont(const std::string& name, Font* font);
+		static Font* loadFont(const std::string& name, const std::string& filepath);
 		static Font* getFont(const std::string& name);
 		
 		static FT_Library getFontLibrary();

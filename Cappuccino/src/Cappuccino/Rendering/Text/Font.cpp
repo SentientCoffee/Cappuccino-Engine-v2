@@ -1,6 +1,6 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/Text/FontManager.h"
 #include "Cappuccino/Rendering/Text/Font.h"
+#include "Cappuccino/Resource/FontLibrary.h"
 
 #include <glad/glad.h>
 
@@ -18,7 +18,7 @@ void Font::load(const std::string& name, const std::string& filepath) {
 	_name = name;
 	FT_Face typeface;
 
-	const int ftFontFileLoadStatus = FT_New_Face(FontManager::getFontLibrary(), filepath.c_str(), 0, &typeface);
+	const int ftFontFileLoadStatus = FT_New_Face(FontLibrary::getFontLibrary(), filepath.c_str(), 0, &typeface);
 	if(ftFontFileLoadStatus) {
 		CAPP_PRINT_ERROR("File: {0}", filepath);
 		CAPP_ASSERT(ftFontFileLoadStatus == 0, "Failed to load font file!");

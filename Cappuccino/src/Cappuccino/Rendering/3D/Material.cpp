@@ -10,7 +10,6 @@ Material::~Material() {
 	for(const auto& t : _textures) {
 		delete t.second;
 	}
-	delete _shader;
 }
 
 Shader* Material::getShader() const { return _shader; }

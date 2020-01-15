@@ -7,7 +7,6 @@ Model::Model(Mesh* mesh, Material* material) :
 	_mesh(mesh), _material(material) {}
 
 Model::~Model() {
-	delete _mesh;
 	delete _material;
 }
 

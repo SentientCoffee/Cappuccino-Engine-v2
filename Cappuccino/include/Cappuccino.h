@@ -16,10 +16,6 @@
 // Input system
 #include "Cappuccino/Input/Input.h"
 
-// Scene management
-#include "Cappuccino/Scenes/Scene.h"
-#include "Cappuccino/Scenes/Layer.h"
-
 // Rendering
 #include "Cappuccino/Rendering/Camera.h"
 #include "Cappuccino/Rendering/Shader.h"
@@ -36,7 +32,15 @@
 
 #include "Cappuccino/Rendering/Text/Text.h"
 #include "Cappuccino/Rendering/Text/Font.h"
-#include "Cappuccino/Rendering/Text/FontManager.h"
+
+// Resource management
+#include "Cappuccino/Resource/FontLibrary.h"
+#include "Cappuccino/Resource/MeshLibrary.h"
+#include "Cappuccino/Resource/ShaderLibrary.h"
+
+// Scene management
+#include "Cappuccino/Scenes/Scene.h"
+#include "Cappuccino/Scenes/Layer.h"
 
 // Game objects
 #include "Cappuccino/Objects/Transform.h"

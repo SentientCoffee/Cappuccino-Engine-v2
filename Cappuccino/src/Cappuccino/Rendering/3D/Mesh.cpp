@@ -9,8 +9,8 @@ struct TriangleFace {
 	std::vector<unsigned> uvIndices { 0, 0, 0 };
 };
 
-Mesh::Mesh(const std::string& filepath) :
-	_meshPath(filepath) {
+Mesh::Mesh(const std::string& name, const std::string& filepath) :
+	_name(name), _meshPath(filepath) {
 	_vao = new VertexArray;
 	auto [vbo, ibo] = loadMesh(filepath);
 
@@ -25,7 +25,8 @@ Mesh::Mesh(const std::string& filepath) :
 	_vao->setIndexBuffer(ibo);
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices) {
+Mesh::Mesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices) :
+	_name(name) {
 	_vao = new VertexArray;
 	const auto vbo = new VertexBuffer(vertices);
 	const auto ibo = new IndexBuffer(indices);

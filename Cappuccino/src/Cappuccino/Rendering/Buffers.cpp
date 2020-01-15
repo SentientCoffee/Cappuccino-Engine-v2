@@ -44,31 +44,38 @@ const BufferLayout& VertexBuffer::getLayout() const { return _layout; }
 
 void VertexBuffer::setBufferData(const std::vector<float>& vertices) const {
 	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
-	glBindBuffer(GL_ARRAY_BUFFER, _id);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<long long>(vertices.size() * sizeof(float)), vertices.data());
+	glNamedBufferSubData(_id, 0, static_cast<long long>(vertices.size() * sizeof(float)), vertices.data());
+	_vertexCount = static_cast<unsigned>(vertices.size());
 }
 
 void VertexBuffer::setBufferData(const std::vector<Vertex>& vertices) const {
 	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
-	glBindBuffer(GL_ARRAY_BUFFER, _id);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<long long>(vertices.size() * sizeof(Vertex)), vertices.data());
+	glNamedBufferSubData(_id, 0, static_cast<long long>(vertices.size() * sizeof(Vertex)), vertices.data());
+	_vertexCount = static_cast<unsigned>(vertices.size());
 }
 
 void VertexBuffer::setBufferData(float* vertices, const unsigned sizeInBytes) const {
 	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
-	glBindBuffer(GL_ARRAY_BUFFER, _id);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<long long>(sizeInBytes), vertices);
+	glNamedBufferSubData(_id, 0, static_cast<long long>(sizeInBytes), vertices);
+	_vertexCount = static_cast<unsigned>(sizeInBytes / sizeof(vertices));
 }
 
 // -------------------------------------------------------------
 // ----- Index buffers -----------------------------------------
 // -------------------------------------------------------------
 
-IndexBuffer::IndexBuffer(const std::vector<unsigned>& indices) :
-	_indexCount(static_cast<unsigned>(indices.size())) {
+IndexBuffer::IndexBuffer(const std::vector<unsigned>& indices, BufferUsage usage) :
+	_indexCount(static_cast<unsigned>(indices.size())), _usage(usage) {
 	glCreateBuffers(1, &_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexCount * sizeof(unsigned), indices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long long>(indices.size() * sizeof(unsigned)), indices.data(), static_cast<GLenum>(usage));
+}
+
+IndexBuffer::IndexBuffer(unsigned* indices, const unsigned count, const BufferUsage usage) :
+	_indexCount(count), _usage(usage) {
+	glCreateBuffers(1, &_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned), indices, static_cast<GLenum>(usage));
 }
 
 IndexBuffer::~IndexBuffer() {
@@ -79,3 +86,15 @@ void IndexBuffer::bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id); }
 void IndexBuffer::unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 
 unsigned IndexBuffer::getCount() const { return _indexCount; }
+
+void IndexBuffer::setBufferData(const std::vector<unsigned>& indices) const {
+	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
+	glNamedBufferSubData(_id, 0, static_cast<long long>(indices.size() * sizeof(unsigned)), indices.data());
+	_indexCount = static_cast<unsigned>(indices.size());
+}
+
+void IndexBuffer::setBufferData(unsigned* indices, const unsigned count) const {
+	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
+	glNamedBufferSubData(_id, 0, static_cast<long long>(count * sizeof(unsigned)), indices);
+	_indexCount = count;
+}

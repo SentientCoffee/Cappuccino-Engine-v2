@@ -1,10 +1,9 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Renderer.h"
 
+#include "Cappuccino/Core/Application.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
-
-#include <glm/glm.hpp>
 
 using namespace Capp;
 
@@ -23,9 +22,18 @@ void Renderer::shutdown() {
 	delete rendererStorage;
 }
 
+void Renderer::start() {
+	const auto window = Application::getInstance()->getWindow();
+	PerspectiveCamera defaultCam(60.0f, window->getWidth(), window->getHeight());
+	defaultCam.setPosition(0.0f, 5.0f, 5.0f);
+	defaultCam.lookAt(0.0f, 0.0f, 0.0f);
+	start(defaultCam);
+}
+
 void Renderer::start(const PerspectiveCamera& camera) {
 	rendererStorage->viewProjection = camera.getViewProjection();
 }
+
 void Renderer::finish() {
 	Shader::unbind();
 	Texture2D::unbind();

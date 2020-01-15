@@ -23,9 +23,9 @@ namespace Capp {
 		void setTextColour(const glm::vec3& colour);
 		void setTextColour(float r, float g, float b, float a = 1.0f);
 
-		void setTextPosition(const glm::vec2& position);
-		void setTextPosition(float x, float y);
-		void setTextScale(float scale);
+		Transform& setTextPosition(const glm::vec2& position);
+		Transform& setTextPosition(float x, float y);
+		Transform& setTextScale(float scale);
 
 		const Transform& getTransform() const;
 

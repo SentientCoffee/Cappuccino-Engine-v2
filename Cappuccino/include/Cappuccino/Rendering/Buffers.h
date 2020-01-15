@@ -55,7 +55,7 @@ namespace Capp {
 	private:
 
 		unsigned _id = 0;
-		unsigned _vertexCount = 0;
+		mutable unsigned _vertexCount = 0;
 		BufferUsage _usage = BufferUsage::StaticDraw;
 		BufferLayout _layout;
 
@@ -65,7 +65,8 @@ namespace Capp {
 	public:
 
 		IndexBuffer() = default;
-		IndexBuffer(const std::vector<unsigned>& indices);
+		IndexBuffer(const std::vector<unsigned>& indices, BufferUsage usage = BufferUsage::StaticDraw);
+		IndexBuffer(unsigned* indices, unsigned count, BufferUsage usage = BufferUsage::StaticDraw);
 		~IndexBuffer();
 
 		void bind() const;
@@ -73,10 +74,14 @@ namespace Capp {
 
 		unsigned int getCount() const;
 
+		void setBufferData(const std::vector<unsigned>& indices) const;
+		void setBufferData(unsigned* indices, unsigned count) const;
+
 	private:
 
 		unsigned _id = 0;
-		unsigned _indexCount = 0;
+		mutable unsigned _indexCount = 0;
+		BufferUsage _usage = BufferUsage::StaticDraw;
 
 	};
 	

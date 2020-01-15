@@ -16,6 +16,7 @@ namespace Capp {
 		static void init();
 		static void shutdown();
 		
+		static void start();
 		static void start(const PerspectiveCamera& camera);
 		static void finish();
 

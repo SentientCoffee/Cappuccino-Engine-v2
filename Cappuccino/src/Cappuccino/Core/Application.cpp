@@ -18,6 +18,10 @@ Application::Application(const unsigned width, const unsigned height, const std:
 	CAPP_ASSERT(!_instance, "Application already exists!");
 	_instance = this;
 	_window = new Window({ title, width, height, true, BIND_EVENT_FN(Application::onEvent) });
+
+	// Initialize renderers and resource managers
+	RenderCommand::init();
+	FontManager::init();
 }
 
 Application::~Application() {
@@ -27,10 +31,7 @@ Application::~Application() {
 	_instance = nullptr;
 }
 
-void Application::run() {
-	RenderCommand::init();
-	FontManager::init();
-	
+void Application::run() {	
 	if(sceneManager.getCurrentScene() == nullptr) {
 		sceneManager.changeScene(0);
 	}

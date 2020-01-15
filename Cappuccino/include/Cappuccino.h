@@ -34,9 +34,9 @@
 #include "Cappuccino/Rendering/2D/2DQuad.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
 
-//#include "Cappuccino/Rendering/Text/Text.h"
-//#include "Cappuccino/Rendering/Text/Font.h"
-//#include "Cappuccino/Rendering/Text/FontManager.h"
+#include "Cappuccino/Rendering/Text/Text.h"
+#include "Cappuccino/Rendering/Text/Font.h"
+#include "Cappuccino/Rendering/Text/FontManager.h"
 
 // Game objects
 #include "Cappuccino/Objects/Transform.h"

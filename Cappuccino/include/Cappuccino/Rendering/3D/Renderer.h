@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Cappuccino/Objects/Hitbox.h"
+
 #include "Cappuccino/Rendering/Camera.h"
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/VertexArray.h"
@@ -27,6 +29,8 @@ namespace Capp {
 		static void addToRenderList(Material* material, Mesh* mesh);
 
 		static void addToRenderList(Model* model);
+
+		static void addToRenderList(Hitbox* hitbox);
 		
 	};
 	

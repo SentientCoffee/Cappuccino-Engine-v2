@@ -6,6 +6,13 @@
 
 namespace Capp {
 
+	enum class DrawMode : unsigned int {
+		// From glad.h
+		Point = 0x1B00,		// GL_POINT
+		Line = 0x1B01,		// GL_LINE
+		Fill = 0x1B02		// GL_FILL
+	};
+	
 	class RenderCommand {
 	public:
 
@@ -18,6 +25,8 @@ namespace Capp {
 
 		static void enableCulling();
 		static void disableCulling();
+
+		static void setDrawMode(DrawMode mode);
 
 		static void drawArray(VertexArray* vertexArray);
 		static void drawIndexed(VertexArray* vertexArray);

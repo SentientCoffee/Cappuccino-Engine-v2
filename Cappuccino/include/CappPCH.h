@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -14,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <thread>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>

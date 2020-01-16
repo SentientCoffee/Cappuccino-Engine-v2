@@ -7,8 +7,8 @@
 
 using namespace Capp;
 
-ViewportProperties::ViewportProperties(const glm::vec4& bounds, const glm::vec4& borderColour, const DrawMode drawMode, const SpecialDrawFunc& specialDrawInstructions) :
-	bounds(bounds), borderColour(borderColour), drawMode(drawMode), callback(specialDrawInstructions) {}
+ViewportProperties::ViewportProperties(const glm::vec4& bounds, const glm::vec4& borderColour, /*const DrawMode drawMode,*/ const SpecialDrawFunc& specialDrawInstructions) :
+	bounds(bounds), borderColour(borderColour), /*drawMode(drawMode),*/ callback(specialDrawInstructions) {}
 
 Viewport::Viewport(const ViewportProperties& properties) :
 	_properties(properties) {}
@@ -20,6 +20,6 @@ void Viewport::use() const {
 	glClearColor(_properties.borderColour.r, _properties.borderColour.g, _properties.borderColour.b, _properties.borderColour.a);
 	RenderCommand::clearScreen();
 
-	glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(_properties.drawMode));
+	/*glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(_properties.drawMode));*/
 	_properties.callback != nullptr ? _properties.callback() : 0;
 }

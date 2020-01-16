@@ -49,6 +49,10 @@ void RenderCommand::disableCulling() {
 	glDisable(GL_CULL_FACE);
 }
 
+void RenderCommand::setDrawMode(DrawMode mode) {
+	glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(mode));
+}
+
 void RenderCommand::drawArray(VertexArray* vertexArray) {
 	unsigned count = 0;
 	for(auto vbo : vertexArray->getVertexBuffers()) {

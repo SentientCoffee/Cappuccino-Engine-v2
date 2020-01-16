@@ -21,7 +21,7 @@ struct Renderer2DStorage {
 static Renderer2DStorage* renderer2DStorage;
 
 void Renderer2D::init() {
-
+	
 	renderer2DStorage = new Renderer2DStorage;
 
 	const std::vector<Vertex> quadVertices = {
@@ -61,6 +61,8 @@ void Renderer2D::start() {
 }
 
 void Renderer2D::start(const OrthographicCamera& camera) {
+	RenderCommand::disableCulling();
+	
 	renderer2DStorage->quadShader->bind();
 	renderer2DStorage->quadShader->setUniform("uViewProjection", camera.getViewProjection());
 

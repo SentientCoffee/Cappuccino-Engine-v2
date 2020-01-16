@@ -44,3 +44,4 @@
 
 // Game objects
 #include "Cappuccino/Objects/Transform.h"
+#include "Cappuccino/Objects/Hitbox.h"

@@ -11,14 +11,14 @@ Cappuccino Engine supports .obj file loading, image loading (using [stb_image](h
 - Text rendering and font loading
 - Collisions & Rigidbodies
 - Material system
+- Game objects
 
 More on the way:
-- Game objects
 - Raycasting
 - Lighting system
+- Sound system
 - Animation system (morph targets and skeletal animation)
 - Viewports
-- Sound system
 
 
 # Building Cappuccino Engine

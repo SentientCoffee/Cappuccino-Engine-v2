@@ -10,10 +10,18 @@
 
 namespace Capp {
 
+	enum class HitboxType : unsigned int {
+		None = 0,
+		Cube,
+		Sphere
+	};
+	
 	class Hitbox {
 	public:
 		
 		virtual ~Hitbox();
+
+		virtual HitboxType getHitboxType() const = 0;
 
 		VertexArray* getVAO() const;
 
@@ -25,7 +33,7 @@ namespace Capp {
 		Transform& setRotation(const glm::vec3& eulerRotation);
 		Transform& setRotation(float x, float y, float z);
 
-		const Transform& getTransform() const;
+		Transform& getTransform();
 		
 		static void setShouldDraw(bool draw);
 		static bool shouldDraw();
@@ -52,6 +60,8 @@ namespace Capp {
 		HitboxCube(const glm::vec3& position, const glm::vec3& dimensions, const glm::vec3& rotation = glm::vec3(0.0f));
 		~HitboxCube() = default;
 
+		HitboxType getHitboxType() const override { return HitboxType::Cube; }
+		
 		const glm::vec3& getScale() const;
 		Transform& setScale(const glm::vec3& scale);
 		Transform& setScale(float x, float y, float z);
@@ -78,6 +88,8 @@ namespace Capp {
 		HitboxSphere(const glm::vec3& position, float radius);
 		~HitboxSphere() = default;
 
+		HitboxType getHitboxType() const override { return HitboxType::Sphere; }
+		
 		float getScale() const;
 		Transform& setScale(float scale);
 

@@ -3,6 +3,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/norm.hpp>
 
 using namespace Capp;
 
@@ -29,7 +30,7 @@ const glm::vec3& Hitbox::getRotation() const { return _transform.getRotation(); 
 Transform& Hitbox::setRotation(const glm::vec3& eulerRotation) { return _transform.setRotation(eulerRotation); }
 Transform& Hitbox::setRotation(const float x, const float y, const float z) { return _transform.setRotation(x, y, z); }
 
-const Transform& Hitbox::getTransform() const { return _transform; }
+Transform& Hitbox::getTransform() { return _transform; }
 
 // --------------------------------------------------------------------------------
 // ----- Hitbox cube --------------------------------------------------------------
@@ -79,7 +80,8 @@ Transform& HitboxCube::setScale(const float x, const float y, const float z) { r
 Transform& HitboxCube::setScale(const float scale) { return _transform.setScale(scale); }
 
 bool HitboxCube::checkCollision(HitboxCube* other) const {
-	// https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
+	// https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection (for SAT algorithm)
+	// https://www.babylonjs-playground.com/#235QZM#5 (for getting normals)
 
 	std::vector<glm::vec3> normalsThis = {
 		{  _transform.getWorldTransform()[0] },
@@ -215,7 +217,7 @@ bool HitboxSphere::checkCollision(HitboxSphere* other) const {
 	const float minDistance = thisRadiusSq + otherRadiusSq;
 
 	const glm::vec3 differenceVector = _transform.getPosition() - other->_transform.getPosition();
-	const float actualDistance = glm::length(differenceVector);
+	const float actualDistance = glm::length/*2*/(differenceVector);
 
 	return actualDistance < minDistance;
 }

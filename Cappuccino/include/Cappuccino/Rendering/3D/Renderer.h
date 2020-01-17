@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cappuccino/Objects/Hitbox.h"
+#include "Cappuccino/Objects/Rigidbody.h"
 
 #include "Cappuccino/Rendering/Camera.h"
 #include "Cappuccino/Rendering/Shader.h"
@@ -31,6 +32,7 @@ namespace Capp {
 		static void addToRenderList(Model* model);
 
 		static void addToRenderList(Hitbox* hitbox);
+		static void addToRenderList(const RigidBody& rigidBody);
 		
 	};
 	

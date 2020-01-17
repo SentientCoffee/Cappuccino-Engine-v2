@@ -92,3 +92,9 @@ void Renderer::addToRenderList(Hitbox* hitbox) {
 	RenderCommand::setDrawMode(DrawMode::Fill);
 	RenderCommand::enableCulling();
 }
+
+void Renderer::addToRenderList(const RigidBody& rigidBody) {
+	for(auto hitbox : rigidBody) {
+		addToRenderList(hitbox);
+	}
+}

@@ -48,15 +48,22 @@ Transform& Transform::setScale(const float scale) {
 	return setScale({ scale, scale, scale });
 }
 
+const glm::mat4& Transform::getParentTransform() const { return _parentTransform; }
+void Transform::setParentTransform(const glm::mat4& parent) {
+	_transformChanged = true;
+	_parentTransform = parent;
+}
+
 void Transform::calculateTransform() const {
 	if(!_transformChanged) {
 		return;
 	}
-	
+
 	_localTransform = glm::translate(glm::mat4(1.0f), _position) *
 			glm::mat4_cast(glm::quat(glm::radians(_rotation))) *
 			glm::scale(glm::mat4(1.0f), _scale);
 
-	// TODO: PARENTING
-	_worldTransform = _localTransform;
+	_worldTransform = _parentTransform * _localTransform;
+
+	_transformChanged = false;
 }

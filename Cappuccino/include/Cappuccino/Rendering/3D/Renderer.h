@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cappuccino/Objects/GameObject.h"
 #include "Cappuccino/Objects/Hitbox.h"
 #include "Cappuccino/Objects/Rigidbody.h"
 
@@ -35,7 +36,8 @@ namespace Capp {
 
 		static void addToRenderList(Hitbox* hitbox);
 		static void addToRenderList(const RigidBody& rigidBody);
-		
+
+		static void addToRenderList(GameObject* gameObject);
 
 	};
 	

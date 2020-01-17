@@ -107,3 +107,11 @@ void Renderer::addToRenderList(const RigidBody& rigidBody) {
 		addToRenderList(hitbox);
 	}
 }
+
+void Renderer::addToRenderList(GameObject* gameObject) {
+	for(auto model : gameObject->getModels()) {
+		addToRenderList(model);
+	}
+
+	addToRenderList(gameObject->getRigidBody());
+}

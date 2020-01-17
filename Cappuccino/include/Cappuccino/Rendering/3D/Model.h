@@ -33,7 +33,7 @@ namespace Capp {
 		Transform& setScale(float x, float y, float z);
 		Transform& setScale(float scale);
 
-		const Transform& getTransform() const;
+		Transform& getTransform();
 		
 	private:
 

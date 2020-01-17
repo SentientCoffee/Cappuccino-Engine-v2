@@ -19,15 +19,15 @@ const float Physics::universalG = 6.67f * static_cast<float>(pow(10, -11));
 // ----- RigidBody ---------------------------------------------------
 // -------------------------------------------------------------------
 
-RigidBody::RigidBody(const std::vector<Hitbox*>& hitboxes) :
+RigidBody::RigidBody(const HitboxVector& hitboxes) :
 	_hitboxes(hitboxes) {
 	
 	for(auto hitbox : _hitboxes) {
 		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
 	}
 }
-RigidBody::RigidBody(const std::initializer_list<Hitbox*>& hitboxes) :
-	RigidBody(std::vector<Hitbox*>(hitboxes)) {}
+RigidBody::RigidBody(const HitboxInitList& hitboxes) :
+	RigidBody(HitboxVector(hitboxes)) {}
 
 RigidBody::~RigidBody() {
 	for(auto hitbox : _hitboxes) {
@@ -106,6 +106,7 @@ RigidBody& RigidBody::setPosition(const glm::vec3& position) {
 	}
 	return *this;
 }
+RigidBody& RigidBody::setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
 const glm::vec3& RigidBody::getPosition() const { return _transform.getPosition(); }
 
 RigidBody& RigidBody::setRotation(const glm::vec3& eulerRotation) {
@@ -115,16 +116,21 @@ RigidBody& RigidBody::setRotation(const glm::vec3& eulerRotation) {
 	}
 	return *this;
 }
+RigidBody& RigidBody::setRotation(const float x, const float y, const float z) { return setRotation({ x, y, z }); }
 const glm::vec3& RigidBody::getRotation() const { return _transform.getRotation(); }
 
-RigidBody& RigidBody::setScale(const float scale) {
+RigidBody& RigidBody::setScale(const glm::vec3& scale) {
 	_transform.setScale(scale);
 	for(auto hitbox : _hitboxes) {
 		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
 	}
-	return *this;
+	return *this;	
 }
-float RigidBody::getScale() const { return _transform.getScale().x; }
+RigidBody& RigidBody::setScale(const float x, const float y, const float z) { return setScale({ x, y, z }); }
+RigidBody& RigidBody::setScale(const float scale) { return setScale({ scale, scale, scale }); }
+const glm::vec3& RigidBody::getScale() const { return _transform.getScale(); }
+
+Transform& RigidBody::getTransform() { return _transform; }
 
 bool RigidBody::checkCollision(const RigidBody& other) {
 	if(_hitboxes.empty() || other._hitboxes.empty()) {
@@ -254,8 +260,8 @@ bool RigidBody::checkCollision(Hitbox* other) {
 
 RigidBody::HitboxVector RigidBody::getHitboxes() const { return _hitboxes; }
 
-RigidBody::HitboxVectorIterator RigidBody::begin() { return _hitboxes.begin(); }
-RigidBody::HitboxVectorIterator RigidBody::end() { return _hitboxes.end(); }
-RigidBody::ConstHitboxVectorIterator RigidBody::begin() const { return _hitboxes.begin(); }
-RigidBody::ConstHitboxVectorIterator RigidBody::end() const { return _hitboxes.end(); }
+RigidBody::HitboxIterator RigidBody::begin() { return _hitboxes.begin(); }
+RigidBody::HitboxIterator RigidBody::end() { return _hitboxes.end(); }
+RigidBody::ConstHitboxIterator RigidBody::begin() const { return _hitboxes.begin(); }
+RigidBody::ConstHitboxIterator RigidBody::end() const { return _hitboxes.end(); }
 

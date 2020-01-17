@@ -8,12 +8,12 @@ Cappuccino Engine supports .obj file loading, image loading (using [stb_image](h
 - Texture loading
 - Mesh loading (with index buffers)
 - Basic 2D and 3D Rendering
-
-More on the way:
 - Text rendering and font loading
-- Game objects
 - Collisions & Rigidbodies
 - Material system
+
+More on the way:
+- Game objects
 - Raycasting
 - Lighting system
 - Animation system (morph targets and skeletal animation)

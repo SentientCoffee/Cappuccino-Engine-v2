@@ -16,8 +16,8 @@ namespace Capp {
 
 		using HitboxVector = std::vector<Hitbox*>;
 		using HitboxInitList = std::initializer_list<Hitbox*>;
-		using HitboxVectorIterator = std::vector<Hitbox*>::iterator;
-		using ConstHitboxVectorIterator = std::vector<Hitbox*>::const_iterator;
+		using HitboxIterator = std::vector<Hitbox*>::iterator;
+		using ConstHitboxIterator = std::vector<Hitbox*>::const_iterator;
 		
 	public:
 
@@ -49,23 +49,29 @@ namespace Capp {
 
 		void addVelocity(const glm::vec3& velocity);
 		RigidBody& setPosition(const glm::vec3& position);
+		RigidBody& setPosition(float x, float y, float z);
 		const glm::vec3& getPosition() const;
 
 		RigidBody& setRotation(const glm::vec3& eulerRotation);
+		RigidBody& setRotation(float x, float y, float z);
 		const glm::vec3& getRotation() const;
 
+		RigidBody& setScale(const glm::vec3& scale);
+		RigidBody& setScale(float x, float y, float z);
 		RigidBody& setScale(float scale);
-		float getScale() const;
+		const glm::vec3& getScale() const;
+
+		Transform& getTransform();
 
 		bool checkCollision(const RigidBody& other);
 		bool checkCollision(Hitbox* other);
 
 		HitboxVector getHitboxes() const;
 
-		HitboxVectorIterator begin();
-		HitboxVectorIterator end();
-		ConstHitboxVectorIterator begin() const;
-		ConstHitboxVectorIterator end() const;
+		HitboxIterator begin();
+		HitboxIterator end();
+		ConstHitboxIterator begin() const;
+		ConstHitboxIterator end() const;
 		
 	private:
 
@@ -84,9 +90,6 @@ namespace Capp {
 		Transform _transform;
 		
 		HitboxVector _hitboxes;
-		//std::vector<glm::vec3> _posOffsets;
-		//std::vector<glm::vec3> _rotOffsets;
-		//std::vector<glm::vec3> _originalScales;
 		
 	};
 	

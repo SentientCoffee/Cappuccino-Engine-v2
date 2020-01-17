@@ -1,6 +1,8 @@
 #include "CappPCH.h"
 #include "Cappuccino/Scenes/Scene.h"
 
+#include "Cappuccino/Objects/GameObject.h"
+
 using namespace Capp;
 
 Scene::Scene(const std::string& name) :
@@ -29,12 +31,25 @@ void Scene::update(const float dt) {
 	
 	#endif
 
+
+	for(auto gameObject : GameObject::gameObjects) {
+		if(gameObject->isActive()) {
+			gameObject->update(dt);
+		}
+	}
 }
 
 void Scene::onEvent(Event& e) {
 	for(auto it = _layerStack.end(); it != _layerStack.begin(); ) {
-		(*--it)->onEvent(e);
 		if(e.isHandled()) { break; }
+		(*--it)->onEvent(e);
+	}
+
+	for(auto gameObject : GameObject::gameObjects) {
+		if(gameObject->isActive()) {
+			if(e.isHandled()) { break; }
+			gameObject->onEvent(e);
+		}
 	}
 }
 

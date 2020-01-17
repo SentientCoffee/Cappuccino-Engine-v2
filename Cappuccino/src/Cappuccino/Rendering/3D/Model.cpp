@@ -29,4 +29,4 @@ Transform& Model::setScale(const glm::vec3& scale) { return _transform.setScale(
 Transform& Model::setScale(const float x, const float y, const float z) { return _transform.setScale(x, y, z); }
 Transform& Model::setScale(const float scale) { return _transform.setScale(scale); }
 
-const Transform& Model::getTransform() const { return _transform; }
+Transform& Model::getTransform() { return _transform; }

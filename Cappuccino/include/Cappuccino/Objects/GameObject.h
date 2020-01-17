@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cappuccino/Events/Event.h"
+#include "Cappuccino/Objects/Rigidbody.h"
 #include "Cappuccino/Objects/Transform.h"
 #include "Cappuccino/Rendering/3D/Model.h"
 
@@ -12,7 +13,7 @@ namespace Capp {
 	public:
 
 		GameObject();
-		virtual ~GameObject() = default;
+		virtual ~GameObject();
 
 		bool operator==(const GameObject& other) const;
 
@@ -50,7 +51,11 @@ namespace Capp {
 		std::string _name;
 		std::string _tag;
 
+		bool _isActive = true;
+		bool _isVisible = true;
+
 		Transform _transform;
+		RigidBody _rigidbody;
 		std::vector<Model*> _models;
 
 	private:

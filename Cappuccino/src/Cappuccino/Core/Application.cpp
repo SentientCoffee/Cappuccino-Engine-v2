@@ -3,9 +3,9 @@
 
 #include "Cappuccino/Core/Time.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
+#include "Cappuccino/Rendering/3D/Renderer.h"
 #include "Cappuccino/Resource/ResourceManager.h"
-
-#include <glfw/glfw3.h>
+#include "Cappuccino/Rendering/2D/Renderer2D.h"
 
 using namespace Capp;
 
@@ -40,9 +40,11 @@ void Application::run() {
 	
 	while(_isRunning) {
 		RenderCommand::clearScreen();
-
 		Time::calculateDeltaTime();
-		sceneManager.getCurrentScene()->update(Time::getDeltaTime());
+
+		if(!_isMinimized) {
+			sceneManager.getCurrentScene()->update(Time::getDeltaTime());
+		}
 		
 		_window->update();
 	}
@@ -51,6 +53,7 @@ void Application::run() {
 void Application::onEvent(Event& e) {
 	EventDispatcher d(e);
 	d.dispatchEventType<WindowClosedEvent>(BIND_EVENT_FN(Application::onWindowClosed));
+	d.dispatchEventType<WindowResizedEvent>(BIND_EVENT_FN(Application::onWindowResized));
 
 	sceneManager.getCurrentScene()->onEvent(e);
 }
@@ -59,6 +62,21 @@ void Application::onEvent(Event& e) {
 bool Application::onWindowClosed(WindowClosedEvent& e) {
 	_isRunning = false;
 	return true;
+}
+
+bool Application::onWindowResized(WindowResizedEvent& e) {
+	if(e.getWidth() == 0 || e.getHeight() == 0) {
+		_isMinimized = true;
+		return false;
+	}
+
+	_isMinimized = false;
+
+	RenderCommand::setViewport(0, 0, e.getWidth(), e.getHeight());
+	Renderer::onWindowResized(e.getWidth(), e.getHeight());
+	Renderer2D::onWindowResized(e.getWidth(), e.getHeight());
+	
+	return false;
 }
 
 const SceneManager& Application::getSceneManager() const { return sceneManager; }

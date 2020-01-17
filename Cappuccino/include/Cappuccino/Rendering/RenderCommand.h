@@ -19,6 +19,8 @@ namespace Capp {
 		static void init();
 		static void shutdown();
 		
+		static void setViewport(unsigned x, unsigned y, unsigned w, unsigned h);
+
 		static void setClearColour(const glm::vec4& colour);
 		static void setClearColour(float r, float g, float b, float a);
 		static void clearScreen();
@@ -30,7 +32,7 @@ namespace Capp {
 
 		static void drawArray(VertexArray* vertexArray);
 		static void drawIndexed(VertexArray* vertexArray);
-		
+
 	};
 	
 }

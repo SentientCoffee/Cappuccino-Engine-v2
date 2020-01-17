@@ -8,6 +8,12 @@ unsigned GameObject::objectCount = 0;
 GameObject::GameObject() :
 	_objectId(objectCount++) {}
 
+GameObject::~GameObject() {
+	for(auto model : _models) {
+		delete model;
+	}
+}
+
 bool GameObject::operator==(const GameObject& other) const { return _objectId == other._objectId; }
 
 void GameObject::init() {}

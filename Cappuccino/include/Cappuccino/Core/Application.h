@@ -35,10 +35,12 @@ namespace Capp {
 	private:
 
 		bool onWindowClosed(WindowClosedEvent& e);
+		bool onWindowResized(WindowResizedEvent& e);
 		
 		Window* _window;
 
 		bool _isRunning = true;
+		bool _isMinimized = false;
 		
 		static Application* _instance;
 		

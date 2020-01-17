@@ -8,7 +8,7 @@
 using namespace Capp;
 
 struct RendererStorage {
-	glm::mat4 viewProjection = glm::mat4(1.0f);
+	PerspectiveCamera perspectiveCamera;
 	Shader* hitboxShader = nullptr;
 };
 
@@ -17,6 +17,11 @@ static RendererStorage* rendererStorage;
 void Renderer::init() {
 	rendererStorage = new RendererStorage;
 	rendererStorage->hitboxShader = new Shader("DefaultHitbox", "Assets/Cappuccino/Shaders/HitboxShader.vert", "Assets/Cappuccino/Shaders/HitboxShader.frag");
+
+	const auto window = Application::getInstance()->getWindow();
+	rendererStorage->perspectiveCamera.setProjection(60.0f, window->getWidth(), window->getHeight());
+	rendererStorage->perspectiveCamera.setPosition(0.0f, 5.0f, 5.0f);
+	rendererStorage->perspectiveCamera.lookAt(0.0f, 0.0f, 0.0f);
 	
 	RenderCommand::setClearColour(0.1f, 0.1f, 0.1f, 1.0f);
 }
@@ -25,17 +30,17 @@ void Renderer::shutdown() {
 	delete rendererStorage;
 }
 
+void Renderer::onWindowResized(const unsigned width, const unsigned height) {
+	rendererStorage->perspectiveCamera.setProjection(60.0f, width, height);
+}
+
 void Renderer::start() {
-	const auto window = Application::getInstance()->getWindow();
-	PerspectiveCamera defaultCam(60.0f, window->getWidth(), window->getHeight());
-	defaultCam.setPosition(0.0f, 5.0f, 5.0f);
-	defaultCam.lookAt(0.0f, 0.0f, 0.0f);
-	start(defaultCam);
+	RenderCommand::enableCulling();
 }
 
 void Renderer::start(const PerspectiveCamera& camera) {
 	RenderCommand::enableCulling();
-	rendererStorage->viewProjection = camera.getViewProjection();
+	rendererStorage->perspectiveCamera = camera;
 }
 
 void Renderer::finish() {
@@ -46,7 +51,7 @@ void Renderer::finish() {
 
 void Renderer::addToRenderList(Shader* shader, VertexArray* vertexArray) {
 	shader->bind();
-	shader->setUniform("uViewProjection", rendererStorage->viewProjection);
+	shader->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
 	
 	vertexArray->bind();
 	if(vertexArray->getIndexBuffer() != nullptr) {
@@ -94,6 +99,10 @@ void Renderer::addToRenderList(Hitbox* hitbox) {
 }
 
 void Renderer::addToRenderList(const RigidBody& rigidBody) {
+	if(!Hitbox::shouldDraw()) {
+		return;
+	}
+	
 	for(auto hitbox : rigidBody) {
 		addToRenderList(hitbox);
 	}

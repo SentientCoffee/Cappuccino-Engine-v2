@@ -11,8 +11,8 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(KeyPressed);
 		
-		inline int getKeyCode() const;
-		inline int getRepeatCount() const;
+		int getKeyCode() const;
+		int getRepeatCount() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;
@@ -31,7 +31,7 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(KeyReleased);
 
-		inline int getKeyCode() const;
+		int getKeyCode() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;
@@ -50,7 +50,7 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(KeyReleased);
 
-		inline int getKeyCode() const;
+		int getKeyCode() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;

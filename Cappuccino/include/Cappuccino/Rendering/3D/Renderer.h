@@ -18,6 +18,8 @@ namespace Capp {
 
 		static void init();
 		static void shutdown();
+
+		static void onWindowResized(unsigned width, unsigned height);
 		
 		static void start();
 		static void start(const PerspectiveCamera& camera);
@@ -34,6 +36,7 @@ namespace Capp {
 		static void addToRenderList(Hitbox* hitbox);
 		static void addToRenderList(const RigidBody& rigidBody);
 		
+
 	};
 	
 }

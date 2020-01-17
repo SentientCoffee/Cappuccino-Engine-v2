@@ -11,6 +11,7 @@ using namespace Capp;
 
 struct Renderer2DStorage {
 
+	OrthographicCamera defaultCamera;
 	Mesh* quadMesh = nullptr;
 	Shader* quadShader = nullptr;
 	Shader* textShader = nullptr;
@@ -23,6 +24,9 @@ static Renderer2DStorage* renderer2DStorage;
 void Renderer2D::init() {
 	
 	renderer2DStorage = new Renderer2DStorage;
+
+	const auto window = Application::getInstance()->getWindow();
+	renderer2DStorage->defaultCamera.setProjection(0, static_cast<float>(window->getWidth()), 0, static_cast<float>(window->getHeight()));
 
 	const std::vector<Vertex> quadVertices = {
 		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f } },
@@ -55,9 +59,12 @@ void Renderer2D::shutdown() {
 	delete renderer2DStorage;
 }
 
+void Renderer2D::onWindowResized(const unsigned width, const unsigned height) {
+	renderer2DStorage->defaultCamera.setProjection(0, static_cast<float>(width), 0, static_cast<float>(height));
+}
+
 void Renderer2D::start() {
-	const auto window = Application::getInstance()->getWindow();
-	start(OrthographicCamera(0, static_cast<float>(window->getWidth()), 0, static_cast<float>(window->getHeight())));
+	start(renderer2DStorage->defaultCamera);
 }
 
 void Renderer2D::start(const OrthographicCamera& camera) {

@@ -11,8 +11,8 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(MouseMoved);
 
-		inline float getMouseX() const;
-		inline float getMouseY() const;
+		float getMouseX() const;
+		float getMouseY() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;
@@ -31,8 +31,8 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(MouseScrolled);
 
-		inline float getXOffset() const;
-		inline float getYOffset() const;
+		float getXOffset() const;
+		float getYOffset() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;
@@ -51,7 +51,7 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(MouseButtonPressed);
 
-		inline int getMouseButton() const;
+		int getMouseButton() const;
 		
 		#if CAPP_DEBUG
 		std::string toString() const override;
@@ -70,7 +70,7 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(MouseButtonReleased);
 
-		inline int getMouseButton() const;
+		int getMouseButton() const;
 		
 		#if CAPP_DEBUG
 		std::string toString() const override;

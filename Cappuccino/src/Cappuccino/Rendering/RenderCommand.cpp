@@ -29,6 +29,11 @@ void RenderCommand::shutdown() {
 	Renderer2D::shutdown();
 }
 
+void RenderCommand::setViewport(const unsigned x, const unsigned y, const unsigned w, const unsigned h) {
+	glViewport(x, y, w, h);
+	glScissor(x, y, w, h);
+}
+
 void RenderCommand::setClearColour(const glm::vec4& colour) {
 	glClearColor(colour.r, colour.g, colour.b, colour.a);
 }

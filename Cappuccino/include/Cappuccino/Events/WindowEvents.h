@@ -11,8 +11,8 @@ namespace Capp {
 
 		EVENT_CLASS_TYPE(WindowResized);
 
-		inline unsigned getWidth() const;
-		inline unsigned getHeight() const;
+		unsigned getWidth() const;
+		unsigned getHeight() const;
 
 		#if CAPP_DEBUG
 		std::string toString() const override;

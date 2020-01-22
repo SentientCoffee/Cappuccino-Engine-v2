@@ -22,6 +22,7 @@
 #include "Cappuccino/Rendering/Texture.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 
+#include "Cappuccino/Rendering/3D/Light.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"

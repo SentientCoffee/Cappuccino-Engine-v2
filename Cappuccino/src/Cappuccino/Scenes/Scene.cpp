@@ -20,6 +20,12 @@ void Scene::update(const float dt) {
 		layer->update(dt);
 	}
 
+	for(auto gameObject : GameObject::gameObjects) {
+		if(gameObject->isActive()) {
+			gameObject->update(dt);
+		}
+	}
+	
 	#if CAPP_DEBUG
 	
 	_imguiLayer->begin();
@@ -30,13 +36,6 @@ void Scene::update(const float dt) {
 	_imguiLayer->end();
 	
 	#endif
-
-
-	for(auto gameObject : GameObject::gameObjects) {
-		if(gameObject->isActive()) {
-			gameObject->update(dt);
-		}
-	}
 }
 
 void Scene::onEvent(Event& e) {

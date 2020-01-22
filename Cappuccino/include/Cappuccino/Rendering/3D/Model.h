@@ -9,7 +9,6 @@ namespace Capp {
 	class Model {
 	public:
 
-		Model() = default;
 		Model(Mesh* mesh, Material* material);
 		~Model();
 
@@ -37,8 +36,8 @@ namespace Capp {
 		
 	private:
 
-		Mesh* _mesh = nullptr;
-		Material* _material = nullptr;
+		Mesh* _mesh;
+		Material* _material;
 		
 		Transform _transform;
 		

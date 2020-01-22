@@ -40,14 +40,14 @@ HitboxCube::HitboxCube(const glm::vec3& position, const glm::vec3& dimensions, c
 	_transform.setPosition(position).setScale(dimensions).setRotation(rotation);
 
 	_vertices = {
-		{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f } },
-		{ {  0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f } },
-		{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-		{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-		{ { -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f } },
-		{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f } },
-		{ { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } },
-		{ {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } }
+		{ { -0.5f,  0.5f,  0.5f } },
+		{ {  0.5f,  0.5f,  0.5f } },
+		{ { -0.5f, -0.5f,  0.5f } },
+		{ {  0.5f, -0.5f,  0.5f } },
+		{ { -0.5f,  0.5f, -0.5f } },
+		{ {  0.5f,  0.5f, -0.5f } },
+		{ { -0.5f, -0.5f, -0.5f } },
+		{ {  0.5f, -0.5f, -0.5f } }
 	};
 
 	const std::vector<unsigned> indices = {

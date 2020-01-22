@@ -10,6 +10,102 @@
 
 using namespace Capp;
 
+static void glfwErrorCallback(const int errorCode, const char* log) {
+	CAPP_PRINT_CRITICAL("GLFW Error! ({0})\n{1}", errorCode, log);
+}
+
+static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	// ignore non-significant error/warning codes
+	if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	char buffer[9] = { '\0' };
+	sprintf(buffer, "%.8x", id);
+
+	std::string log = "OpenGL(0x" + std::string(buffer) + "): ";
+
+	switch(type) {
+		case GL_DEBUG_TYPE_ERROR:
+			log += "ERROR";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			log += "DEPRECATED BEHAVIOUR";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			log += "UNDEFINED BEHAVIOUR";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			log += "PORTABILITY ISSUE";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			log += "PERFORMANCE ISSUE";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			log += "TYPE MARKER";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			log += "PUSH GROUP";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			log += "POP GROUP";
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			log += "OTHER";
+			break;
+		default: break;
+	}
+
+	log += "\nSOURCE: ";
+	switch(source) {
+		case GL_DEBUG_SOURCE_API:
+			log += "API";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			log += "Window system";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			log += "Shader compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			log += "Third party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			log += "Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER:
+			log += "Other";
+		default: break;
+	}
+
+	log += " \nSEVERITY: ";
+	switch(severity) {
+		case GL_DEBUG_SEVERITY_HIGH:
+			log += "HIGH";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			log += "MEDIUM";
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			log += "LOW";
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			log += "NOTIFICATION";
+		default: break;
+	}
+
+	log += "\n" + std::string(message);
+
+	if(type == GL_DEBUG_TYPE_ERROR || severity == GL_DEBUG_SEVERITY_HIGH) {
+		CAPP_PRINT_ERROR("{0}", log);
+		CAPP_ASSERT(false);
+	}
+	else if(severity == GL_DEBUG_SEVERITY_MEDIUM) {
+		CAPP_PRINT_WARNING("{0}", log);
+	}
+	else {
+		CAPP_PRINT_INFO("{0}", log);
+	}
+}
+
 Window::Window() :
 	Window({"Failed to load properly!",
 	        100, 100,
@@ -38,7 +134,12 @@ Window::Window(const WindowProperties& properties) :
 	setGLFWCallbacks();
 
 	const int gladStatus = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-	CAPP_ASSERT(gladStatus);
+	CAPP_ASSERT(gladStatus, "Could not initialize GLAD!");
+
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(glErrorCallback, nullptr);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
 	CAPP_PRINT_INFO("OpenGL version {0}", glGetString(GL_VERSION));
 	CAPP_PRINT_INFO("GLSL version {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -154,8 +255,4 @@ void Window::setGLFWCallbacks() {
 			default: break;
 		}
 	});
-}
-
-void Window::glfwErrorCallback(const int errorCode, const char* log) {
-	CAPP_PRINT_CRITICAL("GLFW Error! ({0})\n{1}", errorCode, log);
 }

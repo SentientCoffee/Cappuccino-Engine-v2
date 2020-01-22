@@ -19,13 +19,13 @@ const glm::mat4& Camera::getViewProjection() const { return _viewProjection; }
 // -------------------------------------------------------------
 
 OrthographicCamera::OrthographicCamera(const float left, const float right, const float top, const float bottom) {
-	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 100.0f);
+	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 1000.0f);
 	_viewMatrix = glm::mat4(1.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
 
 void OrthographicCamera::setProjection(const float left, const float right, const float top, const float bottom) {
-	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 100.0f);
+	_projectionMatrix = glm::ortho(left, right, bottom, top, -0.1f, 1000.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
 

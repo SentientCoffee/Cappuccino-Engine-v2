@@ -40,7 +40,6 @@ namespace Capp {
 	private:
 
 		void setGLFWCallbacks();
-		static void glfwErrorCallback(int errorCode, const char* log);
 
 		inline static bool glfwInitialized = false;
 		GLFWwindow* _window;

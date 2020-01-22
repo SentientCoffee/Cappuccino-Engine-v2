@@ -8,6 +8,7 @@
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/VertexArray.h"
 
+#include "Cappuccino/Rendering/3D/Light.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
@@ -23,14 +24,15 @@ namespace Capp {
 		static void onWindowResized(unsigned width, unsigned height);
 		
 		static void start();
-		static void start(const PerspectiveCamera& camera);
+		static void start(const PerspectiveCamera& camera, const std::vector<PointLight*>& pointLights = {}, const std::vector<DirectionalLight*>& dirLights = {}, const std::vector<Spotlight*>& spotlights = {});
+		
 		static void finish();
 
-		static void addToRenderList(Shader* shader, VertexArray* vertexArray);
-		static void addToRenderList(Material* material, VertexArray* vertexArray);
+		static void addToRenderList(VertexArray* vertexArray, Shader* shader = nullptr);
+		static void addToRenderList(VertexArray* vertexArray, Material* material);
 		
-		static void addToRenderList(Shader* shader, Mesh* mesh);
-		static void addToRenderList(Material* material, Mesh* mesh);
+		static void addToRenderList(Mesh* mesh, Shader* shader);
+		static void addToRenderList(Mesh* mesh, Material* material);
 
 		static void addToRenderList(Model* model);
 

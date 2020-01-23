@@ -44,7 +44,7 @@ void Renderer::init() {
 	rendererStorage->defaultPointLights = { pointLight };
 
 	//const auto dirLight = new DirectionalLight;
-	//dirLight->setDirection(0.0f, 0.0f, 0.0f);
+	//dirLight->setDirection(0.0f, -1.0f, 0.0f);
 	rendererStorage->defaultDirectionalLights = { /*dirLight*/ };
 
 	//const auto spotlight = new Spotlight;
@@ -97,7 +97,7 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
 	rendererStorage->activeShader->setUniform("uNumDirectionalLights", static_cast<int>(rendererStorage->directionalLights.size()));
 	rendererStorage->activeShader->setUniform("uNumSpotlights", static_cast<int>(rendererStorage->spotlights.size()));
 
-	rendererStorage->activeShader->setUniform("uAmbientColour", { 1.0f, 1.0f, 1.0f });
+	rendererStorage->activeShader->setUniform("uAmbientColour", { 0.0f, 0.0f, 0.0f });
 	rendererStorage->activeShader->setUniform("uAmbientPower", 0.3f);
 
 	for(unsigned i = 0; i < rendererStorage->directionalLights.size(); ++i) {
@@ -116,8 +116,8 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
 		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->spotlights[i]->getDirection());
 		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->spotlights[i]->getColour());
 		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->spotlights[i]->getAttenuation());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", rendererStorage->spotlights[i]->getInnerCutoffAngle());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", rendererStorage->spotlights[i]->getOuterCutoffAngle());
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->spotlights[i]->getInnerCutoffAngle())));
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->spotlights[i]->getOuterCutoffAngle())));
 	}
 	
 	vertexArray->bind();

@@ -17,6 +17,8 @@ namespace Capp {
 		void bind() const;
 		static void unbind();
 
+		void reload();
+		
 		void setName(const std::string& name);
 		const std::string& getName() const;
 

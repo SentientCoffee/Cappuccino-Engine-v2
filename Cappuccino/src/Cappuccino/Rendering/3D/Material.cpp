@@ -3,8 +3,18 @@
 
 using namespace Capp;
 
+unsigned whiteTexture = 0xFFFFFFFF;
+unsigned blackTexture = 0x00000000;
+unsigned normalTexture = 0x7F7FFFFF;
+
 Material::Material(Shader* shader) :
-	_shader(shader) {}
+	_shader(shader) {
+	
+	setValue("diffuseMap", new Texture2D(1, 1, &whiteTexture));
+	setValue("specularMap", new Texture2D(1, 1, &whiteTexture));
+	setValue("emissionMap", new Texture2D(1, 1, &blackTexture));
+	//setValue("normalMap", new Texture2D(1, 1, &normalTexture));
+}
 
 Material::~Material() {
 	for(const auto& t : _textures) {

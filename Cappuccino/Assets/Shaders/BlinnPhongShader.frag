@@ -51,7 +51,7 @@ struct Material {
 	sampler2D specularMap;
 	sampler2D normalMap;
 	sampler2D emissionMap;
-	sampler2D bumpMap;
+	sampler2D bumpMap;	
 	float roughness;
 };
 
@@ -118,12 +118,12 @@ void main() {
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection) {
 	vec3 lightDirection = normalize(-light.direction);
-	
+
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
-	vec3 reflectedLightDirection = reflect(-lightDirection, normal);
-	float specularPower = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), (1.0 - clamp(uMaterial.roughness, 0.0, 1.0)) * 256);
+	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	return diffuse + specular;
@@ -136,9 +136,8 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 viewDirection) {
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
-	// vec3 reflectedLightDirection = reflect(-lightDirection, normal);
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), 256 - (256 * clamp(uMaterial.roughness, 0.0, 1.0)));
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	float dist = length(lightToPositionDifference);
@@ -154,16 +153,16 @@ vec3 calculateSpotlight(Spotlight light, vec3 normal, vec3 viewDirection) {
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
-	vec3 reflectedLightDirection = reflect(-lightDirection, normal);
-	float specularPower = pow(max(dot(viewDirection, reflectedLightDirection), 0.0), 256 - (256 * clamp(uMaterial.roughness, 0.0, 1.0)));
+	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
 
 	float theta = dot(lightDirection, normalize(-light.direction));
-	float epsilon = cos(light.innerCutoffAngle) - cos(light.outerCutoffAngle);
-	float intensity = clamp((theta - cos(light.outerCutoffAngle)) / epsilon, 0.0, 1.0);
+	float epsilon = light.innerCutoffAngle - light.outerCutoffAngle;
+	float intensity = clamp((theta - light.outerCutoffAngle) / epsilon, 0.0, 1.0);
 
 	return intensity * attenuation * (diffuse + specular);
 }

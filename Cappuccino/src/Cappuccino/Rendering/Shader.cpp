@@ -56,6 +56,22 @@ Shader::Shader(const std::string& name, const std::string& vertexPath, const std
 
 Shader::~Shader() { glDeleteProgram(_id); }
 
+void Shader::reload() {
+	CAPP_ASSERT(!_vertexSrcPath.empty(), "Invalid vertex shader file path!");
+	CAPP_ASSERT(!_fragmentSrcPath.empty(), "Invalid fragment shader file path!");
+	
+	const std::string vertexSrc = loadFileAsString(_vertexSrcPath);
+	const std::string fragmentSrc = loadFileAsString(_fragmentSrcPath);
+
+	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!");
+	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!");
+
+	const unsigned int vertShader = createShader(vertexSrc, ShaderType::Vertex);
+	const unsigned int fragShader = createShader(fragmentSrc, ShaderType::Fragment);
+
+	compileProgram(vertShader, fragShader);
+}
+
 unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType shaderType) {
 	unsigned int shaderHandle = 0;
 

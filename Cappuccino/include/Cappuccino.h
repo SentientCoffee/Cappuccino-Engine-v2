@@ -22,14 +22,15 @@
 #include "Cappuccino/Rendering/Texture.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 
+#include "Cappuccino/Rendering/2D/2DQuad.h"
+#include "Cappuccino/Rendering/2D/Renderer2D.h"
+
 #include "Cappuccino/Rendering/3D/Light.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
+#include "Cappuccino/Rendering/3D/TextureCubemap.h"
 #include "Cappuccino/Rendering/3D/Renderer.h"
-
-#include "Cappuccino/Rendering/2D/2DQuad.h"
-#include "Cappuccino/Rendering/2D/Renderer2D.h"
 
 #include "Cappuccino/Rendering/Text/Text.h"
 #include "Cappuccino/Rendering/Text/Font.h"

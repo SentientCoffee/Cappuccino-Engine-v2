@@ -123,7 +123,7 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	return diffuse + specular;
@@ -137,7 +137,7 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 viewDirection) {
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	float dist = length(lightToPositionDifference);
@@ -154,7 +154,7 @@ vec3 calculateSpotlight(Spotlight light, vec3 normal, vec3 viewDirection) {
 	vec3 diffuse = light.colour * diffusePower * texture(uMaterial.diffuseMap, inUV).xyz;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), uMaterial.roughness);
+	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
 	float dist = length(lightToPositionDifference);

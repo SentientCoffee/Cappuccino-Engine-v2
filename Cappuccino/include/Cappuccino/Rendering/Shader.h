@@ -41,8 +41,8 @@ namespace Capp {
 			Geometry
 		};
 		
-		void compileProgram(unsigned int vertShader, unsigned int fragShader, const std::optional<unsigned>& geomShader = std::nullopt) const;
-		unsigned int createShader(const std::string& shaderSrc, ShaderType shaderType);
+		unsigned compileProgram(unsigned int vertShader, unsigned int fragShader, const std::optional<unsigned>& geomShader = std::nullopt) const;
+		unsigned createShader(const std::string& shaderSrc, ShaderType shaderType) const;
 
 		int getUniformLocation(const std::string& uniformName) const;
 		

@@ -28,20 +28,20 @@ GameObject::~GameObject() {
 	}
 }
 
-GameObject& GameObject::operator=(const ModelVector& models) {
+GameObject* GameObject::operator=(const ModelVector& models) {
 	_models = models;
 	for(auto model : _models) {
 		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
 	}
-	return *this;
+	return this;
 }
 
-GameObject& GameObject::operator=(const ModelInitList& models) {
+GameObject* GameObject::operator=(const ModelInitList& models) {
 	_models = models;
 	for(auto model : _models) {
 		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
 	}
-	return *this;
+	return this;
 }
 
 bool GameObject::operator==(const GameObject& other) const { return _objectId == other._objectId; }

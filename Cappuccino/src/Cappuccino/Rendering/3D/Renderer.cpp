@@ -4,6 +4,7 @@
 #include "Cappuccino/Core/Application.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
+#include "Cappuccino/Rendering/3D/TextureCubemap.h"
 
 using namespace Capp;
 
@@ -16,14 +17,13 @@ struct RendererStorage {
 	
 	Shader* hitboxShader = nullptr;
 
-	std::vector<PointLight*> defaultPointLights;
-	std::vector<PointLight*> pointLights;
-	
-	std::vector<DirectionalLight*> directionalLights;
-	std::vector<DirectionalLight*> defaultDirectionalLights;
+	Lights defaultLights;
+	Lights activeLights;
 
-	std::vector<Spotlight*> spotlights;
-	std::vector<Spotlight*> defaultSpotlights;
+	Mesh* skyboxMesh = nullptr;
+	Shader* skyboxShader = nullptr;
+	TextureCubemap* defaultSkybox = nullptr;
+	TextureCubemap* activeSkybox = nullptr;
 };
 
 static RendererStorage* rendererStorage;
@@ -31,28 +31,83 @@ static RendererStorage* rendererStorage;
 void Renderer::init() {
 	rendererStorage = new RendererStorage;
 
+	// --------------------------------------------------
+	// ----- Camera init --------------------------------
+	// --------------------------------------------------
+
 	const auto window = Application::getInstance()->getWindow();
 	rendererStorage->defaultCamera.setProjection(60.0f, window->getWidth(), window->getHeight());
 	rendererStorage->defaultCamera.setPosition(0.0f, 5.0f, 5.0f);
 	rendererStorage->defaultCamera.lookAt(0.0f, 0.0f, 0.0f);
 
+	// --------------------------------------------------
+	// ----- Shaders init -------------------------------
+	// --------------------------------------------------
+
 	rendererStorage->defaultShader = new Shader("Default3D", "Assets/Cappuccino/Shaders/BlinnPhongShader.vert", "Assets/Cappuccino/Shaders/BlinnPhongShader.frag");
 	rendererStorage->hitboxShader = new Shader("DefaultHitbox", "Assets/Cappuccino/Shaders/HitboxShader.vert", "Assets/Cappuccino/Shaders/HitboxShader.frag");
+	rendererStorage->skyboxShader = new Shader("Skybox", "Assets/Cappuccino/Shaders/CubemapShader.vert", "Assets/Cappuccino/Shaders/CubemapShader.frag");
+	
+	// --------------------------------------------------
+	// ----- Lights init --------------------------------
+	// --------------------------------------------------
 
 	const auto pointLight = new PointLight;
 	pointLight->setPosition(0.0f, 2.0f, 5.0f);
-	rendererStorage->defaultPointLights = { pointLight };
+	rendererStorage->defaultLights.pointLights = { pointLight };
 
-	//const auto dirLight = new DirectionalLight;
-	//dirLight->setDirection(0.0f, -1.0f, 0.0f);
-	rendererStorage->defaultDirectionalLights = { /*dirLight*/ };
+	const auto dirLight = new DirectionalLight;
+	dirLight->setDirection(0.0f, -1.0f, 0.0f);
+	rendererStorage->defaultLights.directionalLights = { dirLight };
 
-	//const auto spotlight = new Spotlight;
-	//spotlight->setPosition(rendererStorage->defaultCamera.getPosition());
-	rendererStorage->defaultSpotlights = { /*spotlight*/ };
+	const auto spotlight = new Spotlight;
+	spotlight->setPosition(rendererStorage->defaultCamera.getPosition()).setDirection(rendererStorage->defaultCamera.getForward());
+	rendererStorage->defaultLights.spotlights = { spotlight };
 	
-	
-	RenderCommand::setClearColour(0.1f, 0.1f, 0.1f, 1.0f);
+	// --------------------------------------------------
+	// ----- Skybox cubemap init ------------------------
+	// --------------------------------------------------
+
+	const std::vector<Vertex> vertices = {
+		{ { -1.0f, -1.0f, -1.0f } },
+		{ {  1.0f, -1.0f, -1.0f } },
+		{ { -1.0f, -1.0f,  1.0f } },
+		{ {  1.0f, -1.0f,  1.0f } },
+		{ { -1.0f,  1.0f, -1.0f } },
+		{ {  1.0f,  1.0f, -1.0f } },
+		{ { -1.0f,  1.0f,  1.0f } },
+		{ {  1.0f,  1.0f,  1.0f } }
+	};
+
+	const std::vector<unsigned> indices = {
+		0, 1, 2,	2, 1, 3,	// bottom
+		4, 6, 5,	6, 7, 5,	// top
+		2, 3, 6,	6, 3, 7,	// front
+		0, 1, 4,	4, 1, 5,	// back
+		2, 4, 0,	2, 6, 4,	// left
+		3, 5, 1,	3, 7, 5		// right
+		
+	};
+
+	rendererStorage->skyboxMesh = new Mesh("Skybox", vertices, indices);
+
+	const std::vector<std::string> filepaths = {
+		"Assets/Cappuccino/Textures/Skybox/graycloud_lf.jpg",
+		"Assets/Cappuccino/Textures/Skybox/graycloud_rt.jpg",
+		"Assets/Cappuccino/Textures/Skybox/graycloud_dn.jpg",
+		"Assets/Cappuccino/Textures/Skybox/graycloud_up.jpg",
+		"Assets/Cappuccino/Textures/Skybox/graycloud_ft.jpg",
+		"Assets/Cappuccino/Textures/Skybox/graycloud_bk.jpg"
+	};
+
+	rendererStorage->defaultSkybox = new TextureCubemap(filepaths);
+
+
+	// --------------------------------------------------
+	// ----- Clear colour -------------------------------
+	// --------------------------------------------------
+	// 
+	RenderCommand::setClearColour(0.8f, 0.2f, 0.7f, 1.0f);
 }
 
 void Renderer::shutdown() {
@@ -64,22 +119,17 @@ void Renderer::onWindowResized(const unsigned width, const unsigned height) {
 }
 
 void Renderer::start() {
-	start(rendererStorage->defaultCamera, rendererStorage->defaultPointLights, rendererStorage->defaultDirectionalLights, rendererStorage->defaultSpotlights);
+	start(rendererStorage->defaultCamera, rendererStorage->defaultLights, rendererStorage->defaultSkybox);
 }
 
-void Renderer::start(const PerspectiveCamera& camera, const std::vector<PointLight*>& pointLights, const std::vector<DirectionalLight*>& dirLights, const std::vector<Spotlight*>& spotlights) {
+void Renderer::start(const PerspectiveCamera& camera, const Lights& lights, TextureCubemap* skybox) {
 	rendererStorage->perspectiveCamera = camera;
-	rendererStorage->directionalLights = dirLights;
-	rendererStorage->pointLights = pointLights;
-	rendererStorage->spotlights = spotlights;
+	rendererStorage->activeLights.directionalLights = lights.directionalLights;
+	rendererStorage->activeLights.pointLights = lights.pointLights;
+	rendererStorage->activeLights.spotlights = lights.spotlights;
+	rendererStorage->activeSkybox = skybox;
 
 	RenderCommand::enableCulling();
-}
-
-void Renderer::finish() {
-	Shader::unbind();
-	Texture2D::unbind();
-	VertexArray::unbind();
 }
 
 void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
@@ -93,31 +143,31 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
 	rendererStorage->activeShader->bind();
 	rendererStorage->activeShader->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
 	rendererStorage->activeShader->setUniform("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
-	rendererStorage->activeShader->setUniform("uNumPointLights", static_cast<int>(rendererStorage->pointLights.size()));
-	rendererStorage->activeShader->setUniform("uNumDirectionalLights", static_cast<int>(rendererStorage->directionalLights.size()));
-	rendererStorage->activeShader->setUniform("uNumSpotlights", static_cast<int>(rendererStorage->spotlights.size()));
+	rendererStorage->activeShader->setUniform("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
+	rendererStorage->activeShader->setUniform("uNumDirectionalLights", static_cast<int>(rendererStorage->activeLights.directionalLights.size()));
+	rendererStorage->activeShader->setUniform("uNumSpotlights", static_cast<int>(rendererStorage->activeLights.spotlights.size()));
 
 	rendererStorage->activeShader->setUniform("uAmbientColour", { 0.0f, 0.0f, 0.0f });
 	rendererStorage->activeShader->setUniform("uAmbientPower", 0.3f);
 
-	for(unsigned i = 0; i < rendererStorage->directionalLights.size(); ++i) {
-		rendererStorage->activeShader->setUniform("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->directionalLights[i]->getDirection());
-		rendererStorage->activeShader->setUniform("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->directionalLights[i]->getColour());
+	for(unsigned i = 0; i < rendererStorage->activeLights.directionalLights.size(); ++i) {
+		rendererStorage->activeShader->setUniform("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.directionalLights[i]->getDirection());
+		rendererStorage->activeShader->setUniform("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.directionalLights[i]->getColour());
 	}
 
-	for(unsigned i = 0; i < rendererStorage->pointLights.size(); ++i) {
-		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].position", rendererStorage->pointLights[i]->getPosition());
-		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->pointLights[i]->getColour());
-		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->pointLights[i]->getAttenuation());
+	for(unsigned i = 0; i < rendererStorage->activeLights.pointLights.size(); ++i) {
+		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].position", rendererStorage->activeLights.pointLights[i]->getPosition());
+		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.pointLights[i]->getColour());
+		rendererStorage->activeShader->setUniform("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.pointLights[i]->getAttenuation());
 	}	
 
-	for(unsigned i = 0; i < rendererStorage->spotlights.size(); ++i) {
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->spotlights[i]->getPosition());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->spotlights[i]->getDirection());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->spotlights[i]->getColour());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->spotlights[i]->getAttenuation());
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->spotlights[i]->getInnerCutoffAngle())));
-		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->spotlights[i]->getOuterCutoffAngle())));
+	for(unsigned i = 0; i < rendererStorage->activeLights.spotlights.size(); ++i) {
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->activeLights.spotlights[i]->getPosition());
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.spotlights[i]->getDirection());
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.spotlights[i]->getColour());
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.spotlights[i]->getAttenuation());
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
+		rendererStorage->activeShader->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
 	}
 	
 	vertexArray->bind();
@@ -130,6 +180,10 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
 }
 
 void Renderer::addToRenderList(VertexArray* vertexArray, Material* material) {
+	if(material->getShader() == nullptr) {
+		material->setShader(rendererStorage->defaultShader);
+	}
+	
 	material->apply();
 	addToRenderList(vertexArray, material->getShader());
 }
@@ -188,4 +242,31 @@ void Renderer::addToRenderList(GameObject* gameObject) {
 	if(gameObject->isVisible()) {
 		addToRenderList(gameObject->getRigidBody());
 	}
+}
+
+void Renderer::finish() {
+	RenderCommand::disableCulling();
+	RenderCommand::setDepthTestFunction(DepthTestFunction::LessThanOrEqual);
+	RenderCommand::disableDepthMask();
+
+	rendererStorage->skyboxShader->bind();
+	const glm::mat4 viewProjection = rendererStorage->perspectiveCamera.getProjectionMatrix() * glm::mat4(glm::mat3(rendererStorage->perspectiveCamera.getViewMatrix()));
+	rendererStorage->skyboxShader->setUniform("uViewProjection", viewProjection);
+
+	rendererStorage->activeSkybox->bind();
+	rendererStorage->skyboxShader->setUniform("uSkybox", 0);
+
+	rendererStorage->skyboxMesh->getVAO()->bind();
+	RenderCommand::drawIndexed(rendererStorage->skyboxMesh->getVAO());
+
+	RenderCommand::enableDepthMask();
+	RenderCommand::setDepthTestFunction(DepthTestFunction::LessThan);
+	RenderCommand::enableCulling();
+
+	for(unsigned i = 0; i < 24; ++i) {
+		Texture2D::unbind(i);
+	}
+	Shader::unbind();
+	TextureCubemap::unbind();
+	VertexArray::unbind();
 }

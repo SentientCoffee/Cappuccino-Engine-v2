@@ -2,21 +2,23 @@
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
 
 #include "Cappuccino/Core/Application.h"
+
+#include "Cappuccino/Objects/Transform.h"
+
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/Shader.h"
+#include "Cappuccino/Rendering/TextureDefaults.h"
+
 #include "Cappuccino/Rendering/3D/Mesh.h"
-#include "Cappuccino/Objects/Transform.h"
 
 using namespace Capp;
 
 struct Renderer2DStorage {
-
 	OrthographicCamera defaultCamera;
 	Mesh* quadMesh = nullptr;
 	Shader* quadShader = nullptr;
 	Shader* textShader = nullptr;
 	Texture2D* whiteTexture = nullptr;
-
 };
 
 static Renderer2DStorage* renderer2DStorage;
@@ -51,8 +53,7 @@ void Renderer2D::init() {
 	renderer2DStorage->textShader->bind();
 	renderer2DStorage->textShader->setUniform("uTextureSlot", 0);
 
-	unsigned whiteTextureData = 0xFFFFFFFF;
-	renderer2DStorage->whiteTexture = new Texture2D(1, 1, &whiteTextureData);
+	renderer2DStorage->whiteTexture = new Texture2D(1, 1, &whiteTexture);
 }
 
 void Renderer2D::shutdown() {

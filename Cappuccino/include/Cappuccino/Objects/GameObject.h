@@ -20,8 +20,8 @@ namespace Capp {
 		GameObject(const ModelInitList& models);
 		virtual ~GameObject();
 
-		GameObject& operator=(const ModelVector& models);
-		GameObject& operator=(const ModelInitList& models);
+		GameObject* operator=(const ModelVector& models);
+		GameObject* operator=(const ModelInitList& models);
 
 		bool operator==(const GameObject& other) const;
 

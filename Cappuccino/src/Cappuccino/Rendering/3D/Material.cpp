@@ -1,11 +1,9 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 
-using namespace Capp;
+#include "Cappuccino/Rendering/TextureDefaults.h"
 
-unsigned whiteTexture = 0xFFFFFFFF;
-unsigned blackTexture = 0x00000000;
-unsigned normalTexture = 0x7F7FFFFF;
+using namespace Capp;
 
 Material::Material(Shader* shader) :
 	_shader(shader) {
@@ -23,6 +21,7 @@ Material::~Material() {
 }
 
 Shader* Material::getShader() const { return _shader; }
+void Material::setShader(Shader* shader) { _shader = shader; }
 
 void Material::apply() const {
 	_shader->bind();

@@ -19,6 +19,9 @@ void RenderCommand::init() {
 	// Scissor testing (for multiple viewports)
 	glEnable(GL_SCISSOR_TEST);
 
+	// Seamless cubemaps
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	
 	// Initialize 2D and 3D renderers
 	Renderer::init();
 	Renderer2D::init();
@@ -56,6 +59,18 @@ void RenderCommand::disableCulling() {
 
 void RenderCommand::setDrawMode(DrawMode mode) {
 	glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(mode));
+}
+
+void RenderCommand::enableDepthMask() {
+	glDepthMask(GL_TRUE);
+}
+
+void RenderCommand::disableDepthMask() {
+	glDepthMask(GL_FALSE);
+}
+
+void RenderCommand::setDepthTestFunction(DepthTestFunction func) {
+	glDepthFunc(static_cast<GLenum>(func));
 }
 
 void RenderCommand::drawArray(VertexArray* vertexArray) {

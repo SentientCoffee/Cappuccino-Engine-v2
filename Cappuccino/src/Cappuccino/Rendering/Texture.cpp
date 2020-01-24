@@ -52,6 +52,7 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
 	
 	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
+
 	
 	// Default texture parameters
 	const TextureParams params = {
@@ -61,6 +62,11 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 	};
 
 	setParameters(params);
+
+	glTextureStorage2D(_id,
+	                   static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
+	                   static_cast<GLenum>(_formats.internalFormat),
+	                   _width, _height);
 
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
@@ -120,6 +126,11 @@ Texture2D::Texture2D(const std::string& filepath) :
 
 	setParameters(params);
 
+	glTextureStorage2D(_id,
+	                   static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
+	                   static_cast<GLenum>(_formats.internalFormat),
+	                   _width, _height);
+	
 	glTextureSubImage2D(_id, 0,
 	                    0, 0, _width, _height,
 	                    static_cast<GLenum>(_formats.pixelFormat),
@@ -182,11 +193,6 @@ void Texture2D::setData(void* data, const unsigned size) {
 
 void Texture2D::setParameters(const TextureParams& params) {
 	_parameters = params;
-	
-	glTextureStorage2D(_id,
-	                   static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
-	                   static_cast<GLenum>(_formats.internalFormat),
-	                   _width, _height);
 
 	glTextureParameteri(_id, GL_TEXTURE_WRAP_S, static_cast<GLenum>(_parameters.wrapS));
 	glTextureParameteri(_id, GL_TEXTURE_WRAP_T, static_cast<GLenum>(_parameters.wrapT));
@@ -194,6 +200,6 @@ void Texture2D::setParameters(const TextureParams& params) {
 	glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(_parameters.magFilter));
 
 	if(static_cast<bool>(_parameters.anisotropyEnabled)) {
-		glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
+		glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 	}
 }

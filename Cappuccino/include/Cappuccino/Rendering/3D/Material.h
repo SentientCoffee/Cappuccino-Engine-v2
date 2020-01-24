@@ -14,6 +14,7 @@ namespace Capp {
 		~Material();
 
 		Shader* getShader() const;
+		void setShader(Shader* shader);
 
 		void apply() const;
 

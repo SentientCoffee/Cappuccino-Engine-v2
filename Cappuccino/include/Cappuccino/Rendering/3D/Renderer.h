@@ -12,9 +12,20 @@
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
+#include "TextureCubemap.h"
 
 namespace Capp {
 
+	struct Lights {
+		using PointLights = std::vector<PointLight*>;
+		using DirectionalLights = std::vector<DirectionalLight*>;
+		using Spotlights = std::vector<Spotlight*>;
+
+		DirectionalLights directionalLights = {};
+		PointLights pointLights = {};
+		Spotlights spotlights = {};
+	};
+	
 	class Renderer {
 	public:
 
@@ -24,7 +35,7 @@ namespace Capp {
 		static void onWindowResized(unsigned width, unsigned height);
 		
 		static void start();
-		static void start(const PerspectiveCamera& camera, const std::vector<PointLight*>& pointLights = {}, const std::vector<DirectionalLight*>& dirLights = {}, const std::vector<Spotlight*>& spotlights = {});
+		static void start(const PerspectiveCamera& camera, const Lights& lights, TextureCubemap* skybox);
 		
 		static void finish();
 

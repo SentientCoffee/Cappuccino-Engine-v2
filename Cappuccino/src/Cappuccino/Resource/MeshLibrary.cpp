@@ -24,8 +24,7 @@ void MeshLibrary::shutdown() {
 
 void MeshLibrary::addMesh(const std::string& name, Mesh* mesh) {
 	if(hasMesh(name)) {
-		CAPP_PRINT_ERROR("Mesh name: {0}", name);
-		CAPP_ASSERT(!hasMesh(name), "Mesh already exists!");
+		CAPP_ASSERT(!hasMesh(name), "Mesh \"{0}\" already exists!", name);
 		return;
 	}
 
@@ -34,8 +33,7 @@ void MeshLibrary::addMesh(const std::string& name, Mesh* mesh) {
 
 Mesh* MeshLibrary::loadMesh(const std::string& name, const std::string& filepath) {
 	if(hasMesh(name)) {
-		CAPP_PRINT_ERROR("Mesh name: {0}", name);
-		CAPP_ASSERT(!hasMesh(name), "Mesh already exists!");
+		CAPP_ASSERT(!hasMesh(name), "Mesh \"{0}\" already exists!", name);
 		return _meshes[name];
 	}
 
@@ -44,8 +42,7 @@ Mesh* MeshLibrary::loadMesh(const std::string& name, const std::string& filepath
 
 Mesh* MeshLibrary::getMesh(const std::string& name) {
 	if(!hasMesh(name)) {
-		CAPP_PRINT_ERROR("Mesh name: {0}", name);
-		CAPP_ASSERT(hasMesh(name), "Mesh not found!");
+		CAPP_ASSERT(hasMesh(name), "Mesh \"{0}\" not found!", name);
 		return nullptr;
 	}
 

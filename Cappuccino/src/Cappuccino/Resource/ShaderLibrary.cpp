@@ -25,8 +25,7 @@ void ShaderLibrary::shutdown() {
 
 void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
 	if(hasShader(name)) {
-		CAPP_PRINT_ERROR("Shader name: {0}", name);
-		CAPP_ASSERT(!hasShader(name), "Shader already exists!");
+		CAPP_ASSERT(!hasShader(name), "Shader \"{0}\" already exists!", name);
 		return;
 	}
 
@@ -35,8 +34,7 @@ void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
 
 Shader* ShaderLibrary::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
 	if(hasShader(name)) {
-		CAPP_PRINT_ERROR("Shader name: {0}", name);
-		CAPP_ASSERT(!hasShader(name), "Shader already exists!");
+		CAPP_ASSERT(!hasShader(name), "Shader \"{0}\" already exists!", name);
 		return _shaders[name];
 	}
 
@@ -45,8 +43,7 @@ Shader* ShaderLibrary::loadShader(const std::string& name, const std::string& ve
 
 Shader* ShaderLibrary::getShader(const std::string& name) {
 	if(!hasShader(name)) {
-		CAPP_PRINT_ERROR("Shader name: {0}", name);
-		CAPP_ASSERT(hasShader(name), "Shader not found!");
+		CAPP_ASSERT(hasShader(name), "Shader \"{0}\" not found!", name);
 		return nullptr;
 	}
 

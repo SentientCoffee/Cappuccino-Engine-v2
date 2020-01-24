@@ -37,4 +37,18 @@ namespace Capp {
 		Off                  = false
 	};
 	
+	struct TextureParams {
+		WrapMode wrapS, wrapT, wrapR;
+
+		MinFilter minFilter;
+		MagFilter magFilter;
+
+		Mipmaps enableMipmaps;
+		Anisotropy anisotropyEnabled;
+
+		TextureParams() = default;
+		TextureParams(WrapMode wrapMode, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
+		TextureParams(WrapMode s, WrapMode t, WrapMode r, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
+	};
+	
 }

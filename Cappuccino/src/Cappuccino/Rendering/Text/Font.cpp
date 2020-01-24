@@ -19,21 +19,15 @@ void Font::load(const std::string& name, const std::string& filepath) {
 	FT_Face typeface;
 
 	const int ftFontFileLoadStatus = FT_New_Face(FontLibrary::getFontLibrary(), filepath.c_str(), 0, &typeface);
-	if(ftFontFileLoadStatus) {
-		CAPP_PRINT_ERROR("File: {0}", filepath);
-		CAPP_ASSERT(ftFontFileLoadStatus == 0, "Failed to load font file!");
-	}
+	CAPP_ASSERT(ftFontFileLoadStatus == 0, "Failed to load font file!\nFont file: {0}", filepath);
 
 	FT_Set_Pixel_Sizes(typeface, 0, 48);       // Set size to load glyphs as
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);                           // Disable byte-alignment restriction
 
 	// Only loading in the first 128 characters of the font
-	for(unsigned char ch = 0; ch < 128; ++ch) {		
+	for(unsigned char ch = 0; ch < 128; ++ch) {
 		const int ftLoadCharStatus = FT_Load_Char(typeface, ch, FT_LOAD_RENDER);
-		if(ftLoadCharStatus) {
-			CAPP_PRINT_ERROR("Glyph: {0}", ch);
-			CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!");
-		}
+		CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!\nGlyph: {0}", ch);
 		
 		auto texture = new Texture2D(typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows, typeface->glyph->bitmap.buffer, 1);
 		TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };

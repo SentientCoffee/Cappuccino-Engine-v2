@@ -21,7 +21,7 @@ namespace Capp {
 
 	private:
 
-		unsigned int _rendererId = 0;
+		unsigned int _id = 0;
 		std::vector<VertexBuffer*> _vertexBuffers;
 		IndexBuffer* _indexBuffer;
 		

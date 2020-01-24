@@ -59,15 +59,19 @@ namespace Capp {
 // Asserts
 #if CAPP_ENABLE_ASSERTS
 
-#define CAPP_ASSERT(exp, ...)		if(!(exp)) {\
-										CAPP_PRINT_ERROR("ASSERTION FAILED: {0}\n{1}", #exp, ##__VA_ARGS__);\
-										__debugbreak();\
-									}
+#define CAPP_ASSERT(exp, ...) \
+if(!(exp)) {\
+	::Capp::Logger::getEngineLogger()->error("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getEngineLogger()->error(##__VA_ARGS__);\
+	__debugbreak();\
+}
 
-#define DEBUG_ASSERT(exp, ...)		if(!(exp)) {\
-										DEBUG_PRINT_ERROR("ASSERTION FAILED: {0}\n{1}", #exp, ##__VA_ARGS__);\
-										__debugbreak();\
-									}
+#define DEBUG_ASSERT(exp, ...) \
+if(!(exp)) {\
+	::Capp::Logger::getClientLogger()->error("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getClientLogger()->error(##__VA_ARGS__);\
+	__debugbreak();\
+}
 
 #else
 

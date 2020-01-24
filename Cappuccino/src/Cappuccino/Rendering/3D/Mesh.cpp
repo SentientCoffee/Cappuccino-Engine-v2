@@ -50,11 +50,7 @@ VertexArray* Mesh::getVAO() const { return _vao; }
 
 std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepath) {
 	std::ifstream file(filepath.data());
-
-	if(!file.good()) {
-		CAPP_PRINT_ERROR("File: {0}", filepath);
-		CAPP_ASSERT(file.good(), "Could not open file!");
-	}
+	CAPP_ASSERT(file.good(), "Could not open file!\n Mesh path: {0}", filepath);
 
 	const int lineBufferSize = 256;
 	char lineContent[lineBufferSize];
@@ -72,10 +68,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepa
 				case ' ': {
 					glm::vec3 temp;
 					const bool vertexReadStatus = sscanf(lineContent, "v %f %f %f", &temp.x, &temp.y, &temp.z);
-					if(!vertexReadStatus) {
-						CAPP_PRINT_ERROR("File: {0}", filepath);
-						CAPP_ASSERT(vertexReadStatus, "Failed to read vertex data!");
-					}
+					CAPP_ASSERT(vertexReadStatus, "Failed to read vertex data of mesh \"{0}\"!\nMesh path: {0}", _name, filepath);
 					positions.push_back(temp);
 					break;
 				}
@@ -83,10 +76,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepa
 				case 't': {
 					glm::vec2 temp;
 					const bool uvReadStatus = sscanf(lineContent, "vt %f %f", &temp.x, &temp.y);
-					if(!uvReadStatus) {
-						CAPP_PRINT_ERROR("File: {0}", filepath);
-						CAPP_ASSERT(uvReadStatus, "Failed to read texture data!");
-					}
+					CAPP_ASSERT(uvReadStatus, "Failed to read texture data of mesh \"{0}\"!\nMesh path: {0}", _name, filepath);
 					uvCoords.push_back(temp);
 					break;
 				}
@@ -94,10 +84,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepa
 				case 'n': {
 					glm::vec3 temp;
 					const bool normalReadStatus = sscanf(lineContent, "vn %f %f %f", &temp.x, &temp.y, &temp.z);
-					if(!normalReadStatus) {
-						CAPP_PRINT_ERROR("File: {0}", filepath);
-						CAPP_ASSERT(normalReadStatus, "Failed to read normal data!");
-					}
+					CAPP_ASSERT(normalReadStatus, "Failed to read normal data of mesh \"{0}\"!\nMesh path: {0}", _name, filepath);
 					normals.push_back(temp);
 					break;
 				}
@@ -111,10 +98,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepa
 			                                    &temp.vertIndices[1], &temp.uvIndices[1], &temp.normIndices[1],
 			                                    &temp.vertIndices[2], &temp.uvIndices[2], &temp.normIndices[2]);
 			
-			if(!indexReadStatus) {
-				CAPP_PRINT_ERROR("File: {0}", filepath);
-				CAPP_ASSERT(indexReadStatus, "Failed to read normal data!");
-			}
+			CAPP_ASSERT(indexReadStatus, "Failed to read index data of mesh \"{0}\"!\nMesh path: {0}", _name, filepath);
 			faces.push_back(temp);
 		}
 	}

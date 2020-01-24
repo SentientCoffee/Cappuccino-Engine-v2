@@ -29,8 +29,7 @@ void FontLibrary::shutdown() {
 
 void FontLibrary::addFont(const std::string& name, Font* font) {
 	if(hasFont(name)) {
-		CAPP_PRINT_ERROR("Font name: {0}", name);
-		CAPP_ASSERT(!hasFont(name), "Font already exists!");
+		CAPP_ASSERT(!hasFont(name), "Font \"{0}\" already exists!", name);
 		return;
 	}
 
@@ -39,8 +38,7 @@ void FontLibrary::addFont(const std::string& name, Font* font) {
 
 Font* FontLibrary::loadFont(const std::string& name, const std::string& filepath) {
 	if(hasFont(name)) {
-		CAPP_PRINT_ERROR("Font name: {0}", name);
-		CAPP_ASSERT(!hasFont(name), "Font already exists!");
+		CAPP_ASSERT(!hasFont(name), "Font \"{0}\" already exists!", name);
 		return _fonts[name];
 	}
 	
@@ -49,8 +47,7 @@ Font* FontLibrary::loadFont(const std::string& name, const std::string& filepath
 
 Font* FontLibrary::getFont(const std::string& name) {
 	if(!hasFont(name)) {
-		CAPP_PRINT_ERROR("Font: {0}", name);
-		CAPP_ASSERT(hasFont(name), "Font has not been loaded!");
+		CAPP_ASSERT(hasFont(name), "Font \"{0}\" has not been loaded!", name);
 		return nullptr;
 	}
 

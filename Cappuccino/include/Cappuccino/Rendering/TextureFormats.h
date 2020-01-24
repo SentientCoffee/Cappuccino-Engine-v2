@@ -30,13 +30,19 @@ namespace Capp {
 
 	enum class PixelType : unsigned int {
 		// From glad.h
-		UnsignedByte         = 0x1401,		// GL_UNSIGNED_BYTE
 		Byte                 = 0x1400,		// GL_BYTE
-		UnsignedShort        = 0x1403,		// GL_UNSIGNED_SHORT
+		UnsignedByte         = 0x1401,		// GL_UNSIGNED_BYTE
 		Short                = 0x1402,		// GL_SHORT
-		UnsignedInt          = 0x1405,		// GL_UNSIGNED_INT
+		UnsignedShort        = 0x1403,		// GL_UNSIGNED_SHORT
 		Int                  = 0x1404,		// GL_INT
+		UnsignedInt          = 0x1405,		// GL_UNSIGNED_INT
 		Float                = 0x1406		// GL_FLOAT
+	};
+	
+	struct TextureFormats {
+		InternalFormat internalFormat = InternalFormat::None;
+		PixelFormat pixelFormat = PixelFormat::None;
+		PixelType pixelType = PixelType::UnsignedByte;
 	};
 	
 }

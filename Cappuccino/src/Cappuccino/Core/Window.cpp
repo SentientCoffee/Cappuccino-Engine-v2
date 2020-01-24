@@ -94,15 +94,20 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 
 	log += "\n" + std::string(message);
 
-	if(type == GL_DEBUG_TYPE_ERROR || severity == GL_DEBUG_SEVERITY_HIGH) {
+	if(type == GL_DEBUG_TYPE_ERROR) {
+		CAPP_ASSERT(type == GL_DEBUG_TYPE_ERROR, "{0}", log);
+	}
+	else if(severity == GL_DEBUG_SEVERITY_HIGH) {
 		CAPP_PRINT_ERROR("{0}", log);
-		CAPP_ASSERT(false);
 	}
 	else if(severity == GL_DEBUG_SEVERITY_MEDIUM) {
 		CAPP_PRINT_WARNING("{0}", log);
 	}
-	else {
+	else if(severity == GL_DEBUG_SEVERITY_LOW) {
 		CAPP_PRINT_INFO("{0}", log);
+	}
+	else {
+		CAPP_PRINT("{0}", log);
 	}
 }
 
@@ -114,7 +119,7 @@ Window::Window() :
 Window::Window(const WindowProperties& properties) :
 	_properties(properties) {
 
-	CAPP_PRINT("Creating window \"{0}\" ({1} x {2})", _properties.title.c_str(), _properties.width, _properties.height);
+	CAPP_PRINT_INFO("Creating window \"{0}\" ({1} x {2})", _properties.title.c_str(), _properties.width, _properties.height);
 	
 	if(!glfwInitialized) {
 		const int glfwStatus = glfwInit();

@@ -6,32 +6,11 @@
 #include <string>
 
 namespace Capp {
-
-	struct TextureFormats {
-		InternalFormat internalFormat = InternalFormat::None;
-		PixelFormat pixelFormat = PixelFormat::None;
-		PixelType pixelType = PixelType::UnsignedByte;
-	};
-
-	struct TextureParams {
-		WrapMode wrapS, wrapT, wrapR;
-
-		MinFilter minFilter;
-		MagFilter magFilter;
-
-		Mipmaps enableMipmaps;
-		Anisotropy anisotropyEnabled;
-
-		TextureParams() = default;
-		TextureParams(WrapMode wrapMode, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
-		TextureParams(WrapMode s, WrapMode t, WrapMode r, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
-	};
 	
 	class Texture2D {
 	public:
 
-		Texture2D() = default;
-		Texture2D(unsigned width, unsigned height, void* data, unsigned channels = 4);
+		Texture2D(unsigned width, unsigned height, void* data = nullptr, unsigned channels = 4);
 		Texture2D(const std::string& filepath);
 		~Texture2D();
 
@@ -49,7 +28,7 @@ namespace Capp {
 
 		unsigned _id = 0;
 		unsigned _width = 0, _height = 0;
-		unsigned _mipLevels;
+		unsigned _mipLevels = 1;
 		unsigned char* _imageData = nullptr;
 		
 		std::string _texturePath;

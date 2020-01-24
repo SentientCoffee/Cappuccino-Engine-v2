@@ -25,11 +25,11 @@ static GLenum SDTypeToOpenGLType(const ShaderDataType type) {
 
 VertexArray::VertexArray() :
 	_indexBuffer(nullptr) {
-	glCreateVertexArrays(1, &_rendererId);
+	glCreateVertexArrays(1, &_id);
 }
 
 VertexArray::~VertexArray() {
-	glDeleteVertexArrays(1, &_rendererId);
+	glDeleteVertexArrays(1, &_id);
 	
 	for(auto buffer : _vertexBuffers) {
 		delete buffer;
@@ -39,14 +39,14 @@ VertexArray::~VertexArray() {
 	delete _indexBuffer;
 }
 
-void VertexArray::bind() const { glBindVertexArray(_rendererId); }
+void VertexArray::bind() const { glBindVertexArray(_id); }
 void VertexArray::unbind() { glBindVertexArray(0); }
 
 void VertexArray::addVertexBuffer(VertexBuffer* vertexBuffer) {
-	CAPP_ASSERT(vertexBuffer->getLayout().size(), "Vertex buffer has no layout!");
+	CAPP_ASSERT(vertexBuffer->getLayout().size() != 0, "Vertex buffer has no layout!");
 	_vertexBuffers.push_back(vertexBuffer);
 
-	glBindVertexArray(_rendererId);
+	glBindVertexArray(_id);
 	vertexBuffer->bind();
 
 	unsigned i = 0;
@@ -67,7 +67,7 @@ void VertexArray::addVertexBuffer(VertexBuffer* vertexBuffer) {
 void VertexArray::setIndexBuffer(IndexBuffer* indexBuffer) {
 	_indexBuffer = indexBuffer;
 	
-	glBindVertexArray(_rendererId);
+	glBindVertexArray(_id);
 	indexBuffer->bind();
 	glBindVertexArray(0);
 }

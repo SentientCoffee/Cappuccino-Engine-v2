@@ -113,8 +113,8 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 
 Window::Window() :
 	Window({"Failed to load properly!",
-	        100, 100,
-	        true, nullptr}) {}
+			100, 100,
+			true, nullptr}) {}
 
 Window::Window(const WindowProperties& properties) :
 	_properties(properties) {
@@ -127,11 +127,15 @@ Window::Window(const WindowProperties& properties) :
 		glfwSetErrorCallback(glfwErrorCallback);
 		glfwInitialized = true;
 	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
 	_window = glfwCreateWindow(static_cast<int>(_properties.width),
-	                           static_cast<int>(_properties.height),
-	                           _properties.title.c_str(),
-	                           nullptr, nullptr);
+		static_cast<int>(_properties.height),
+		_properties.title.c_str(),
+		nullptr, nullptr);
 	
 	glfwMakeContextCurrent(_window);
 	glfwSetWindowUserPointer(_window, &_properties);
@@ -174,7 +178,11 @@ void Window::setVSyncEnabled(const bool enabled) {
 }
 bool Window::isVSyncEnabled() const { return _properties.isVSyncEnabled; }
 
-void Window::setGLFWCallbacks() {
+void Window::showMouseCursor() const { glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
+void Window::hideMouseCursor() const { glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN); }
+void Window::disableMouseCursor() const { glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); }
+
+void Window::setGLFWCallbacks() const {
 	// Window resize callback
 	glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, const int width, const int height) {
 		const auto data = static_cast<WindowProperties*>(glfwGetWindowUserPointer(window));

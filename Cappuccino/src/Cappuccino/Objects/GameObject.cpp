@@ -48,7 +48,7 @@ bool GameObject::operator==(const GameObject& other) const { return _objectId ==
 
 void GameObject::init() {}
 void GameObject::exit() {}
-void GameObject::update(const float dt) {}
+void GameObject::update() {}
 void GameObject::onEvent(Event& e) {}
 
 unsigned GameObject::getId() const { return _objectId; }

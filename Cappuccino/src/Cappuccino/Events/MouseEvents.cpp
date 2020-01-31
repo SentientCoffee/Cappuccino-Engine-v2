@@ -19,11 +19,13 @@ MouseButtonPressedEvent::MouseButtonPressedEvent(const int button) :
 	_mouseButton(button) {}
 
 int MouseButtonPressedEvent::getMouseButton() const { return _mouseButton; }
+bool MouseButtonPressedEvent::compareMouseButton(const MouseButton mouseButton) const { return _mouseButton == static_cast<int>(mouseButton); }
 
 MouseButtonReleasedEvent::MouseButtonReleasedEvent(const int button) :
 	_mouseButton(button) {}
 
 int MouseButtonReleasedEvent::getMouseButton() const { return _mouseButton; }
+bool MouseButtonReleasedEvent::compareMouseButton(const MouseButton mouseButton) const { return _mouseButton == static_cast<int>(mouseButton); }
 
 #if CAPP_DEBUG
 

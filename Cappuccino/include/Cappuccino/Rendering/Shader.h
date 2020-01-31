@@ -22,6 +22,8 @@ namespace Capp {
 		void setName(const std::string& name);
 		const std::string& getName() const;
 
+		unsigned getRendererID() const;
+
 		void setUniform(const std::string& uniformName, bool value) const;
 		void setUniform(const std::string& uniformName, int value) const;
 		void setUniform(const std::string& uniformName, float value) const;

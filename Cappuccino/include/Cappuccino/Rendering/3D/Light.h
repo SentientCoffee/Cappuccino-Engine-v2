@@ -88,4 +88,14 @@ namespace Capp {
 		float _outerCutoffAngle;
 		
 	};
+
+	struct Lights {
+		using PointLights = std::vector<PointLight*>;
+		using DirectionalLights = std::vector<DirectionalLight*>;
+		using Spotlights = std::vector<Spotlight*>;
+
+		DirectionalLights directionalLights = {};
+		PointLights pointLights = {};
+		Spotlights spotlights = {};
+	};
 }

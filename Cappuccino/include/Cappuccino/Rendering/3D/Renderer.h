@@ -12,19 +12,9 @@
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
-#include "TextureCubemap.h"
+#include "Cappuccino/Rendering/3D/TextureCubemap.h"
 
 namespace Capp {
-
-	struct Lights {
-		using PointLights = std::vector<PointLight*>;
-		using DirectionalLights = std::vector<DirectionalLight*>;
-		using Spotlights = std::vector<Spotlight*>;
-
-		DirectionalLights directionalLights = {};
-		PointLights pointLights = {};
-		Spotlights spotlights = {};
-	};
 	
 	class Renderer {
 	public:
@@ -51,7 +41,7 @@ namespace Capp {
 		static void addToRenderList(const RigidBody& rigidBody);
 
 		static void addToRenderList(GameObject* gameObject);
-
+		
 	};
 	
 }

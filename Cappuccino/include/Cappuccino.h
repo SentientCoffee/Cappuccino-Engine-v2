@@ -18,6 +18,7 @@
 
 // Rendering
 #include "Cappuccino/Rendering/Camera.h"
+#include "Cappuccino/Rendering/Framebuffer.h"
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/Texture.h"
 #include "Cappuccino/Rendering/RenderCommand.h"

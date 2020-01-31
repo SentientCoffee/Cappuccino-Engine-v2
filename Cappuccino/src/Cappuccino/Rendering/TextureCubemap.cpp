@@ -33,7 +33,7 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 	CAPP_ASSERT(filepaths.size() <= 6, "Cubemap cannot load in more than 6 faces!");
 	_formats.internalFormat = InternalFormat::RGB8;
 
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(false);
 	for(unsigned i = 0; i < filepaths.size(); ++i) {
 		int width, height, channels;
 		unsigned char* data = stbi_load(filepaths[i].c_str(), &width, &height, &channels, 0);
@@ -85,10 +85,10 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 		CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
 
 		glTextureSubImage3D(_id, 0, 0, 0,
-		                    static_cast<GLenum>(static_cast<unsigned>(CubemapFace::PositiveX) + i),
-		                    _size, _size, 1,
-		                    static_cast<GLenum>(_formats.pixelFormat),
-		                    static_cast<GLenum>(_formats.pixelType), data);
+			static_cast<unsigned>(CubemapFace::PositiveX) + i,
+			_size, _size, 1,
+			static_cast<GLenum>(_formats.pixelFormat),
+			static_cast<GLenum>(_formats.pixelType), data);
 
 		stbi_image_free(data);
 	}
@@ -97,10 +97,10 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 		_formats.pixelFormat = PixelFormat::RGBA;
 
 		glTextureSubImage3D(_id, 0,
-		                    0, 0, static_cast<int>(CubemapFace::PositiveX) + i,
-		                    1, 1, 1,
-		                    static_cast<GLenum>(_formats.pixelFormat),
-		                    static_cast<GLenum>(_formats.pixelType), &whiteTexture);
+			0, 0, static_cast<int>(CubemapFace::PositiveX) + i,
+			1, 1, 1,
+			static_cast<GLenum>(_formats.pixelFormat),
+			static_cast<GLenum>(_formats.pixelType), &whiteTexture);
 	}
 }
 

@@ -27,12 +27,15 @@ TextureParams::TextureParams(const WrapMode s, const WrapMode t, const WrapMode 
 
 Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const unsigned channels) :
 	_width(width), _height(height), _imageData(static_cast<unsigned char*>(data)), _texturePath(""), _parameters({}) {
-	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 
 	switch(channels) {
 		case 1:
 			_formats.internalFormat = InternalFormat::R8;
 			_formats.pixelFormat = PixelFormat::Red;
+			break;
+		case 2:
+			_formats.internalFormat = InternalFormat::RG8;
+			_formats.pixelFormat = PixelFormat::RG;
 			break;
 		case 3:
 			_formats.internalFormat = InternalFormat::RGB8;
@@ -47,48 +50,19 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 			_formats.pixelFormat = PixelFormat::None;
 			break;
 	}
-	
-	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
-	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
-	
-	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
 
-	
-	// Default texture parameters
-	const TextureParams params = {
-		WrapMode::Repeat,
-		MinFilter::Linear,
-		MagFilter::Nearest
-	};
-
-	setParameters(params);
-
-	glTextureStorage2D(_id,
-	                   static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
-	                   static_cast<GLenum>(_formats.internalFormat),
-	                   _width, _height);
-
-	glTextureSubImage2D(_id, 0,
-	                    0, 0, _width, _height,
-	                    static_cast<GLenum>(_formats.pixelFormat),
-	                    static_cast<GLenum>(_formats.pixelType),
-	                    _imageData);
-
-	if(static_cast<bool>(_parameters.enableMipmaps)) {
-		glGenerateTextureMipmap(_id);
-	}
+	createTexture();
 }
 
 Texture2D::Texture2D(const std::string& filepath) :
 	_texturePath(filepath), _parameters({}) {
-	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 	
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);
 	_imageData = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 
 	if(_imageData == nullptr) {
-		CAPP_ASSERT(_imageData, "Failed to load image!\nTexture path: {0}", filepath);
+		CAPP_ASSERT(_imageData != nullptr, "Failed to load image!\nTexture path: {0}", filepath);
 	}
 
 	_width = width; _height = height;
@@ -98,6 +72,10 @@ Texture2D::Texture2D(const std::string& filepath) :
 			_formats.internalFormat = InternalFormat::R8;
 			_formats.pixelFormat = PixelFormat::Red;
 			break;
+		case 2:
+			_formats.internalFormat = InternalFormat::RG8;
+			_formats.pixelFormat = PixelFormat::RG;
+			break;
 		case 3:
 			_formats.internalFormat = InternalFormat::RGB8;
 			_formats.pixelFormat = PixelFormat::RGB;
@@ -112,34 +90,7 @@ Texture2D::Texture2D(const std::string& filepath) :
 			break;
 	}
 
-	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
-	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
-	
-	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
-
-	// Default texture parameters
-	const TextureParams params = {
-		WrapMode::Repeat,
-		MinFilter::Linear,
-		MagFilter::Nearest
-	};
-
-	setParameters(params);
-
-	glTextureStorage2D(_id,
-	                   static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
-	                   static_cast<GLenum>(_formats.internalFormat),
-	                   _width, _height);
-	
-	glTextureSubImage2D(_id, 0,
-	                    0, 0, _width, _height,
-	                    static_cast<GLenum>(_formats.pixelFormat),
-	                    static_cast<GLenum>(_formats.pixelType),
-	                    _imageData);
-
-	if(static_cast<bool>(_parameters.enableMipmaps)) {
-		glGenerateTextureMipmap(_id);
-	}
+	createTexture();
 }
 
 Texture2D::~Texture2D() {
@@ -151,6 +102,7 @@ Texture2D::~Texture2D() {
 
 unsigned Texture2D::getWidth() const { return _width; }
 unsigned Texture2D::getHeight() const { return _height; }
+unsigned Texture2D::getRendererID() const { return _id; }
 
 void Texture2D::bind(const unsigned slot) const {
 	glBindTextureUnit(slot, _id);
@@ -164,6 +116,9 @@ void Texture2D::setData(void* data, const unsigned size) {
 	switch(_formats.pixelFormat) {
 		case PixelFormat::Red:
 			bytesPerPixel = 1;
+			break;
+		case PixelFormat::RG:
+			bytesPerPixel = 2;
 			break;
 		case PixelFormat::RGB:
 			bytesPerPixel = 3;
@@ -180,11 +135,13 @@ void Texture2D::setData(void* data, const unsigned size) {
 
 	_imageData = static_cast<unsigned char*>(data);
 
-	glTextureSubImage2D(_id, 0,
-	                    0, 0, _width, _height,
-	                    static_cast<GLenum>(_formats.pixelFormat),
-	                    static_cast<GLenum>(_formats.pixelType),
-	                    _imageData);
+	glTextureSubImage2D(
+		_id, 0,
+		0, 0, _width, _height,
+		static_cast<GLenum>(_formats.pixelFormat),
+		static_cast<GLenum>(_formats.pixelType),
+		_imageData
+	);
 
 	if(static_cast<bool>(_parameters.enableMipmaps)) {
 		glGenerateTextureMipmap(_id);
@@ -201,5 +158,44 @@ void Texture2D::setParameters(const TextureParams& params) {
 
 	if(static_cast<bool>(_parameters.anisotropyEnabled)) {
 		glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+	}
+}
+
+void Texture2D::createTexture() {
+	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
+	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
+	
+	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
+	
+	_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
+
+	// Default texture parameters
+	const TextureParams params = {
+		WrapMode::Repeat,
+		MinFilter::Linear,
+		MagFilter::Nearest
+	};
+
+	setParameters(params);
+
+	glTextureStorage2D(
+		_id,
+		static_cast<bool>(_parameters.enableMipmaps) ? _mipLevels : 1,
+		static_cast<GLenum>(_formats.internalFormat),
+		_width, _height
+	);
+
+	if(_imageData != nullptr) {
+		glTextureSubImage2D(
+			_id, 0,
+			0, 0, _width, _height,
+			static_cast<GLenum>(_formats.pixelFormat),
+			static_cast<GLenum>(_formats.pixelType),
+			_imageData
+		);
+
+		if(static_cast<bool>(_parameters.enableMipmaps)) {
+			glGenerateTextureMipmap(_id);
+		}
 	}
 }

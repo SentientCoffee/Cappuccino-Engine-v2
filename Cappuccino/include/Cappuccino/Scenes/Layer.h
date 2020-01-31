@@ -17,11 +17,10 @@ namespace Capp {
 
 		virtual void onPush();
 		virtual void onPop();
-		virtual void update(float dt);
+		virtual void update();
 		virtual void drawImgui();
 		virtual void onEvent(Event& e);
 
-		void updateImgui(float dt);
 		const std::string& getName() const;
 
 	protected:

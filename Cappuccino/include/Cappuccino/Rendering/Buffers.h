@@ -28,7 +28,7 @@ namespace Capp {
 
 		bool operator<(const Vertex other) const {
 			return memcmp(static_cast<void const*>(this), static_cast<void const*>(&other), sizeof(Vertex)) > 0;
-		};
+		}
 	};
 	
 	class VertexBuffer {

@@ -15,14 +15,14 @@ void Scene::init() {}
 void Scene::exit() {}
 void Scene::drawImgui() {}
 
-void Scene::update(const float dt) {
+void Scene::update() {
 	for(auto layer : _layerStack) {
-		layer->update(dt);
+		layer->update();
 	}
 
 	for(auto gameObject : GameObject::gameObjects) {
 		if(gameObject->isActive()) {
-			gameObject->update(dt);
+			gameObject->update();
 		}
 	}
 	
@@ -31,7 +31,7 @@ void Scene::update(const float dt) {
 	_imguiLayer->begin();
 	drawImgui();
 	for(auto layer : _layerStack) {
-		layer->updateImgui(dt);
+		layer->drawImgui();
 	}
 	_imguiLayer->end();
 	

@@ -37,9 +37,13 @@ namespace Capp {
 		void setVSyncEnabled(bool enabled);
 		bool isVSyncEnabled() const;
 
+		void showMouseCursor() const;
+		void hideMouseCursor() const;
+		void disableMouseCursor() const;
+
 	private:
 
-		void setGLFWCallbacks();
+		void setGLFWCallbacks() const;
 
 		inline static bool glfwInitialized = false;
 		GLFWwindow* _window;

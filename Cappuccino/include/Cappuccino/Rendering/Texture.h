@@ -17,6 +17,8 @@ namespace Capp {
 		unsigned int getWidth() const;
 		unsigned int getHeight() const;
 
+		unsigned getRendererID() const;
+
 		void bind(unsigned slot = 0) const;
 		static void unbind(unsigned slot = 0);
 
@@ -25,6 +27,8 @@ namespace Capp {
 		void setParameters(const TextureParams& params);
 
 	private:
+
+		void createTexture();
 
 		unsigned _id = 0;
 		unsigned _width = 0, _height = 0;

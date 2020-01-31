@@ -19,7 +19,7 @@ namespace Capp {
 		
 	private:
 		
-		std::tuple<VertexBuffer*, IndexBuffer*> loadMesh(const std::string& filepath);
+		std::tuple<VertexBuffer*, IndexBuffer*> loadMesh(const std::string& filepath) const;
 		
 		VertexArray* _vao;
 		std::string _name;

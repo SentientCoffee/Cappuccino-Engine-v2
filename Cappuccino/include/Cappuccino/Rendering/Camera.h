@@ -44,14 +44,14 @@ namespace Capp {
 		void setProjection(float left, float right, float top, float bottom);
 
 		const glm::vec3& getPosition() const;
-		Transform& setPosition(const glm::vec3& position);
-		Transform& setPosition(float x, float y, float z);
+		OrthographicCamera& setPosition(const glm::vec3& position);
+		OrthographicCamera& setPosition(float x, float y, float z);
 		
 		bool isRotatable() const;
 		void setRotatable(bool rotatable);
 
 		float getRotation() const;
-		Transform& setRotation(float rotation);
+		OrthographicCamera& setRotation(float rotation);
 
 	private:
 
@@ -79,12 +79,14 @@ namespace Capp {
 		glm::vec3 getRight() const;
 
 		const glm::vec3& getPosition() const;
-		Transform& setPosition(const glm::vec3& position);
-		Transform& setPosition(float x, float y, float z);
+		PerspectiveCamera& setPosition(const glm::vec3& position);
+		PerspectiveCamera& setPosition(float x, float y, float z);
+
+		PerspectiveCamera& setLocalPosition(const glm::vec3& localPosition);
 
 		const glm::vec3& getRotation() const;
-		Transform& setRotation(const glm::vec3& rotation);
-		Transform& setRotation(float x, float y, float z);
+		PerspectiveCamera& setRotation(const glm::vec3& rotation);
+		PerspectiveCamera& setRotation(float x, float y, float z);
 		
 	private:
 

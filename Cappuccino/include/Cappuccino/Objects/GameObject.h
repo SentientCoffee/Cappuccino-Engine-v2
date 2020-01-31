@@ -27,7 +27,7 @@ namespace Capp {
 
 		virtual void init();
 		virtual void exit();
-		virtual void update(float dt);
+		virtual void update();
 		virtual void onEvent(Event& e);
 
 		unsigned getId() const;

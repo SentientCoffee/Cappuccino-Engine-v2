@@ -73,8 +73,8 @@ namespace Capp {
 
 		EventDispatcher(Event& e);
 
-		template<typename Type>
-		bool dispatchEventType(EventFunction<Type> function);
+		template<typename EType, typename = typename std::enable_if<std::is_base_of<Event, EType>::value>::type>
+		bool dispatchEventType(EventFunction<EType> function);
 
 	private:
 
@@ -82,11 +82,11 @@ namespace Capp {
 		
 	};
 
-	template<typename EType>
+	template <typename EType, typename>
 	bool EventDispatcher::dispatchEventType(EventFunction<EType> function) {
 		if(_event.getEventType() == EType::getStaticType()) {
-			EType* e = static_cast<EType*>(&_event);
-			_event._isHandled = function(*e);
+			EType e = *static_cast<EType*>(&_event);
+			_event._isHandled = function(e);
 			return true;
 		}
 

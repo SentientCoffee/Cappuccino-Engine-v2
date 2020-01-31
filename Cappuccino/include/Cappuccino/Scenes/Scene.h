@@ -20,7 +20,7 @@ namespace Capp {
 		virtual void init();
 		virtual void exit();
 		virtual void drawImgui();
-		void update(float dt);
+		void update();
 		void onEvent(Event& e);
 
 		void pushLayer(Layer* layer);

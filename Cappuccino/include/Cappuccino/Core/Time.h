@@ -7,12 +7,15 @@ namespace Capp {
 		
 		static float getTime();
 		static float getDeltaTime();
-		static void calculateDeltaTime();
+
+		static void preUpdate();
+		static void postUpdate();
 
 	private:
 
-		static float _currentFrameTime;
+		static float _deltaTime;
 		static float _lastFrameTime;
+		static float _totalAppTime;
 		
 	};
 	

@@ -7,6 +7,7 @@ namespace Capp {
 		None                 = 0,
 		R8                   = 0x8229,		// GL_R8
 		R16                  = 0x822A,		// GL_R16
+		RG8                  = 0x822B,		// GL_RG8
 		RGB8                 = 0x8051,		// GL_RGB8
 		RGB16                = 0x8054,		// GL_RGB16
 		RGBA8                = 0x8058,		// GL_RGBA8

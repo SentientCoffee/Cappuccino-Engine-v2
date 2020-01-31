@@ -39,13 +39,13 @@ void Application::run() {
 	CAPP_ASSERT(sceneManager.getCurrentScene() != nullptr, "No scene has been added to the scene manager!");
 	
 	while(_isRunning) {
-		RenderCommand::clearScreen();
-		Time::calculateDeltaTime();
+		Time::preUpdate();
 
 		if(!_isMinimized) {
-			sceneManager.getCurrentScene()->update(Time::getDeltaTime());
+			sceneManager.getCurrentScene()->update();
 		}
 		
+		Time::postUpdate();
 		_window->update();
 	}
 }

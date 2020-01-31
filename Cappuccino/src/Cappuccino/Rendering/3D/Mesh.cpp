@@ -20,7 +20,7 @@ Mesh::Mesh(const std::string& name, const std::string& filepath) :
 		{ ShaderDataType::Vec3, "inNormal" },
 	};
 
-	vbo->setLayout(layout);	
+	vbo->setLayout(layout);
 	_vao->addVertexBuffer(vbo);
 	_vao->setIndexBuffer(ibo);
 }
@@ -48,7 +48,7 @@ Mesh::~Mesh() {
 
 VertexArray* Mesh::getVAO() const { return _vao; }
 
-std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepath) {
+std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepath) const {
 	std::ifstream file(filepath.data());
 	CAPP_ASSERT(file.good(), "Could not open file!\n Mesh path: {0}", filepath);
 
@@ -94,9 +94,9 @@ std::tuple<VertexBuffer*, IndexBuffer*> Mesh::loadMesh(const std::string& filepa
 		else if(lineContent[0] == 'f') {
 			TriangleFace temp;
 			const bool indexReadStatus = sscanf(lineContent, "f %d/%d/%d %d/%d/%d %d/%d/%d",
-			                                    &temp.vertIndices[0], &temp.uvIndices[0], &temp.normIndices[0],
-			                                    &temp.vertIndices[1], &temp.uvIndices[1], &temp.normIndices[1],
-			                                    &temp.vertIndices[2], &temp.uvIndices[2], &temp.normIndices[2]);
+				&temp.vertIndices[0], &temp.uvIndices[0], &temp.normIndices[0],
+				&temp.vertIndices[1], &temp.uvIndices[1], &temp.normIndices[1],
+				&temp.vertIndices[2], &temp.uvIndices[2], &temp.normIndices[2]);
 			
 			CAPP_ASSERT(indexReadStatus, "Failed to read index data of mesh \"{0}\"!\nMesh path: {0}", _name, filepath);
 			faces.push_back(temp);

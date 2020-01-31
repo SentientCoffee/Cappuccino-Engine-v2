@@ -7,7 +7,6 @@
 using namespace Capp;
 
 std::string loadShaderAsString(const std::string& filepath) {
-
 	std::ifstream file(filepath.data());
 	std::stringstream fileContent;
 	CAPP_ASSERT(fileContent.good(), "File could not be read!\nShader file: {0}", filepath);
@@ -18,14 +17,11 @@ std::string loadShaderAsString(const std::string& filepath) {
 	return fileContent.str();
 }
 
-Shader::Shader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
-	_name = name;
+Shader::Shader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) :
+	_name(name), _vertexSrcPath(vertexPath), _fragmentSrcPath(fragmentPath) {
 	
-	_vertexSrcPath = vertexPath;
-	_fragmentSrcPath = fragmentPath;
-	
-	CAPP_ASSERT(!vertexPath.empty(), "Invalid vertex shader file path!\nShader file: {0}", vertexPath);
-	CAPP_ASSERT(!fragmentPath.empty(), "Invalid fragment shader file path!\nShader file: {0}", fragmentPath);
+	CAPP_ASSERT(!vertexPath.empty(), "No vertex shader file path given!\nShader file: {0}", vertexPath);
+	CAPP_ASSERT(!fragmentPath.empty(), "No fragment shader file path given!\nShader file: {0}", fragmentPath);
 	
 	const std::string vertexSrc = loadShaderAsString(vertexPath);
 	const std::string fragmentSrc = loadShaderAsString(fragmentPath);
@@ -54,8 +50,11 @@ Shader::Shader(const std::string& name, const std::string& vertexPath, const std
 Shader::~Shader() { glDeleteProgram(_id); }
 
 void Shader::reload() {
-	CAPP_ASSERT(!_vertexSrcPath.empty(), "Invalid vertex shader file path!\nShader file: {0}", _vertexSrcPath);
-	CAPP_ASSERT(!_fragmentSrcPath.empty(), "Invalid fragment shader file path!\nShader file: {0}", _fragmentSrcPath);
+	if(_vertexSrcPath.empty() || _fragmentSrcPath.empty()) {
+		CAPP_ASSERT(!_vertexSrcPath.empty(), "No vertex shader file path to reload from!\nShader: {0}", _name);
+		CAPP_ASSERT(!_fragmentSrcPath.empty(), "No fragment shader file pathto reload from!\nShader: {0}", _name);
+		return;
+	}
 	
 	const std::string vertexSrc = loadShaderAsString(_vertexSrcPath);
 	const std::string fragmentSrc = loadShaderAsString(_fragmentSrcPath);
@@ -177,6 +176,7 @@ void Shader::unbind() { glUseProgram(0); }
 
 void Shader::setName(const std::string& name) { _name = name; }
 const std::string& Shader::getName() const { return _name; }
+unsigned Shader::getRendererID() const { return _id; }
 
 int Shader::getUniformLocation(const std::string& uniformName) const {
 	const int uniformLocation = glGetUniformLocation(_id, uniformName.c_str());

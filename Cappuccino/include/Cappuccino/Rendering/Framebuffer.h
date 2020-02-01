@@ -14,7 +14,9 @@ namespace Capp {
 
 		unsigned getWidth() const;
 		unsigned getHeight() const;
+		
 		bool isValid() const;
+		bool validateFramebuffer();
 
 		void setName(const std::string& name);
 		const std::string& getName() const;
@@ -30,8 +32,6 @@ namespace Capp {
 		static void blit(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, ClearFlags flags = ClearFlags::All, MagFilter magFilter = MagFilter::Linear);
 		
 	private:
-
-		bool validateFramebuffer();
 		
 		unsigned _id = 0;
 		std::string _name;

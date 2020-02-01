@@ -5,6 +5,7 @@
 #include "Cappuccino/Objects/Rigidbody.h"
 
 #include "Cappuccino/Rendering/Camera.h"
+#include "Cappuccino/Rendering/Framebuffer.h"
 #include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/VertexArray.h"
 
@@ -15,7 +16,14 @@
 #include "Cappuccino/Rendering/3D/TextureCubemap.h"
 
 namespace Capp {
-	
+
+	struct PostProcessingPass {
+		Framebuffer* buffer;
+		Shader* shader;
+	};
+
+	using PostPasses = std::vector<PostProcessingPass>;
+
 	class Renderer {
 	public:
 
@@ -27,7 +35,7 @@ namespace Capp {
 		static void start();
 		static void start(const PerspectiveCamera& camera, const Lights& lights, TextureCubemap* skybox);
 		
-		static void finish();
+		static void finish(const PostPasses& postProcessing = {});
 
 		static void addToRenderList(VertexArray* vertexArray, Shader* shader = nullptr);
 		static void addToRenderList(VertexArray* vertexArray, Material* material);

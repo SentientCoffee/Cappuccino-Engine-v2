@@ -10,6 +10,7 @@ namespace Capp {
 	class Material {
 	public:
 
+		Material();
 		Material(Shader* shader);
 		~Material();
 
@@ -33,7 +34,7 @@ namespace Capp {
 
 	private:
 
-		Shader* _shader;
+		Shader* _shader = nullptr;
 
 		std::unordered_map<std::string, bool> _bools;
 		std::unordered_map<std::string, int> _ints;

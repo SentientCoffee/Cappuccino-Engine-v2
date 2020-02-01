@@ -5,14 +5,17 @@
 
 using namespace Capp;
 
-Material::Material(Shader* shader) :
-	_shader(shader) {
-	
+Material::Material() :
+	_shader(new Shader("Blinn Phong", "Assets/Cappuccino/Shaders/BlinnPhongShader.vert", "Assets/Cappuccino/Shaders/BlinnPhongShader.frag")) {
 	setValue("diffuseMap", new Texture2D(1, 1, &whiteTexture));
 	setValue("specularMap", new Texture2D(1, 1, &whiteTexture));
 	setValue("emissionMap", new Texture2D(1, 1, &blackTexture));
-	//setValue("normalMap", new Texture2D(1, 1, &normalTexture));
+	//setValue("normalMap", new Texture2D(1, 1, &normalTexture));					// TODO: NORMAL MAPPING
+	//setValue("bumpMap", new Texture2D(1, 1, &normalTexture));						// TODO: PARALLAX MAPPING
 }
+
+Material::Material(Shader* shader) :
+	_shader(shader) {}
 
 Material::~Material() {
 	for(const auto& t : _textures) {
@@ -24,6 +27,8 @@ Shader* Material::getShader() const { return _shader; }
 void Material::setShader(Shader* shader) { _shader = shader; }
 
 void Material::apply() const {
+	CAPP_ASSERT(_shader != nullptr, "No shader bound to this material!");
+	
 	_shader->bind();
 	
 	for(const auto& b : _bools) {

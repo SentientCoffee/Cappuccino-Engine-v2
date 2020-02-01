@@ -11,7 +11,6 @@ Framebuffer::Framebuffer(const unsigned width, const unsigned height) :
 	
 	glCreateFramebuffers(1, &_id);
 	_name = "Framebuffer " + std::to_string(_id);
-	
 }
 
 Framebuffer::~Framebuffer() {

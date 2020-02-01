@@ -2,9 +2,7 @@
 #include "Cappuccino/Rendering/3D/Renderer.h"
 
 #include "Cappuccino/Core/Application.h"
-#include "Cappuccino/Rendering/Framebuffer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
-#include "Cappuccino/Rendering/3D/TextureCubemap.h"
 
 using namespace Capp;
 
@@ -180,10 +178,6 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Shader* shader) {
 }
 
 void Renderer::addToRenderList(VertexArray* vertexArray, Material* material) {
-	if(material->getShader() == nullptr) {
-		material->setShader(rendererStorage->defaultShader);
-	}
-	
 	material->apply();
 	addToRenderList(vertexArray, material->getShader());
 }
@@ -244,11 +238,11 @@ void Renderer::addToRenderList(GameObject* gameObject) {
 	}
 }
 
-void Renderer::finish() {
+void Renderer::finish(const PostPasses& postProcessing) {
 
 	rendererStorage->mainBuffer->bind();
 	RenderCommand::setViewport(0, 0, rendererStorage->mainBuffer->getWidth(), rendererStorage->mainBuffer->getHeight());
-	RenderCommand::clearScreen(ClearFlags::NoStencil);
+	RenderCommand::clearScreen();
 	RenderCommand::enableDepthTesting();
 	RenderCommand::enableCulling();
 
@@ -329,13 +323,34 @@ void Renderer::finish() {
 
 	rendererStorage->mainBuffer->unbind();
 	RenderCommand::disableDepthTesting();
-	RenderCommand::clearScreen(ClearFlags::Colour);
 
-	rendererStorage->mainBuffer->bind(FramebufferBinding::ReadOnly);
-	Framebuffer::blit({0, 0, rendererStorage->mainBuffer->getWidth(), rendererStorage->mainBuffer->getHeight()}, 
-		{0, 0, Application::getInstance()->getWindow()->getWidth(), Application::getInstance()->getWindow()->getHeight()},
+	const auto window = Application::getInstance()->getWindow();
+	
+	Framebuffer* lastPass = rendererStorage->mainBuffer;
+	for(auto pass : postProcessing) {
+		pass.buffer->validateFramebuffer();
+		pass.buffer->bind();
+		
+		RenderCommand::clearScreen(ClearFlags::Colour);
+		RenderCommand::setViewport(0, 0, pass.buffer->getWidth(), pass.buffer->getHeight());
+		
+		pass.shader->bind();
+		lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+		pass.shader->setUniform("uImage", 0);
+		pass.shader->setUniform("uScreenSize", { window->getWidth(), window->getHeight() });
+		
+		rendererStorage->fullscreenQuad->getVAO()->bind();
+		RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
+
+		pass.buffer->unbind();
+		lastPass = pass.buffer;
+	}
+
+	lastPass->bind(FramebufferBinding::ReadOnly);
+	Framebuffer::blit({ 0, 0, rendererStorage->mainBuffer->getWidth(), rendererStorage->mainBuffer->getHeight() },
+		{ 0, 0, window->getWidth(), window->getHeight() },
 		ClearFlags::All, MagFilter::Nearest);
-	rendererStorage->mainBuffer->unbind();
+	lastPass->unbind();
 	
 	for(unsigned i = 0; i < 24; ++i) {
 		Texture2D::unbind(i);

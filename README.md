@@ -1,6 +1,6 @@
 # Welcome to Cappuccino Engine!
 Welcome to Cappuccino Engine, an 3D game engine built on OpenGL!
-Cappuccino Engine supports .obj file loading, image loading (using [stb_image](https://github.com/nothings/stb)), and ImGui debugging (from the [ImGui github](https://github.com/ocornut/imgui)).
+Cappuccino Engine supports .obj file loading, image loading (using [stb_image](https://github.com/nothings/stb)), and [ImGui](https://github.com/ocornut/imgui) debugging.
 It also utilizes the [GLM math library](https://glm.g-truc.net/0.9.9/index.html), and supports logging using [spdlog](https://github.com/gabime/spdlog).
 
 ### Current features of the engine:
@@ -10,17 +10,17 @@ It also utilizes the [GLM math library](https://glm.g-truc.net/0.9.9/index.html)
 - Mesh loading (with index buffers) -- currently only supports `.obj` files
 - Basic 2D and 3D Rendering
 - Text rendering and font loading (using [Freetype](https://www.freetype.org/))
+- Game objects
 - Collisions & Rigidbodies
 - Material system
-- Game objects
+- Lighting system
+- Framebuffers
+- Custom post-processing effects
 
 More on the way:
 - Raycasting
-- Lighting system
 - Sound system (using [FMOD](https://www.fmod.com/))
 - Animation system (morph targets and skeletal animation)
-- Viewports
-
 
 # Building Cappuccino Engine
 ### Note:
@@ -29,6 +29,7 @@ Currently, only Windows builds are supported. Other platforms will be supported 
 ### Building
 All you have to do to build Cappuccino Engine is run `CappEngineGeneration.bat`, which is included in the files.
 Then you can make a game project using the `CappGameGeneraion.bat` file in the `GameGeneration` folder, which will make a new project that links into the Cappuccino Engine.
+Note that you need to have Cappuccino Engine installed and built <b>BEFORE</b> you try to make a game project.
 
 # One Last Thing
 [Jewel3D](https://github.com/EmilianC/Jewel3D) was a big part of our learning over the summer of 2019, and we would like to personally thank the creator.

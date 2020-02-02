@@ -9,5 +9,9 @@ uniform vec4 uColour;
 uniform float uTileFactor;
 
 void main() {
-	outColour = texture(uTextureSlot, inUV * uTileFactor) * uColour;
+	vec4 colour = texture(uTextureSlot, inUV * uTileFactor) * uColour;
+	if(colour.a <= 0.1) {
+		discard;
+	}
+	outColour = colour;
 }

@@ -38,6 +38,12 @@ void RenderCommand::setViewport(const unsigned x, const unsigned y, const unsign
 	glScissor(x, y, w, h);
 }
 
+glm::vec4 RenderCommand::getClearColour() {
+	glm::vec4 clearColour;
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(clearColour));
+	return clearColour;
+}
+
 // ----------------------------------------------------------------
 // ----- Screen clearing ------------------------------------------
 // ----------------------------------------------------------------

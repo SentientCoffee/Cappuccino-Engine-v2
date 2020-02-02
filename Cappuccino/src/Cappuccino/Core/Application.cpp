@@ -2,10 +2,13 @@
 #include "Cappuccino/Core/Application.h"
 
 #include "Cappuccino/Core/Time.h"
+
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/3D/Renderer.h"
-#include "Cappuccino/Resource/ResourceManager.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
+
+#include "Cappuccino/Resource/ResourceManager.h"
+#include "Cappuccino/Scenes/SceneManager.h"
 
 using namespace Capp;
 
@@ -22,6 +25,7 @@ Application::Application(const unsigned width, const unsigned height, const std:
 	// Initialize renderers and resource managers
 	RenderCommand::init();
 	ResourceManager::init();
+	SceneManager::init();
 }
 
 Application::~Application() {
@@ -33,16 +37,19 @@ Application::~Application() {
 }
 
 void Application::run() {
-	if(sceneManager.getCurrentScene() == nullptr) {
-		sceneManager.changeScene(0);
+	if(SceneManager::getCurrentScene() == nullptr) {
+		SceneManager::changeScene(0);
 	}
-	CAPP_ASSERT(sceneManager.getCurrentScene() != nullptr, "No scene has been added to the scene manager!");
+	CAPP_ASSERT(SceneManager::getCurrentScene() != nullptr, "No scene has been added to the scene manager!");
+
+	RenderCommand::setClearColour(0.2f, 0.8f, 0.3f, 1.0f);
+	RenderCommand::clearScreen();
 	
 	while(_isRunning) {
 		Time::preUpdate();
 
 		if(!_isMinimized) {
-			sceneManager.getCurrentScene()->update();
+			SceneManager::getCurrentScene()->update();
 		}
 		
 		Time::postUpdate();
@@ -55,7 +62,7 @@ void Application::onEvent(Event& e) {
 	d.dispatchEventType<WindowClosedEvent>(BIND_EVENT_FN(Application::onWindowClosed));
 	d.dispatchEventType<WindowResizedEvent>(BIND_EVENT_FN(Application::onWindowResized));
 
-	sceneManager.getCurrentScene()->onEvent(e);
+	SceneManager::getCurrentScene()->onEvent(e);
 }
 
 
@@ -79,7 +86,6 @@ bool Application::onWindowResized(WindowResizedEvent& e) {
 	return false;
 }
 
-const SceneManager& Application::getSceneManager() const { return sceneManager; }
 Window* Application::getWindow() const { return _window; }
 
 Application* Application::getInstance() { return _instance; }

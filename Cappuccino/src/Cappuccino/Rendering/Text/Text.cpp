@@ -47,12 +47,19 @@ void Text::setFont(Font* font) { _font = font; }
 
 const glm::vec4& Text::getTextColour() const { return _textColour; }
 void Text::setTextColour(const glm::vec4& colour) { _textColour = colour; }
-void Text::setTextColour(const glm::vec3& colour) { setTextColour(colour.x, colour.y, colour.y); }
+void Text::setTextColour(const glm::vec3& colour) { setTextColour(colour.r, colour.g, colour.b); }
 void Text::setTextColour(const float r, const float g, const float b, const float a) { setTextColour({ r, g ,b, a }); }
 
-Transform& Text::setTextPosition(const glm::vec2& position) { return _transform.setPosition(position.x, position.y, 0.0f); }
-Transform& Text::setTextPosition(const float x, const float y) { return setTextPosition({ x, y }); }
-Transform& Text::setTextScale(const float scale) { return _transform.setScale(scale, scale, 1.0f); }
+Text& Text::setTextPosition(const glm::vec2& position) {
+	_transform.setPosition(position.x, position.y, 0.0f);
+	return *this;
+}
+Text& Text::setTextPosition(const float x, const float y) { return setTextPosition({ x, y }); }
+
+Text& Text::setTextScale(const float scale) {
+	_transform.setScale(scale, scale, 1.0f);
+	return *this;
+}
 
 const Transform& Text::getTransform() const { return _transform; }
 VertexArray* Text::getVAO() const { return _vao; }

@@ -15,6 +15,7 @@ namespace Capp {
 		
 		static void setViewport(unsigned x, unsigned y, unsigned w, unsigned h);
 
+		static glm::vec4 getClearColour();
 		static void setClearColour(const glm::vec4& colour);
 		static void setClearColour(float r, float g, float b, float a);
 

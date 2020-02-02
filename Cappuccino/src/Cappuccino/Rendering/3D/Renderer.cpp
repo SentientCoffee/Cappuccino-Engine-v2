@@ -104,8 +104,8 @@ void Renderer::init() {
 		const std::vector<std::string> filepaths = {
 			"Assets/Cappuccino/Textures/Skybox/graycloud_lf.jpg",
 			"Assets/Cappuccino/Textures/Skybox/graycloud_rt.jpg",
-			"Assets/Cappuccino/Textures/Skybox/graycloud_dn.jpg",
 			"Assets/Cappuccino/Textures/Skybox/graycloud_up.jpg",
+			"Assets/Cappuccino/Textures/Skybox/graycloud_dn.jpg",
 			"Assets/Cappuccino/Textures/Skybox/graycloud_ft.jpg",
 			"Assets/Cappuccino/Textures/Skybox/graycloud_bk.jpg"
 		};
@@ -145,11 +145,6 @@ void Renderer::init() {
 		rendererStorage->fullscreenQuad = new Mesh("Main framebuffer fullscreen quad", vertices, indices);
 	}
 	
-	// --------------------------------------------------
-	// ----- Clear colour -------------------------------
-	// --------------------------------------------------
-	
-	RenderCommand::setClearColour(0.8f, 0.2f, 0.7f, 1.0f);
 }
 
 void Renderer::shutdown() {

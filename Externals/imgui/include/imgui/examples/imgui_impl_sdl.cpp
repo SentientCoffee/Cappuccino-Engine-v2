@@ -19,7 +19,7 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2019-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2020-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
 //  2019-12-17: Inputs: On Wayland, use SDL_GetMouseState (because there is no global mouse state).
 //  2019-12-05: Inputs: Added support for ImGuiMouseCursor_NotAllowed mouse cursor.
 //  2019-07-21: Inputs: Added mapping for ImGuiKey_KeyPadEnter.
@@ -74,6 +74,7 @@ static bool         g_MousePressed[3] = { false, false, false };
 static SDL_Cursor*  g_MouseCursors[ImGuiMouseCursor_COUNT] = {};
 static char*        g_ClipboardTextData = NULL;
 static bool         g_MouseCanUseGlobalState = true;
+static bool         g_UseVulkan = false;
 
 // Forward Declarations
 static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_gl_context);
@@ -131,7 +132,11 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
             io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
             io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
             io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+#ifdef _WIN32
+            io.KeySuper = false;
+#else
             io.KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+#endif
             return true;
         }
     // Multi-viewport support
@@ -236,6 +241,7 @@ bool ImGui_ImplSDL2_InitForVulkan(SDL_Window* window)
 #if !SDL_HAS_VULKAN
     IM_ASSERT(0 && "Unsupported");
 #endif
+    g_UseVulkan = true;
     return ImGui_ImplSDL2_Init(window, NULL);
 }
 
@@ -432,6 +438,7 @@ void ImGui_ImplSDL2_NewFrame(SDL_Window* window)
 // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
 //--------------------------------------------------------------------------------------------------------
 
+// Helper structure we store in the void* RenderUserData field of each ImGuiViewport to easily retrieve our backend data.
 struct ImGuiViewportDataSDL2
 {
     SDL_Window*     Window;
@@ -462,11 +469,15 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
     }
 
     Uint32 sdl_flags = 0;
-    sdl_flags |= use_opengl ? SDL_WINDOW_OPENGL : SDL_WINDOW_VULKAN;
+    sdl_flags |= use_opengl ? SDL_WINDOW_OPENGL : (g_UseVulkan ? SDL_WINDOW_VULKAN : 0);
     sdl_flags |= SDL_GetWindowFlags(g_Window) & SDL_WINDOW_ALLOW_HIGHDPI;
     sdl_flags |= SDL_WINDOW_HIDDEN;
     sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoDecoration) ? SDL_WINDOW_BORDERLESS : 0;
     sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoDecoration) ? 0 : SDL_WINDOW_RESIZABLE;
+#if !defined(_WIN32)
+    // See SDL hack in ImGui_ImplSDL2_ShowWindow().
+    sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon) ? SDL_WINDOW_SKIP_TASKBAR : 0;
+#endif
 #if SDL_HAS_ALWAYS_ON_TOP
     sdl_flags |= (viewport->Flags & ImGuiViewportFlags_TopMost) ? SDL_WINDOW_ALWAYS_ON_TOP : 0;
 #endif
@@ -681,6 +692,7 @@ static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_g
     ImGui_ImplSDL2_UpdateMonitors();
 
     // Register main window handle (which is owned by the main application, not by us)
+    // This is mostly for simplicity and consistency, so that our code (e.g. mouse handling etc.) can use same logic for main and secondary viewports.
     ImGuiViewport* main_viewport = ImGui::GetMainViewport();
     ImGuiViewportDataSDL2* data = IM_NEW(ImGuiViewportDataSDL2)();
     data->Window = window;

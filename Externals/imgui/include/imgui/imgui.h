@@ -1,10 +1,20 @@
 // dear imgui, v1.75 WIP
 // (headers)
 
-// See imgui.cpp file for documentation.
-// Call and read ImGui::ShowDemoWindow() in imgui_demo.cpp for demo code.
-// Newcomers, read 'Programmer guide' in imgui.cpp for notes on how to setup Dear ImGui in your codebase.
-// Get latest version at https://github.com/ocornut/imgui
+// Help:
+// - Read FAQ at http://dearimgui.org/faq
+// - Newcomers, read 'Programmer guide' in imgui.cpp for notes on how to setup Dear ImGui in your codebase.
+// - Call and read ImGui::ShowDemoWindow() in imgui_demo.cpp for demo code. All applications in examples/ are doing that.
+// Read imgui.cpp for more details, documentation and comments.
+
+// Resources:
+// - FAQ                   http://dearimgui.org/faq
+// - Homepage & latest     https://github.com/ocornut/imgui
+// - Releases & changelog  https://github.com/ocornut/imgui/releases
+// - Gallery               https://github.com/ocornut/imgui/issues/2847 (please post your screenshots/video there!)
+// - Glossary              https://github.com/ocornut/imgui/wiki/Glossary
+// - Wiki                  https://github.com/ocornut/imgui/wiki
+// - Issues & support      https://github.com/ocornut/imgui/issues
 
 /*
 
@@ -69,7 +79,7 @@ Index of this file:
 #include <assert.h>
 #define IM_ASSERT(_EXPR)            assert(_EXPR)                               // You can override the default assert handler by editing imconfig.h
 #endif
-#if defined(__clang__) || defined(__GNUC__)
+#if !defined(IMGUI_USE_STB_SPRINTF) && (defined(__clang__) || defined(__GNUC__))
 #define IM_FMTARGS(FMT)             __attribute__((format(printf, FMT, FMT+1))) // To apply printf-style warnings to our functions.
 #define IM_FMTLIST(FMT)             __attribute__((format(printf, FMT, 0)))
 #else
@@ -295,7 +305,7 @@ namespace ImGui
     IMGUI_API void          SetNextWindowContentSize(const ImVec2& size);                               // set next window content size (~ scrollable client area, which enforce the range of scrollbars). Not including window decorations (title bar, menu bar, etc.) nor WindowPadding. set an axis to 0.0f to leave it automatic. call before Begin()
     IMGUI_API void          SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = 0);                 // set next window collapsed state. call before Begin()
     IMGUI_API void          SetNextWindowFocus();                                                       // set next window to be focused / top-most. call before Begin()
-    IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                          // set next window background color alpha. helper to easily modify ImGuiCol_WindowBg/ChildBg/PopupBg. you may also use ImGuiWindowFlags_NoBackground.
+    IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                          // set next window background color alpha. helper to easily override the Alpha component of ImGuiCol_WindowBg/ChildBg/PopupBg. you may also use ImGuiWindowFlags_NoBackground.
     IMGUI_API void          SetNextWindowViewport(ImGuiID viewport_id);                                 // set next window viewport
     IMGUI_API void          SetWindowPos(const ImVec2& pos, ImGuiCond cond = 0);                        // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
     IMGUI_API void          SetWindowSize(const ImVec2& size, ImGuiCond cond = 0);                      // (not recommended) set current window size - call within Begin()/End(). set to ImVec2(0,0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects.
@@ -480,7 +490,7 @@ namespace ImGui
     IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format = NULL, float power = 1.0f);
 
     // Widgets: Input with Keyboard
-    // - If you want to use InputText() with a dynamic string type such as std::string or your own, see misc/cpp/imgui_stdlib.h
+    // - If you want to use InputText() with std::string or any custom dynamic string type, see misc/cpp/imgui_stdlib.h and comments in imgui_demo.cpp.
     // - Most of the ImGuiInputTextFlags flags are only useful for InputText() and not for InputFloatX, InputIntX, InputDouble etc.
     IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
     IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
@@ -597,7 +607,7 @@ namespace ImGui
     // - You can also use SameLine(pos_x) to mimic simplified columns.
     // - The columns API is work-in-progress and rather lacking (columns are arguably the worst part of dear imgui at the moment!)
     // - There is a maximum of 64 columns.
-    // - By end of the 2019 we will expose a new 'Table' api which will replace columns.
+    // - Currently working on new 'Tables' api which will replace columns (see GitHub #2957)
     IMGUI_API void          Columns(int count = 1, const char* id = NULL, bool border = true);
     IMGUI_API void          NextColumn();                                                       // next column, defaults to current row or next row if the current row is finished
     IMGUI_API int           GetColumnIndex();                                                   // get current column index
@@ -707,7 +717,7 @@ namespace ImGui
     // - For 'int user_key_index' you can use your own indices/enums according to how your backend/engine stored them in io.KeysDown[].
     // - We don't know the meaning of those value. You can use GetKeyIndex() to map a ImGuiKey_ value into the user index.
     IMGUI_API int           GetKeyIndex(ImGuiKey imgui_key);                                    // map ImGuiKey_* values into user's key index. == io.KeyMap[key]
-    IMGUI_API bool          IsKeyDown(int user_key_index);                                      // is key being held. == io.KeysDown[user_key_index]. 
+    IMGUI_API bool          IsKeyDown(int user_key_index);                                      // is key being held. == io.KeysDown[user_key_index].
     IMGUI_API bool          IsKeyPressed(int user_key_index, bool repeat = true);               // was key pressed (went from !Down to Down)? if repeat=true, uses io.KeyRepeatDelay / KeyRepeatRate
     IMGUI_API bool          IsKeyReleased(int user_key_index);                                  // was key released (went from Down to !Down)?
     IMGUI_API int           GetKeyPressedAmount(int key_index, float repeat_delay, float rate); // uses provided repeat rate/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate
@@ -1149,7 +1159,7 @@ enum ImGuiCol_
     ImGuiCol_TabActive,
     ImGuiCol_TabUnfocused,
     ImGuiCol_TabUnfocusedActive,
-    ImGuiCol_DockingPreview,
+    ImGuiCol_DockingPreview,        // Preview overlay color when about to docking something
     ImGuiCol_DockingEmptyBg,        // Background color for empty node (e.g. CentralNode with no window docked into it)
     ImGuiCol_PlotLines,
     ImGuiCol_PlotLinesHovered,
@@ -1252,7 +1262,7 @@ enum ImGuiColorEditFlags_
 #endif
 };
 
-// Identify a mouse button. 
+// Identify a mouse button.
 // Those values are guaranteed to be stable and we frequently use 0/1 directly. Named enums provided for convenience.
 enum ImGuiMouseButton_
 {
@@ -1284,7 +1294,7 @@ enum ImGuiMouseCursor_
 #endif
 };
 
-// Enumateration for ImGui::SetWindow***(), SetNextWindow***(), SetNextItem***() functions
+// Enumeration for ImGui::SetWindow***(), SetNextWindow***(), SetNextItem***() functions
 // Represent a condition.
 // Important: Treat as a regular enum! Do NOT combine multiple values using binary operators! All the functions above treat 0 as a shortcut to ImGuiCond_Always.
 enum ImGuiCond_
@@ -1423,6 +1433,7 @@ struct ImGuiStyle
     bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
     bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
     float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+    float       CircleSegmentMaxError;      // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
     ImVec4      Colors[ImGuiCol_COUNT];
 
     IMGUI_API ImGuiStyle();
@@ -1443,7 +1454,7 @@ struct ImGuiIO
 
     ImGuiConfigFlags   ConfigFlags;             // = 0              // See ImGuiConfigFlags_ enum. Set by user/application. Gamepad/keyboard navigation options, etc.
     ImGuiBackendFlags  BackendFlags;            // = 0              // See ImGuiBackendFlags_ enum. Set by back-end (imgui_impl_xxx files or custom back-end) to communicate features supported by the back-end.
-    ImVec2      DisplaySize;                    // <unset>          // Main display size, in pixels. This is for the default viewport. Use BeginViewport() for other viewports.
+    ImVec2      DisplaySize;                    // <unset>          // Main display size, in pixels. This is for the default viewport.
     float       DeltaTime;                      // = 1.0f/60.0f     // Time elapsed since last frame, in seconds.
     float       IniSavingRate;                  // = 5.0f           // Minimum time between saving positions/sizes to .ini file, in seconds.
     const char* IniFilename;                    // = "imgui.ini"    // Path to .ini file. Set NULL to disable automatic .ini loading/saving, if e.g. you want to manually load/save from memory.
@@ -1636,10 +1647,12 @@ struct ImGuiWindowClass
     ImGuiID             ParentViewportId;           // Hint for the platform back-end. If non-zero, the platform back-end can create a parent<>child relationship between the platform windows. Not conforming back-ends are free to e.g. parent every viewport to the main viewport or not.
     ImGuiViewportFlags  ViewportFlagsOverrideSet;   // Viewport flags to set when a window of this class owns a viewport. This allows you to enforce OS decoration or task bar icon, override the defaults on a per-window basis.
     ImGuiViewportFlags  ViewportFlagsOverrideClear; // Viewport flags to clear when a window of this class owns a viewport. This allows you to enforce OS decoration or task bar icon, override the defaults on a per-window basis.
+    ImGuiDockNodeFlags  DockNodeFlagsOverrideSet;   // [EXPERIMENTAL] Dock node flags to set when a window of this class is hosted by a dock node (it doesn't have to be selected!)
+    ImGuiDockNodeFlags  DockNodeFlagsOverrideClear; // [EXPERIMENTAL] 
     bool                DockingAlwaysTabBar;        // Set to true to enforce single floating windows of this class always having their own docking node (equivalent of setting the global io.ConfigDockingAlwaysTabBar)
     bool                DockingAllowUnclassed;      // Set to true to allow windows of this class to be docked/merged with an unclassed window.
 
-    ImGuiWindowClass() { ClassId = 0; ParentViewportId = 0; ViewportFlagsOverrideSet = ViewportFlagsOverrideClear = 0x00; DockingAlwaysTabBar = false; DockingAllowUnclassed = true; }
+    ImGuiWindowClass() { ClassId = 0; ParentViewportId = 0; ViewportFlagsOverrideSet = ViewportFlagsOverrideClear = 0x00; DockNodeFlagsOverrideSet = DockNodeFlagsOverrideClear = 0x00; DockingAlwaysTabBar = false; DockingAllowUnclassed = true; }
 };
 
 // Data payload for Drag and Drop operations: AcceptDragDropPayload(), GetDragDropPayload()
@@ -1824,9 +1837,13 @@ struct ImGuiStorage
 // - Step 3: the clipper validate that we have reached the expected Y position (corresponding to element DisplayEnd), advance the cursor to the end of the list and then returns 'false' to end the loop.
 struct ImGuiListClipper
 {
-    float   StartPosY;
+    int     DisplayStart, DisplayEnd;
+    int     ItemsCount;
+
+    // [Internal]
+    int     StepNo;
     float   ItemsHeight;
-    int     ItemsCount, StepNo, DisplayStart, DisplayEnd;
+    float   StartPosY;
 
     // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
     // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
@@ -2027,6 +2044,9 @@ struct ImDrawList
 
     // Primitives
     // - For rectangular primitives, "p_min" and "p_max" represent the upper-left and lower-right corners.
+    // - For circle primitives, use "num_segments == 0" to automatically calculate tessellation (preferred). 
+    //   In future versions we will use textures to provide cheaper and higher-quality circles. 
+    //   Use AddNgon() and AddNgonFilled() functions if you need to guaranteed a specific number of sides.
     IMGUI_API void  AddLine(const ImVec2& p1, const ImVec2& p2, ImU32 col, float thickness = 1.0f);
     IMGUI_API void  AddRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding = 0.0f, ImDrawCornerFlags rounding_corners = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right (== upper-left + size), rounding_corners_flags: 4 bits corresponding to which corner to round
     IMGUI_API void  AddRectFilled(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding = 0.0f, ImDrawCornerFlags rounding_corners = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right (== upper-left + size)
@@ -2316,10 +2336,10 @@ struct ImFont
     short                       ConfigDataCount;    // 2     // in  // ~ 1        // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
     ImWchar                     FallbackChar;       // 2     // in  // = '?'      // Replacement character if a glyph isn't found. Only set via SetFallbackChar()
     ImWchar                     EllipsisChar;       // 2     // out // = -1       // Character used for ellipsis rendering.
+    bool                        DirtyLookupTables;  // 1     // out //
     float                       Scale;              // 4     // in  // = 1.f      // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
     float                       Ascent, Descent;    // 4+4   // out //            // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
     int                         MetricsTotalSurface;// 4     // out //            // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
-    bool                        DirtyLookupTables;  // 1     // out //
 
     // Methods
     IMGUI_API ImFont();
@@ -2449,8 +2469,8 @@ struct ImGuiViewport
     ImDrawData*         DrawData;               // The ImDrawData corresponding to this viewport. Valid after Render() and until the next call to NewFrame().
     ImGuiID             ParentViewportId;       // (Advanced) 0: no parent. Instruct the platform back-end to setup a parent/child relationship between platform windows.
 
-    void*               RendererUserData;       // void* to hold custom data structure for the renderer (e.g. swap chain, frame-buffers etc.)
-    void*               PlatformUserData;       // void* to hold custom data structure for the OS / platform (e.g. windowing info, render context)
+    void*               RendererUserData;       // void* to hold custom data structure for the renderer (e.g. swap chain, frame-buffers etc.). If somehow everything you need can fit in the void* PlatformHandle field you may ignore this.
+    void*               PlatformUserData;       // void* to hold custom data structure for the OS / platform (e.g. windowing info, render context). If somehow everything you need can fit in the void* PlatformHandle field you may ignore this.
     void*               PlatformHandle;         // void* for FindViewportByPlatformHandle(). (e.g. suggested to use natural platform handle such as HWND, GLFWWindow*, SDL_Window*)
     void*               PlatformHandleRaw;      // void* to hold low-level, platform-native window handle (e.g. the HWND) when using an abstraction layer like GLFW or SDL (where PlatformHandle would be a SDL_Window*)
     bool                PlatformRequestClose;   // Platform window requested closure (e.g. window was moved by the OS / host window manager, e.g. pressing ALT-F4)

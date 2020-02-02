@@ -12,7 +12,7 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2019-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2020-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
 //  2019-08-01: DirectX11: Fixed code querying the Geometry Shader state (would generally error with Debug layer enabled).
 //  2019-07-21: DirectX11: Backup, clear and restore Geometry Shader is any is bound when calling ImGui_ImplDX10_RenderDrawData. Clearing Hull/Domain/Compute shaders without backup/restore.
 //  2019-05-29: DirectX11: Added support for large mesh (64K+ vertices), enable ImGuiBackendFlags_RendererHasVtxOffset flag.
@@ -560,6 +560,7 @@ void ImGui_ImplDX11_NewFrame()
 // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
 //--------------------------------------------------------------------------------------------------------
 
+// Helper structure we store in the void* RenderUserData field of each ImGuiViewport to easily retrieve our backend data.
 struct ImGuiViewportDataDx11
 {
     IDXGISwapChain*             SwapChain;

@@ -18,8 +18,7 @@ namespace Capp {
 		static void start(const OrthographicCamera& camera);
 		static void finish();
 
-		static void drawQuad(const ColouredQuad& properties);
-		static void drawQuad(const TexturedQuad& properties);
+		static void drawQuad(const Quad& quad);
 
 		static void drawText(Text* text);
 		

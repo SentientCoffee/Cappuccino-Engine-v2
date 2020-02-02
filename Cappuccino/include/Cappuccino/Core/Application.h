@@ -5,8 +5,6 @@
 #include "Cappuccino/Events/Event.h"
 #include "Cappuccino/Events/WindowEvents.h"
 
-#include "Cappuccino/Scenes/SceneManager.h"
-
 namespace Capp {
 
 	class Application {
@@ -23,14 +21,10 @@ namespace Capp {
 		void run();
 		void onEvent(Event& e);
 
-		const SceneManager& getSceneManager() const;
 		Window* getWindow() const;
 
 		static Application* getInstance();
 
-	protected:
-		
-		SceneManager sceneManager;
 		
 	private:
 

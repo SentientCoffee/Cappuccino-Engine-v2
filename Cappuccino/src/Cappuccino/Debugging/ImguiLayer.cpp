@@ -32,7 +32,7 @@ void ImguiLayer::onPush() {
 	}
 
 	const auto window = Application::getInstance()->getWindow()->getGlfwWindow();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplGlfw_InitForOpenGL(window, false);
 	ImGui_ImplOpenGL3_Init("#version 450");
 }
 
@@ -46,9 +46,6 @@ void ImguiLayer::begin() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.DeltaTime = Time::getDeltaTime();
 }
 
 void ImguiLayer::drawImgui() {}

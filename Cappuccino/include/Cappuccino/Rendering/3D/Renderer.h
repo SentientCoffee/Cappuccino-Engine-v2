@@ -33,7 +33,7 @@ namespace Capp {
 		static void onWindowResized(unsigned width, unsigned height);
 		
 		static void start();
-		static void start(const PerspectiveCamera& camera, const Lights& lights, TextureCubemap* skybox);
+		static void start(const PerspectiveCamera& camera, const Lights& lights, const std::optional<TextureCubemap*>& skybox = std::nullopt);
 		
 		static void finish(const PostPasses& postProcessing = {});
 

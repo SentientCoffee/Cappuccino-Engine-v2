@@ -34,7 +34,7 @@ void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
 
 Shader* ShaderLibrary::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
 	if(hasShader(name)) {
-		CAPP_ASSERT(!hasShader(name), "Shader \"{0}\" already exists!", name);
+		CAPP_PRINT_INFO("Shader \"{0}\" already exists, using loaded shader...", name);
 		return _shaders[name];
 	}
 

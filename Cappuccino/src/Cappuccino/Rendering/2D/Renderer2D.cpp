@@ -21,9 +21,9 @@ struct Renderer2DStorage {
 	Shader* textShader = nullptr;
 	Texture2D* whiteTexture = nullptr;
 
-	Shader* framebufferShader = nullptr;
-	Mesh* fullscreenQuad = nullptr;
 	Framebuffer* mainBuffer = nullptr;
+	Shader* mainBufferShader = nullptr;
+	Mesh* fullscreenQuad = nullptr;
 	
 	std::vector<Quad> quadsToRender;
 	std::vector<Text*> textToRender;
@@ -73,7 +73,7 @@ void Renderer2D::init() {
 	{
 		renderer2DStorage->quadShader = new Shader("Default2D", "Assets/Cappuccino/Shaders/2DShader.vert", "Assets/Cappuccino/Shaders/2DShader.frag");
 		renderer2DStorage->textShader = new Shader("DefaultText", "Assets/Cappuccino/Shaders/TextShader.vert", "Assets/Cappuccino/Shaders/TextShader.frag");
-		renderer2DStorage->framebufferShader = new Shader("2D Framebuffer", "Assets/Cappuccino/Shaders/FramebufferShader.vert", "Assets/Cappuccino/Shaders/FramebufferShader.frag");
+		renderer2DStorage->mainBufferShader = new Shader("Framebuffer Default", "Assets/Cappuccino/Shaders/FramebufferShader.vert", "Assets/Cappuccino/Shaders/FramebufferShader.frag");
 		
 		renderer2DStorage->quadShader->bind();
 		renderer2DStorage->quadShader->setUniform("uTextureSlot", 0);
@@ -81,8 +81,8 @@ void Renderer2D::init() {
 		renderer2DStorage->textShader->bind();
 		renderer2DStorage->textShader->setUniform("uTextureSlot", 0);
 
-		renderer2DStorage->framebufferShader->bind();
-		renderer2DStorage->framebufferShader->setUniform("uTextureSlot", 0);
+		renderer2DStorage->mainBufferShader->bind();
+		renderer2DStorage->mainBufferShader->setUniform("uTextureSlot", 0);
 	}
 
 	{
@@ -123,73 +123,29 @@ void Renderer2D::start(const OrthographicCamera& camera) {
 	renderer2DStorage->textShader->setUniform("uProjection", camera.getProjectionMatrix());
 
 	renderer2DStorage->quadsToRender.clear();
+	renderer2DStorage->quadsToRender.reserve(200);
 	renderer2DStorage->textToRender.clear();
+	renderer2DStorage->textToRender.reserve(200);
 }
 
 void Renderer2D::drawQuad(const Quad& quad) {
 	CAPP_ASSERT(quad.texture != nullptr, "No texture in textured quad!");
 	renderer2DStorage->quadsToRender.push_back(quad);
-	
-	//quad.texture->bind(0);
-
-	//Transform transform;
-	//transform.setPosition(quad.zIndexedPosition).setScale(quad.dimensions.x, quad.dimensions.y, 0.0f);
-
-	//renderer2DStorage->quadShader->bind();
-	//renderer2DStorage->quadShader->setUniform("uTransform", transform.getWorldTransform());
-	//renderer2DStorage->quadShader->setUniform("uColour", quad.tint);
-	//renderer2DStorage->quadShader->setUniform("uTileFactor", quad.tilingFactor);
-
-	//renderer2DStorage->quadMesh->getVAO()->bind();
-	//RenderCommand::drawIndexed(renderer2DStorage->quadMesh->getVAO());
 }
 
 void Renderer2D::drawText(Text* text) {
 	renderer2DStorage->textToRender.push_back(text);
-	//renderer2DStorage->textShader->bind();
-	//renderer2DStorage->textShader->setUniform("uTextColour", text->getTextColour());
-
-	//auto tempPos = text->getTransform().getPosition();
-	//for(auto ch = text->getText().begin(); ch != text->getText().end(); ++ch) {
-	//	const Glyph glyph = text->getFont()->getCharacter(*ch);
-	//	
-	//	const float x = tempPos.x + glyph.bearing.x * text->getTransform().getScale().x;
-	//	const float y = tempPos.y + static_cast<float>(glyph.size.y - glyph.bearing.y) * text->getTransform().getScale().y;
-	//	const float w = glyph.size.x * text->getTransform().getScale().x;
-	//	const float h = glyph.size.y * text->getTransform().getScale().y;
-
-	//	std::vector<float> vertices = {
-	//		x,     y,       0.0f, 1.0f,
-	//		x + w, y,       1.0f, 1.0f,
-	//		x + w, y - h,   1.0f, 0.0f,
-	//		x,     y - h,   0.0f, 0.0f,
-	//	};
-
-	//	std::vector<unsigned> indices = {
-	//		0, 1, 2,
-	//		0, 2, 3
-	//	};
-
-	//	glyph.texture->bind(0);
-	//	text->getVAO()->bind();
-	//	text->getVAO()->getVertexBuffers().at(0)->setBufferData(vertices);
-	//	text->getVAO()->getIndexBuffer()->setBufferData(indices);
-
-	//	RenderCommand::drawIndexed(text->getVAO());
-	//	// Advance cursors for next glyph (note that advance is number of 1/64 pixels)
-	//	tempPos.x += static_cast<float>(glyph.advance >> 6)* text->getTransform().getScale().x;  // Bit shift by 6 to get value in pixels (2^6 = 64)
-	//}
 }
 
 void Renderer2D::finish() {
 
 	renderer2DStorage->mainBuffer->bind();
-	//RenderCommand::clearScreen();
 	RenderCommand::setViewport(0, 0, renderer2DStorage->mainBuffer->getWidth(), renderer2DStorage->mainBuffer->getHeight());
 	// CLEAR WITH ALPHA AT 0.0f SO OTHER LAYERS' FRAMEBUFFERS CAN BE SEEN
 	RenderCommand::setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
 	RenderCommand::clearScreen();
 	RenderCommand::enableDepthTesting();
+	RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
 	
 	renderer2DStorage->quadShader->bind();
 	Transform transform;
@@ -211,19 +167,6 @@ void Renderer2D::finish() {
 		renderer2DStorage->quadMesh->getVAO()->bind();
 		RenderCommand::drawIndexed(renderer2DStorage->quadMesh->getVAO());
 	}
-
-	//for(auto quad : renderer2DStorage->colouredQuadsToRender) {
-	//	renderer2DStorage->whiteTexture->bind(0);
-
-	//	transform.setPosition(quad.zIndexedPosition).setScale(quad.dimensions.x, quad.dimensions.y, 0.0f);
-
-	//	renderer2DStorage->quadShader->setUniform("uTransform", transform.getWorldTransform());
-	//	renderer2DStorage->quadShader->setUniform("uColour", quad.tint);
-	//	renderer2DStorage->quadShader->setUniform("uTileFactor", 1.0f);
-
-	//	renderer2DStorage->quadMesh->getVAO()->bind();
-	//	RenderCommand::drawIndexed(renderer2DStorage->quadMesh->getVAO());
-	//}
 
 	renderer2DStorage->textShader->bind();
 	for(auto text : renderer2DStorage->textToRender) {
@@ -263,10 +206,10 @@ void Renderer2D::finish() {
 
 	renderer2DStorage->mainBuffer->unbind();
 	RenderCommand::disableDepthTesting();
-	RenderCommand::clearScreen(ClearFlags::Colour);
-
+	RenderCommand::setBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha);
+	
 	RenderCommand::setViewport(0, 0, renderer2DStorage->mainBuffer->getWidth(), renderer2DStorage->mainBuffer->getHeight());
-	renderer2DStorage->framebufferShader->bind();
+	renderer2DStorage->mainBufferShader->bind();
 	renderer2DStorage->mainBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
 	renderer2DStorage->fullscreenQuad->getVAO()->bind();
 	RenderCommand::drawIndexed(renderer2DStorage->fullscreenQuad->getVAO());

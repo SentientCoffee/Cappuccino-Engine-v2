@@ -38,7 +38,7 @@ void FontLibrary::addFont(const std::string& name, Font* font) {
 
 Font* FontLibrary::loadFont(const std::string& name, const std::string& filepath) {
 	if(hasFont(name)) {
-		CAPP_ASSERT(!hasFont(name), "Font \"{0}\" already exists!", name);
+		CAPP_PRINT_INFO("Font \"{0}\" already exists, using loaded font...", name);
 		return _fonts[name];
 	}
 	

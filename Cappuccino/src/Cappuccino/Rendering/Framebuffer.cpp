@@ -34,14 +34,13 @@ void Framebuffer::resize(const unsigned width, const unsigned height) {
 		addAttachment(attachment.first, attachment.second);
 	}
 
-	const bool bufferStatus = validateFramebuffer();
-	CAPP_ASSERT(bufferStatus, "Framebuffer is invalid!");
+	validateFramebuffer();
 }
 
 void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment& attachment) {
 	const auto it = _attachments.find(target);
 	if(it != _attachments.end()) {
-		CAPP_PRINT_WARNING("An attachment in framebuffer \"{0}\" is already bound to target \"{1:x}\", replacing with new attachment...", _name, static_cast<unsigned>(target));
+		CAPP_PRINT_WARNING("An attachment in framebuffer \"{0}\" is already bound to target 0x{1:X}, replacing with new attachment...", _name, static_cast<unsigned>(target));
 
 		if(it->second.type == AttachmentType::RenderBuffer) {
 			glDeleteRenderbuffers(1, &it->second.id);
@@ -90,7 +89,6 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 	}
 
 	_attachments[target] = a;
-	validateFramebuffer();
 }
 
 Texture2D* Framebuffer::getAttachment(const AttachmentTarget target) {
@@ -130,11 +128,14 @@ bool Framebuffer::validateFramebuffer() {
 	}
 
 	switch(result) {
+		case GL_FRAMEBUFFER_UNDEFINED:
+			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE, "Framebuffer \"{0}\" failed to validate. The default framebuffer is undefined.", _name);
+			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
 			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate. One of the attachment points is framebuffer incomplete.", _name);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate. There are no attachments!", _name);
+			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate. There are no attachments.", _name);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
 			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate. Draw buffer is incomplete.", _name);

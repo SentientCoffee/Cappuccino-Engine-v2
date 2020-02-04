@@ -3,6 +3,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 using namespace Capp;
 
@@ -72,6 +73,10 @@ void PerspectiveCamera::setProjection(const float fovY, const unsigned width, co
 void PerspectiveCamera::lookAt(const glm::vec3& target, const glm::vec3& up) {
 	_viewMatrix = glm::lookAt(_transform.getPosition(), target, up);
 	_viewProjection = _projectionMatrix * _viewMatrix;
+	
+	glm::vec3 rotation;
+	glm::extractEulerAngleXYZ(_viewMatrix, rotation.x, rotation.y, rotation.z);
+	_transform.setRotation(glm::degrees(rotation));
 }
 void PerspectiveCamera::lookAt(const float targetX, const float targetY, const float targetZ, const glm::vec3& up) { lookAt({ targetX, targetY, targetZ }, up); }
 

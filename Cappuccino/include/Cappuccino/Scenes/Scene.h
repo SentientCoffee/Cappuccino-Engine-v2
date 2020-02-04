@@ -14,7 +14,7 @@ namespace Capp {
 
 	public:
 
-		Scene(const std::string& name = "Scene");
+		Scene(const std::string& name);
 		virtual ~Scene() = default;
 
 		virtual void init();

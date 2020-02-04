@@ -139,7 +139,7 @@ Window::Window(const WindowProperties& properties) :
 	
 	glfwMakeContextCurrent(_window);
 	glfwSetWindowUserPointer(_window, &_properties);
-	setVSyncEnabled(true);
+	setVSyncEnabled(_properties.isVSyncEnabled);
 	setGLFWCallbacks();
 
 	const int gladStatus = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));

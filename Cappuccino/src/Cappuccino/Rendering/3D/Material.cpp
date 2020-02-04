@@ -5,8 +5,7 @@
 
 using namespace Capp;
 
-Material::Material() :
-	_shader(new Shader("Blinn Phong", "Assets/Cappuccino/Shaders/BlinnPhongShader.vert", "Assets/Cappuccino/Shaders/BlinnPhongShader.frag")) {
+Material::Material() {
 	setValue("diffuseMap", new Texture2D(1, 1, &whiteTexture));
 	setValue("specularMap", new Texture2D(1, 1, &whiteTexture));
 	setValue("emissionMap", new Texture2D(1, 1, &blackTexture));

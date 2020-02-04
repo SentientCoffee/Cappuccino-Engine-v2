@@ -180,7 +180,9 @@ unsigned Shader::getRendererID() const { return _id; }
 
 int Shader::getUniformLocation(const std::string& uniformName) const {
 	const int uniformLocation = glGetUniformLocation(_id, uniformName.c_str());
-	CAPP_ASSERT(uniformLocation != -1, "Could not find uniform \"{0}\" in shader \"{1}\"", uniformName, _name);
+	if(uniformLocation == -1) {
+		CAPP_PRINT_ERROR("Could not find uniform \"{0}\" in shader \"{1}\"", uniformName, _name);
+	}
 	return uniformLocation;
 }
 

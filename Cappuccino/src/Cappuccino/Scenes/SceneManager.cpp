@@ -8,6 +8,7 @@ std::vector<Scene*> SceneManager::_scenes;
 
 void SceneManager::init() {
 	_currentScene = nullptr;
+	_scenes.reserve(20);
 }
 
 void SceneManager::shutdown() {

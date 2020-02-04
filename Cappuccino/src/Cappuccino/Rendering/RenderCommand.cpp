@@ -97,6 +97,22 @@ void RenderCommand::setDrawMode(DrawMode mode) {
 	glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(mode));
 }
 
+void RenderCommand::enableBlending() {
+	glEnable(GL_BLEND);
+}
+
+void RenderCommand::disableBlending() {
+	glDisable(GL_BLEND);
+}
+
+void RenderCommand::setBlendFunction(SourceFactor sourceFactor, DestinationFactor destinationFactor) {
+	glBlendFunc(static_cast<GLenum>(sourceFactor), static_cast<GLenum>(destinationFactor));
+}
+
+void RenderCommand::setSeparateBlendFunction(SourceFactor colourSourceFactor, DestinationFactor colourDestinationFactor, SourceFactor alphaSourceFactor, DestinationFactor alphaDestinationFactor) {
+	glBlendFuncSeparate(static_cast<GLenum>(colourSourceFactor), static_cast<GLenum>(colourDestinationFactor), static_cast<GLenum>(alphaSourceFactor), static_cast<GLenum>(alphaDestinationFactor));
+}
+
 // ----------------------------------------------------------------
 // ----- Depth testing --------------------------------------------
 // ----------------------------------------------------------------

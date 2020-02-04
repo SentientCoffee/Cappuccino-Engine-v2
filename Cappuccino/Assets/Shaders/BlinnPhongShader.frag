@@ -126,7 +126,11 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
-	return diffuse + specular;
+	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
+	rimPower = smoothstep(0.6, 1.0, rimPower);
+	vec3 rim = light.colour * rimPower * texture(uMaterial.diffuseMap, inUV).xyz;
+
+	return diffuse + specular + rim;
 }
 
 vec3 calculatePointLight(PointLight light, vec3 normal, vec3 viewDirection) {
@@ -140,10 +144,14 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 viewDirection) {
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
+	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
+	rimPower = smoothstep(0.6, 1.0, rimPower);
+	vec3 rim = light.colour * rimPower * texture(uMaterial.diffuseMap, inUV).xyz;
+
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
 
-	return attenuation * (diffuse + specular);
+	return attenuation * (diffuse + specular + rim);
 }
 
 vec3 calculateSpotlight(Spotlight light, vec3 normal, vec3 viewDirection) {
@@ -157,6 +165,10 @@ vec3 calculateSpotlight(Spotlight light, vec3 normal, vec3 viewDirection) {
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - uMaterial.roughness) * 256);
 	vec3 specular = light.colour * specularPower * texture(uMaterial.specularMap, inUV).xyz;
 
+	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
+	rimPower = smoothstep(0.6, 1.0, rimPower);
+	vec3 rim = light.colour * rimPower * texture(uMaterial.diffuseMap, inUV).xyz;
+
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
 
@@ -164,5 +176,5 @@ vec3 calculateSpotlight(Spotlight light, vec3 normal, vec3 viewDirection) {
 	float epsilon = light.innerCutoffAngle - light.outerCutoffAngle;
 	float intensity = clamp((theta - light.outerCutoffAngle) / epsilon, 0.0, 1.0);
 
-	return intensity * attenuation * (diffuse + specular);
+	return intensity * attenuation * (diffuse + specular + rim);
 }

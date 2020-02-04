@@ -20,15 +20,10 @@ namespace Capp {
 		GameObject(const ModelInitList& models);
 		virtual ~GameObject();
 
-		GameObject* operator=(const ModelVector& models);
-		GameObject* operator=(const ModelInitList& models);
-
 		bool operator==(const GameObject& other) const;
 
-		virtual void init();
-		virtual void exit();
-		virtual void update();
-		virtual void onEvent(Event& e);
+		virtual void update() = 0;
+		virtual void onEvent(Event& e) = 0;
 
 		unsigned getId() const;
 
@@ -47,21 +42,26 @@ namespace Capp {
 		const glm::vec3& getPosition() const;
 		GameObject& setPosition(const glm::vec3& position);
 		GameObject& setPosition(float x, float y, float z);
+		GameObject& translateBy(const glm::vec3& translation);
+		GameObject& translateBy(float x, float y, float z);
 		
 		const glm::vec3& getRotation() const;
 		GameObject& setRotation(const glm::vec3& eulerRotation);
 		GameObject& setRotation(float x, float y, float z);
-
+		GameObject& rotateBy(const glm::vec3& eulerRotation);
+		GameObject& rotateBy(float x, float y, float z);
 		
 		const glm::vec3& getScale() const;
 		GameObject& setScale(const glm::vec3& scale);
 		GameObject& setScale(float x, float y, float z);
 		GameObject& setScale(float scale);
+		GameObject& scaleBy(const glm::vec3& scale);
+		GameObject& scaleBy(float x, float y, float z);
+		GameObject& scaleBy(float scale);
 
 		bool checkCollision(GameObject* other);
 		
 		const RigidBody& getRigidBody() const;
-
 		ModelVector getModels() const;
 		
 		static std::vector<GameObject*> gameObjects;

@@ -55,5 +55,41 @@ namespace Capp {
 		DecrementWrap       = 0x8508,		// GL_DECR_WRAP
 		Invert              = 0x150A		// GL_INVERT
 	};
+
+	enum class SourceFactor : unsigned int {
+		// From glad.h
+		Zero                      = 0x0000,		// GL_ZERO
+		One                       = 0x0001,		// GL_ONE
+		SourceColour              = 0x0300,		// GL_SRC_COLOR
+		OneMinusSourceColour      = 0x0301,		// GL_ONE_MINUS_SRC_COLOR
+		SourceAlpha               = 0x0302,		// GL_SRC_ALPHA
+		OneMinusSourceAlpha       = 0x0303,		// GL_ONE_MINUS_SRC_ALPHA
+		DestinationAlpha          = 0x0304,		// GL_DST_ALPHA
+		OneMinusDestinationAlpha  = 0x0305,		// GL_ONE_MINUS_DST_ALPHA
+		DestinationColour         = 0x0306,		// GL_DST_COLOR
+		OneMinusDestinationColour = 0x0307,		// GL_ONE_MINUS_DST_COLOR
+		SourceAlphaSaturate       = 0x0308,		// GL_SRC_ALPHA_SATURATE
+		ConstantColour            = 0x8001,		// GL_CONSTANT_COLOR
+		OneMinusConstantColour    = 0x8002,		// GL_ONE_MINUS_CONSTANT_COLOR
+		ConstantAlpha             = 0x8003,		// GL_CONSTANT_ALPHA
+		OneMinusConstantAlpha     = 0x8004,		// GL_ONE_MINUS_CONSTANT_ALPHA
+	};
 	
+	enum class DestinationFactor : unsigned int {
+		// From glad.h
+		Zero                      = 0x0000,		// GL_ZERO
+		One                       = 0x0001,		// GL_ONE
+		SourceColour              = 0x0300,		// GL_SRC_COLOR
+		OneMinusSourceColour      = 0x0301,		// GL_ONE_MINUS_SRC_COLOR
+		SourceAlpha               = 0x0302,		// GL_SRC_ALPHA
+		OneMinusSourceAlpha       = 0x0303,		// GL_ONE_MINUS_SRC_ALPHA
+		DestinationAlpha          = 0x0304,		// GL_DST_ALPHA
+		OneMinusDestinationAlpha  = 0x0305,		// GL_ONE_MINUS_DST_ALPHA
+		DestinationColour         = 0x0306,		// GL_DST_COLOR
+		OneMinusDestinationColour = 0x0307,		// GL_ONE_MINUS_DST_COLOR
+		ConstantColour            = 0x8001,		// GL_CONSTANT_COLOR
+		OneMinusConstantColour    = 0x8002,		// GL_ONE_MINUS_CONSTANT_COLOR
+		ConstantAlpha             = 0x8003,		// GL_CONSTANT_ALPHA
+		OneMinusConstantAlpha     = 0x8004		// GL_ONE_MINUS_CONSTANT_ALPHA
+	};
 }

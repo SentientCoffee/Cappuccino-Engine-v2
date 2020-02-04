@@ -29,6 +29,11 @@ namespace Capp {
 
 		static void setDrawMode(DrawMode mode);
 
+		static void enableBlending();
+		static void disableBlending();
+		static void setBlendFunction(SourceFactor sourceFactor, DestinationFactor destinationFactor);
+		static void setSeparateBlendFunction(SourceFactor colourSourceFactor, DestinationFactor colourDestinationFactor, SourceFactor alphaSourceFactor, DestinationFactor alphaDestinationFactor);
+		
 		static void enableDepthTesting();
 		static void disableDepthTesting();
 		static void enableDepthMask();

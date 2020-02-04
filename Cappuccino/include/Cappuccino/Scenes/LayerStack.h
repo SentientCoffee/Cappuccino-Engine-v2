@@ -12,7 +12,7 @@ namespace Capp {
 
 	public:
 
-		LayerStack() = default;
+		LayerStack();
 		~LayerStack();
 
 		void pushLayer(Layer* layer);

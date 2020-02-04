@@ -7,5 +7,9 @@ layout(location = 0) out vec4 outColour;
 uniform sampler2D uTextureSlot;
 
 void main() {
-	outColour = texture(uTextureSlot, inUV);
+	vec4 colour = texture(uTextureSlot, inUV);
+	if(colour.a < 0.1) {
+		discard;
+	}
+	outColour = colour;
 }

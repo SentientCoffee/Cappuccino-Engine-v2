@@ -3,6 +3,10 @@
 
 using namespace Capp;
 
+LayerStack::LayerStack() {
+	_layers.reserve(10);
+}
+
 LayerStack::~LayerStack() {
 	for(auto layer : _layers) {
 		layer->onPop();

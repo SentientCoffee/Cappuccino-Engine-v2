@@ -42,11 +42,11 @@ void Application::run() {
 	}
 	CAPP_ASSERT(SceneManager::getCurrentScene() != nullptr, "No scene has been added to the scene manager!");
 
-	RenderCommand::setClearColour(0.2f, 0.8f, 0.3f, 1.0f);
-	RenderCommand::clearScreen();
-	
 	while(_isRunning) {
 		Time::preUpdate();
+		
+		RenderCommand::setClearColour(0.8f, 0.2f, 0.7f, 1.0f);
+		RenderCommand::clearScreen();
 
 		if(!_isMinimized) {
 			SceneManager::getCurrentScene()->update();

@@ -9,6 +9,7 @@ std::vector<GameObject*> GameObject::gameObjects;
 GameObject::GameObject() :
 	_objectId(objectCount++) {
 	gameObjects.push_back(this);
+	_models.reserve(10);
 }
 
 GameObject::GameObject(const ModelVector& models) :
@@ -28,29 +29,7 @@ GameObject::~GameObject() {
 	}
 }
 
-GameObject* GameObject::operator=(const ModelVector& models) {
-	_models = models;
-	for(auto model : _models) {
-		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
-	}
-	return this;
-}
-
-GameObject* GameObject::operator=(const ModelInitList& models) {
-	_models = models;
-	for(auto model : _models) {
-		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
-	}
-	return this;
-}
-
 bool GameObject::operator==(const GameObject& other) const { return _objectId == other._objectId; }
-
-void GameObject::init() {}
-void GameObject::exit() {}
-void GameObject::update() {}
-void GameObject::onEvent(Event& e) {}
-
 unsigned GameObject::getId() const { return _objectId; }
 
 const std::string& GameObject::getName() const { return _name; }
@@ -74,6 +53,14 @@ GameObject& GameObject::setPosition(const glm::vec3& position) {
 	return *this;
 }
 GameObject& GameObject::setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
+GameObject& GameObject::translateBy(const glm::vec3& translation) {
+	_rigidbody.setPosition(_rigidbody.getPosition() + translation);
+	for(auto model : _models) {
+		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
+	}
+	return *this;
+}
+GameObject& GameObject::translateBy(const float x, const float y, const float z) { return translateBy({ x, y, z }); }
 
 const glm::vec3& GameObject::getRotation() const { return _rigidbody.getRotation(); }
 GameObject& GameObject::setRotation(const glm::vec3& eulerRotation) {
@@ -84,6 +71,14 @@ GameObject& GameObject::setRotation(const glm::vec3& eulerRotation) {
 	return *this;
 }
 GameObject& GameObject::setRotation(const float x, const float y, const float z) { return setRotation({ x, y, z }); }
+GameObject& GameObject::rotateBy(const glm::vec3& eulerRotation) {
+	_rigidbody.setRotation(_rigidbody.getRotation() + glm::radians(eulerRotation));
+	for(auto model : _models) {
+		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
+	}
+	return *this;
+}
+GameObject& GameObject::rotateBy(const float x, const float y, const float z) { return rotateBy({ x, y, z }); }
 
 const glm::vec3& GameObject::getScale() const { return _rigidbody.getScale(); }
 GameObject& GameObject::setScale(const glm::vec3& scale) {
@@ -95,11 +90,19 @@ GameObject& GameObject::setScale(const glm::vec3& scale) {
 }
 GameObject& GameObject::setScale(const float x, const float y, const float z) { return setScale({ x, y, z }); }
 GameObject& GameObject::setScale(const float scale) { return setScale({ scale, scale, scale }); }
+GameObject& GameObject::scaleBy(const glm::vec3& scale) {
+	_rigidbody.setScale(_rigidbody.getScale() + scale);
+	for(auto model : _models) {
+		model->getTransform().setParentTransform(_rigidbody.getTransform().getWorldTransform());
+	}
+	return *this;
+}
+GameObject& GameObject::scaleBy(const float x, const float y, const float z) { return scaleBy({ x, y, z }); }
+GameObject& GameObject::scaleBy(const float scale) { return scaleBy({ scale, scale, scale }); }
 
 bool GameObject::checkCollision(GameObject* other) {
 	return _rigidbody.checkCollision(other->_rigidbody);
 }
 
 const RigidBody& GameObject::getRigidBody() const { return _rigidbody; }
-
 GameObject::ModelVector GameObject::getModels() const { return _models; }

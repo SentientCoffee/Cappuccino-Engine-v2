@@ -33,7 +33,7 @@ void MeshLibrary::addMesh(const std::string& name, Mesh* mesh) {
 
 Mesh* MeshLibrary::loadMesh(const std::string& name, const std::string& filepath) {
 	if(hasMesh(name)) {
-		CAPP_ASSERT(!hasMesh(name), "Mesh \"{0}\" already exists!", name);
+		CAPP_PRINT_INFO("Mesh \"{0}\" already exists, using loaded mesh...", name);
 		return _meshes[name];
 	}
 

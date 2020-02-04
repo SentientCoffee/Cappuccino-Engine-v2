@@ -12,25 +12,25 @@ os.execute("echo Enter project name:")
 local projName = io.read()
 os.execute("echo.")
 
-print(string.format("Creating project \"%s\" in directory %s", projName, solutionDir))
+print(string.format("Creating project \"%s\" in directory \"%s\"", projName, solutionDir))
 
 local engineDir = path.getabsolute(_WORKING_DIR .. "/..")
 
 print("Making directories...")
-os.execute("mkdir " .. solutionDir .. "\\Assets")
-os.execute("mkdir " .. solutionDir .. "\\include")
-os.execute("mkdir " .. solutionDir .. "\\src")
+os.execute("mkdir \"" .. solutionDir .. "\\Assets\"")
+os.execute("mkdir \"" .. solutionDir .. "\\include\"")
+os.execute("mkdir \"" .. solutionDir .. "\\src\"")
 
 print("Copying necessary files...")
 -- Copy engine libraries into libs folder
-os.execute("robocopy ..\\Externals\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs")
-os.execute("robocopy ..\\Build\\bin " .. solutionDir .. "\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Externals\\Build\\bin \"" .. solutionDir .. "\\libs\" *.lib /e /xo /xx /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Build\\bin \"" .. solutionDir .. "\\libs\" *.lib /e /xo /xx /ns /np /ndl /njh /njs")
 
 -- Copy external header, inline, and dll files
-os.execute("robocopy ..\\Externals " .. solutionDir .. "\\Engine\\Externals *.dll *.h *.hpp *.inl /s /xo /xx /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Externals \"" .. solutionDir .. "\\Engine\\Externals\" *.dll *.h *.hpp *.inl /s /xo /xx /ns /np /ndl /njh /njs")
 
 -- Copy engine header files
-os.execute("robocopy ..\\Cappuccino\\include " .. solutionDir .. "\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs")
+os.execute("robocopy ..\\Cappuccino\\include \"" .. solutionDir .. "\\Engine\\Cappuccino\\include\" *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs")
 
 os.execute("echo.")
 print("Starting premake build...")
@@ -58,29 +58,29 @@ project (projName)
 	objdir (solutionDir .. "/Build/obj/%{cfg.architecture}/%{cfg.buildcfg}")
 	
 	includedirs {
-		solutionDir .. "/Engine/Externals/fmod/include",
-		solutionDir .. "/Engine/Externals/freetype/include",
-		solutionDir .. "/Engine/Externals/glad/include",
-		solutionDir .. "/Engine/Externals/glfw3/include",
-		solutionDir .. "/Engine/Externals/glm/include",
-		solutionDir .. "/Engine/Externals/imgui/include",
-		solutionDir .. "/Engine/Externals/spdlog/include",
-		solutionDir .. "/Engine/Externals/stb/include",
+		"\"" .. solutionDir .. "/Engine/Externals/fmod/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/freetype/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/glad/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/glfw3/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/glm/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/imgui/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/spdlog/include\"",
+		"\"" .. solutionDir .. "/Engine/Externals/stb/include\"",
 		
-		solutionDir .. "/Engine/Cappuccino/include",
+		"\"" .. solutionDir .. "/Engine/Cappuccino/include\"",
 		
-		solutionDir .. "/include"
+		"\"" .. solutionDir .. "/include\""
 	}
 	
 	files {
-		solutionDir .. "/include/**.h",
-		solutionDir .. "/include/**.hpp",
-		solutionDir .. "/src/**.cpp",
+		"\"" .. solutionDir .. "/include/**.h\"",
+		"\"" .. solutionDir .. "/include/**.hpp\"",
+		"\"" .. solutionDir .. "/src/**.cpp\"",
 	}
 	
 	links {
-		solutionDir .. "/libs/%{cfg.architecture}/%{cfg.buildcfg}/Cappuccino",
-		solutionDir .. "/libs/%{cfg.architecture}/%{cfg.buildcfg}/Externals"
+		"\"" .. solutionDir .. "/libs/%{cfg.architecture}/%{cfg.buildcfg}/Cappuccino\"",
+		"\"" .. solutionDir .. "/libs/%{cfg.architecture}/%{cfg.buildcfg}/Externals\""
 	}
 	
 	filter "system:windows"
@@ -89,24 +89,24 @@ project (projName)
 		
 		prebuildcommands {
 			-- Update header files from engine
-			"robocopy " .. engineDir .. "\\Cappuccino\\include %{prj.location}\\Engine\\Cappuccino\\include *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"" .. engineDir .. "\\Cappuccino\\include\" \"%{prj.location}\\Engine\\Cappuccino\\include\" *.h *.hpp /mir /xo /xx /ns /np /ndl /njh /njs",
 			
 			-- Update lib files from engine
-			"robocopy " .. engineDir .. "\\Externals\\Build\\bin %{prj.location}\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs",
-			"robocopy " .. engineDir .. "\\Build\\bin %{prj.location}\\libs *.lib /e /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"" .. engineDir .. "\\Externals\\Build\\bin\" \"%{prj.location}\\libs\" *.lib /e /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"" .. engineDir .. "\\Build\\bin\" \"%{prj.location}\\libs\" *.lib /e /xo /xx /ns /np /ndl /njh /njs",
 			
 			-- Update any default assets
-			"robocopy " .. engineDir .. "\\Cappuccino\\Assets %{prj.location}\\Assets\\Cappuccino /s /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"" .. engineDir .. "\\Cappuccino\\Assets\" \"%{prj.location}\\Assets\\Cappuccino\" /s /xo /xx /ns /np /ndl /njh /njs",
 			
 			"exit 0"
 		}
 		
 		postbuildcommands {
 			-- Copy all dll files next to executable
-			"robocopy %{prj.location}\\Engine\\Externals\\dll %{cfg.targetdir} /e /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"%{prj.location}\\Engine\\Externals\\dll\" \"%{cfg.targetdir}\" /e /xo /xx /ns /np /ndl /njh /njs",
 			
 			-- Copy assets directory next to executable
-			"robocopy %{prj.location}\\Assets %{cfg.targetdir}\\Assets /mir /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"%{prj.location}\\Assets\" \"%{cfg.targetdir}\\Assets\" /mir /xo /xx /ns /np /ndl /njh /njs",
 			
 			"exit 0"
 		}

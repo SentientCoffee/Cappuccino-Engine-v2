@@ -2,15 +2,13 @@
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
 
 #include "Cappuccino/Core/Application.h"
-
 #include "Cappuccino/Objects/Transform.h"
 
-#include "Cappuccino/Rendering/Framebuffer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/Shader.h"
-#include "Cappuccino/Rendering/TextureDefaults.h"
-
 #include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/Buffers/Framebuffer.h"
+#include "Cappuccino/Rendering/Textures/TextureDefaults.h"
 
 using namespace Capp;
 

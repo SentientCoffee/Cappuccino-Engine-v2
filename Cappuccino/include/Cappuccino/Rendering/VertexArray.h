@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cappuccino/Rendering/Buffers.h"
+#include "Cappuccino/Rendering/Buffers/Buffers.h"
 
 namespace Capp {
 

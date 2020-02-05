@@ -1,6 +1,6 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/2D/2DQuad.h"
-#include "Cappuccino/Rendering/TextureDefaults.h"
+#include "Cappuccino/Rendering/Textures/TextureDefaults.h"
 
 using namespace Capp;
 

@@ -1,5 +1,5 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/BufferLayout.h"
+#include "Cappuccino/Rendering/Buffers/BufferLayout.h"
 
 using namespace Capp;
 

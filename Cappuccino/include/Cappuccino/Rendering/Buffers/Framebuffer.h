@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Cappuccino/Rendering/FramebufferAttachment.h"
-#include "Cappuccino/Rendering/FramebufferParams.h"
 #include "Cappuccino/Rendering/RenderParams.h"
+#include "Cappuccino/Rendering/Buffers/FramebufferAttachment.h"
+#include "Cappuccino/Rendering/Buffers/FramebufferParams.h"
 
 namespace Capp {
 	

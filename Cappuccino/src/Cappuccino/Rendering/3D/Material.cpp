@@ -1,7 +1,7 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 
-#include "Cappuccino/Rendering/TextureDefaults.h"
+#include "Cappuccino/Rendering/Textures/TextureDefaults.h"
 
 using namespace Capp;
 

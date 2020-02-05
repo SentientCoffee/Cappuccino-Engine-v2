@@ -18,6 +18,9 @@ void RenderCommand::init() {
 
 	// Seamless cubemaps
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	// 3D textures
+	glEnable(GL_TEXTURE_3D);
 	
 	// Initialize 2D and 3D renderers
 	Renderer::init();

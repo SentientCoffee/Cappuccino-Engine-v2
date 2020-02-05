@@ -28,10 +28,8 @@
 
 // Rendering
 #include "Cappuccino/Rendering/Camera.h"
-#include "Cappuccino/Rendering/Framebuffer.h"
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/Shader.h"
-#include "Cappuccino/Rendering/Texture.h"
 
 #include "Cappuccino/Rendering/2D/2DQuad.h"
 #include "Cappuccino/Rendering/2D/Renderer2D.h"
@@ -41,14 +39,21 @@
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
 #include "Cappuccino/Rendering/3D/Renderer.h"
-#include "Cappuccino/Rendering/3D/TextureCubemap.h"
+
+#include "Cappuccino/Rendering/Buffers/Framebuffer.h"
 
 #include "Cappuccino/Rendering/Text/Font.h"
 #include "Cappuccino/Rendering/Text/Text.h"
 
+#include "Cappuccino/Rendering/Textures/Texture1D.h"
+#include "Cappuccino/Rendering/Textures/Texture2D.h"
+#include "Cappuccino/Rendering/Textures/Texture3D.h"
+#include "Cappuccino/Rendering/Textures/TextureCubemap.h"
+
 // Resource management
 #include "Cappuccino/Resource/FontLibrary.h"
 #include "Cappuccino/Resource/MeshLibrary.h"
+#include "Cappuccino/Resource/ResourceLoader.h"
 #include "Cappuccino/Resource/ShaderLibrary.h"
 
 // Scene management

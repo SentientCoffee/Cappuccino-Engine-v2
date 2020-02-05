@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Cappuccino/Rendering/TextureFormats.h"
-#include "Cappuccino/Rendering/TextureParams.h"
+#include "Cappuccino/Rendering/Textures/TextureFormats.h"
+#include "Cappuccino/Rendering/Textures/TextureParams.h"
 
 #include <string>
 
@@ -14,10 +14,11 @@ namespace Capp {
 		Texture2D(const std::string& filepath);
 		~Texture2D();
 
+		unsigned getRendererID() const;
 		unsigned int getWidth() const;
 		unsigned int getHeight() const;
+		glm::vec2 getSize() const;
 
-		unsigned getRendererID() const;
 
 		void bind(unsigned slot = 0) const;
 		static void unbind(unsigned slot = 0);
@@ -33,7 +34,7 @@ namespace Capp {
 		unsigned _id = 0;
 		unsigned _width = 0, _height = 0;
 		unsigned _mipLevels = 1;
-		unsigned char* _imageData = nullptr;
+		unsigned char* _data = nullptr;
 		
 		std::string _texturePath;
 

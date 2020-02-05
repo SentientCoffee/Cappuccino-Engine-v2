@@ -1,8 +1,7 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/3D/TextureCubemap.h"
+#include "Cappuccino/Rendering/Textures/TextureCubemap.h"
 
-#include "Cappuccino/Rendering/TextureParams.h"
-#include "Cappuccino/Rendering/TextureDefaults.h"
+#include "Cappuccino/Rendering/Textures/TextureDefaults.h"
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
@@ -39,17 +38,17 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 		unsigned char* data = stbi_load(filepaths[i].c_str(), &width, &height, &channels, 0);
 
 		if(!data) {
-			CAPP_ASSERT(data != nullptr, "Failed to load texture for texture cube!\nTexture path: {0}", filepaths[i]);
+			CAPP_ASSERT(data != nullptr, "Failed to load texture for texture cube!\n\tTexture path: {0}", filepaths[i]);
 			stbi_image_free(data);
 		}
 		
 		if(_size != 0 && (static_cast<unsigned>(width) != _size || static_cast<unsigned>(height) != _size)) {
-			CAPP_ASSERT(_size == 0 || static_cast<unsigned>(width) == _size && static_cast<unsigned>(height) == _size, "Texture image file dimensions do not match the size of this cubemap!\nTexture path: {0}", filepaths[i]);
+			CAPP_ASSERT(_size == 0 || static_cast<unsigned>(width) == _size && static_cast<unsigned>(height) == _size, "Texture image file dimensions do not match the size of this cubemap!\n\tTexture path: {0}", filepaths[i]);
 			stbi_image_free(data);
 		}
 
 		if(width != height) {
-			CAPP_ASSERT(width == height, "Texture image for cubemap must be square!\nTexture path: {0}", filepaths[i]);
+			CAPP_ASSERT(width == height, "Texture image for cubemap must be square!\n\tTexture path: {0}", filepaths[i]);
 			stbi_image_free(data);
 		}
 

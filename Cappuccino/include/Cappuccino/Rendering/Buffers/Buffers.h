@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cappuccino/Rendering/BufferLayout.h"
+#include "Cappuccino/Rendering/Buffers/BufferLayout.h"
 
 #include <glm/glm.hpp>
 

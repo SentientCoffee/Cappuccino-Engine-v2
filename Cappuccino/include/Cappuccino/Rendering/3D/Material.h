@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cappuccino/Rendering/Shader.h"
-#include "Cappuccino/Rendering/Texture.h"
+#include "Cappuccino/Rendering/Textures/Texture2D.h"
 
 #include <unordered_map>
 

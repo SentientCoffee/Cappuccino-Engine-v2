@@ -1,5 +1,5 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/Texture.h"
+#include "Cappuccino/Rendering/Textures/Texture2D.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/integer.hpp>
@@ -26,7 +26,7 @@ TextureParams::TextureParams(const WrapMode s, const WrapMode t, const WrapMode 
 }
 
 Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const unsigned channels) :
-	_width(width), _height(height), _imageData(static_cast<unsigned char*>(data)), _texturePath(""), _parameters({}) {
+	_width(width), _height(height), _data(static_cast<unsigned char*>(data)), _texturePath(""), _parameters({}) {
 
 	switch(channels) {
 		case 1:
@@ -59,11 +59,9 @@ Texture2D::Texture2D(const std::string& filepath) :
 	
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);
-	_imageData = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
+	_data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 
-	if(_imageData == nullptr) {
-		CAPP_ASSERT(_imageData != nullptr, "Failed to load image!\nTexture path: {0}", filepath);
-	}
+	CAPP_ASSERT(_data != nullptr, "Failed to load image!\n\tTexture path: {0}", filepath);
 
 	_width = width; _height = height;
 	
@@ -95,14 +93,15 @@ Texture2D::Texture2D(const std::string& filepath) :
 
 Texture2D::~Texture2D() {
 	glDeleteTextures(1, &_id);
-	if(_imageData != nullptr) {
-		stbi_image_free(_imageData);
+	if(_data != nullptr) {
+		stbi_image_free(_data);
 	}
 }
 
+unsigned Texture2D::getRendererID() const { return _id; }
 unsigned Texture2D::getWidth() const { return _width; }
 unsigned Texture2D::getHeight() const { return _height; }
-unsigned Texture2D::getRendererID() const { return _id; }
+glm::vec2 Texture2D::getSize() const { return { _width, _height }; }
 
 void Texture2D::bind(const unsigned slot) const {
 	glBindTextureUnit(slot, _id);
@@ -133,14 +132,14 @@ void Texture2D::setData(void* data, const unsigned size) {
 	
 	CAPP_ASSERT(size == _width * _height * bytesPerPixel, "Data must cover entire texture!");
 
-	_imageData = static_cast<unsigned char*>(data);
+	_data = static_cast<unsigned char*>(data);
 
 	glTextureSubImage2D(
 		_id, 0,
 		0, 0, _width, _height,
 		static_cast<GLenum>(_formats.pixelFormat),
 		static_cast<GLenum>(_formats.pixelType),
-		_imageData
+		_data
 	);
 
 	if(static_cast<bool>(_parameters.enableMipmaps)) {
@@ -185,13 +184,13 @@ void Texture2D::createTexture() {
 		_width, _height
 	);
 
-	if(_imageData != nullptr) {
+	if(_data != nullptr) {
 		glTextureSubImage2D(
 			_id, 0,
 			0, 0, _width, _height,
 			static_cast<GLenum>(_formats.pixelFormat),
 			static_cast<GLenum>(_formats.pixelType),
-			_imageData
+			_data
 		);
 
 		if(static_cast<bool>(_parameters.enableMipmaps)) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cappuccino/Rendering/Texture.h"
+#include "Cappuccino/Rendering/Textures/Texture2D.h"
 
 namespace Capp {
 	

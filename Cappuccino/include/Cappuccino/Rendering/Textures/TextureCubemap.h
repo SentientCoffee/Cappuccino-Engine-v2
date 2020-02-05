@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Cappuccino/Rendering/TextureFormats.h"
-#include "Cappuccino/Rendering/TextureParams.h"
+#include "Cappuccino/Rendering/Textures/TextureFormats.h"
+#include "Cappuccino/Rendering/Textures/TextureParams.h"
 
 #include <string>
 #include <vector>

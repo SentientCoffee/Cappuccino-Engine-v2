@@ -1,5 +1,5 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/Buffers.h"
+#include "Cappuccino/Rendering/Buffers/Buffers.h"
 
 #include <glad/glad.h>
 

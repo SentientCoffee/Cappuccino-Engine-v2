@@ -9,7 +9,7 @@ using namespace Capp;
 std::string loadShaderAsString(const std::string& filepath) {
 	std::ifstream file(filepath.data());
 	std::stringstream fileContent;
-	CAPP_ASSERT(fileContent.good(), "File could not be read!\nShader file: {0}", filepath);
+	CAPP_ASSERT(fileContent.good(), "File could not be read!\n\tShader file: {0}", filepath);
 	
 	fileContent << file.rdbuf();
 	file.close();
@@ -20,24 +20,24 @@ std::string loadShaderAsString(const std::string& filepath) {
 Shader::Shader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) :
 	_name(name), _vertexSrcPath(vertexPath), _fragmentSrcPath(fragmentPath) {
 	
-	CAPP_ASSERT(!vertexPath.empty(), "No vertex shader file path given!\nShader file: {0}", vertexPath);
-	CAPP_ASSERT(!fragmentPath.empty(), "No fragment shader file path given!\nShader file: {0}", fragmentPath);
+	CAPP_ASSERT(!vertexPath.empty(), "No vertex shader file path given!\n\tShader file: {0}", vertexPath);
+	CAPP_ASSERT(!fragmentPath.empty(), "No fragment shader file path given!\n\tShader file: {0}", fragmentPath);
 	
 	const std::string vertexSrc = loadShaderAsString(vertexPath);
 	const std::string fragmentSrc = loadShaderAsString(fragmentPath);
 	
-	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\nShader file: {0}", vertexPath);
-	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\nShader file: {0}", fragmentPath);
+	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\n\tShader file: {0}", vertexPath);
+	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\n\tShader file: {0}", fragmentPath);
 
 	const unsigned int vertShader = createShader(vertexSrc, ShaderType::Vertex);
 	const unsigned int fragShader = createShader(fragmentSrc, ShaderType::Fragment);
 
 	if(geometryPath) {
-		CAPP_ASSERT(!geometryPath.value().empty(), "Invalid geometry shader file path!\nShader file: {0}", geometryPath.value());
+		CAPP_ASSERT(!geometryPath.value().empty(), "Invalid geometry shader file path!\n\tShader file: {0}", geometryPath.value());
 		_geometrySrcPath = geometryPath.value();
 		
 		const std::string& geometrySrc = loadShaderAsString(geometryPath.value());
-		CAPP_ASSERT(!geometrySrc.empty(), "Geometry shader could not be read!\nShader file: {0}", geometryPath.value());
+		CAPP_ASSERT(!geometrySrc.empty(), "Geometry shader could not be read!\n\tShader file: {0}", geometryPath.value());
 		
 		const unsigned int geomShader = createShader(geometrySrc, ShaderType::Geometry);
 		_id = compileProgram(vertShader, fragShader, geomShader);
@@ -51,16 +51,16 @@ Shader::~Shader() { glDeleteProgram(_id); }
 
 void Shader::reload() {
 	if(_vertexSrcPath.empty() || _fragmentSrcPath.empty()) {
-		CAPP_ASSERT(!_vertexSrcPath.empty(), "No vertex shader file path to reload from!\nShader: {0}", _name);
-		CAPP_ASSERT(!_fragmentSrcPath.empty(), "No fragment shader file pathto reload from!\nShader: {0}", _name);
+		CAPP_ASSERT(!_vertexSrcPath.empty(), "No vertex shader file path to reload from!\n\tShader: {0}", _name);
+		CAPP_ASSERT(!_fragmentSrcPath.empty(), "No fragment shader file pathto reload from!\n\tShader: {0}", _name);
 		return;
 	}
 	
 	const std::string vertexSrc = loadShaderAsString(_vertexSrcPath);
 	const std::string fragmentSrc = loadShaderAsString(_fragmentSrcPath);
 
-	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\nShader file: {0}", vertexSrc);
-	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\nShader file: {0}", fragmentSrc);
+	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\n\tShader file: {0}", vertexSrc);
+	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\n\tShader file: {0}", fragmentSrc);
 
 	const unsigned int vertShader = createShader(vertexSrc, ShaderType::Vertex);
 	const unsigned int fragShader = createShader(fragmentSrc, ShaderType::Fragment);
@@ -119,7 +119,7 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType sha
 				break;
 		}
 		
-		CAPP_ASSERT(success, "Failed to compile shader!\n{0} shader at {1}:\n{2}", type, path, infoLog.data());
+		CAPP_ASSERT(success, "Failed to compile shader!\n\t{0} shader at {1}:\n{2}", type, path, infoLog.data());
 		return 0;
 	}
 
@@ -157,7 +157,7 @@ unsigned Shader::compileProgram(const unsigned int vertShader, const unsigned in
 			glDeleteShader(geomShader.value());
 		}
 
-		CAPP_ASSERT(success, "Failed to link shader program!\nShader: {0}\n{1}", _name, infoLog.data());
+		CAPP_ASSERT(success, "Failed to link shader program!\n\tShader: {0}\n{1}", _name, infoLog.data());
 		return 0;
 	}
 

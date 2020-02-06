@@ -29,7 +29,9 @@ Texture3D* ResourceLoader::loadCUBE(const std::string& filepath) {
 		}
 		
 		glm::vec3 line;
-		if(sscanf(lutLine.c_str(), "%f %f %f", &line.r, &line.g, &line.b) == 3) lutData.push_back(line);
+		const bool lutReadStatus = sscanf(lutLine.c_str(), "%f %f %f", &line.r, &line.g, &line.b);
+		CAPP_ASSERT(lutReadStatus, "Failed to read colour values!\n\tLUT file: {0}", filepath);
+		lutData.push_back(line);
 	}
 	
 	CAPP_ASSERT(lutData.size() == pow(lutSize, 3), "LUT size is incorrect.\n\tGiven LUT size: {0}\n\tExpected LUT size: {1}", lutData.size(), pow(lutSize, 3));
@@ -42,10 +44,11 @@ Texture3D* ResourceLoader::loadCUBE(const std::string& filepath) {
 // ------------------------------------------------------------------------------------------
 
 struct TriangleFace {
-	std::vector<unsigned> vertIndices { 0, 0, 0 };
-	std::vector<unsigned> normIndices { 0, 0, 0 };
-	std::vector<unsigned> uvIndices { 0, 0, 0 };
+	std::vector<unsigned> vertIndices = { 0, 0, 0 };
+	std::vector<unsigned> normIndices = { 0, 0, 0 };
+	std::vector<unsigned> uvIndices = { 0, 0, 0 };
 };
+
 std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJ(const std::string& filepath) {
 	std::ifstream file(filepath.data());
 	CAPP_ASSERT(file.good(), "Could not open file!\n\tOBJ filepath: {0}", filepath);

@@ -152,7 +152,9 @@ Window::Window(const WindowProperties& properties) :
 
 	CAPP_PRINT_INFO("OpenGL version {0}", glGetString(GL_VERSION));
 	CAPP_PRINT_INFO("GLSL version {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	CAPP_PRINT_INFO("Using {0} {1}", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
+	CAPP_PRINT_INFO("Using {0} {1}"
+		"\n----------------------------------------------------------------------------------------------------",
+		glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 }
 
 

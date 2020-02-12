@@ -19,13 +19,24 @@ Texture3D* ResourceLoader::loadCUBE(const std::string& filepath) {
 		std::string lutLine;
 		getline(lutFile, lutLine);
 
-		if(lutLine.empty() || lutLine[0] == '#') continue;
+		if(lutLine.empty() || lutLine[0] == '#') {
+			continue;
+		}
 
 		if(lutLine.compare(0, 11, "LUT_3D_SIZE") == 0) {
 			std::string token;
 			std::istringstream sin(lutLine);
 
 			sin >> token >> lutSize;
+			continue;
+		}
+
+		if(lutLine.compare(0, 5, "TITLE") == 0) {
+			std::string token, title;
+			std::istringstream sin(lutLine);
+
+			sin >> token >> title;
+			continue;
 		}
 		
 		glm::vec3 line;

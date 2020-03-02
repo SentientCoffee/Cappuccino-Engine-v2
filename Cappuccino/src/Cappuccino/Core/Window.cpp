@@ -24,76 +24,40 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 	std::string log = "OpenGL(0x" + std::string(buffer) + "): ";
 
 	switch(type) {
-		case GL_DEBUG_TYPE_ERROR:
-			log += "ERROR";
-			break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-			log += "DEPRECATED BEHAVIOUR";
-			break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-			log += "UNDEFINED BEHAVIOUR";
-			break;
-		case GL_DEBUG_TYPE_PORTABILITY:
-			log += "PORTABILITY ISSUE";
-			break;
-		case GL_DEBUG_TYPE_PERFORMANCE:
-			log += "PERFORMANCE ISSUE";
-			break;
-		case GL_DEBUG_TYPE_MARKER:
-			log += "TYPE MARKER";
-			break;
-		case GL_DEBUG_TYPE_PUSH_GROUP:
-			log += "PUSH GROUP";
-			break;
-		case GL_DEBUG_TYPE_POP_GROUP:
-			log += "POP GROUP";
-			break;
-		case GL_DEBUG_TYPE_OTHER:
-			log += "OTHER";
-			break;
+		case GL_DEBUG_TYPE_ERROR:					log += "ERROR"; break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:		log += "DEPRECATED BEHAVIOUR"; break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:		log += "UNDEFINED BEHAVIOUR"; break;
+		case GL_DEBUG_TYPE_PORTABILITY:				log += "PORTABILITY ISSUE"; break;
+		case GL_DEBUG_TYPE_PERFORMANCE:				log += "PERFORMANCE ISSUE"; break;
+		case GL_DEBUG_TYPE_MARKER:					log += "TYPE MARKER"; break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:				log += "PUSH GROUP"; break;
+		case GL_DEBUG_TYPE_POP_GROUP:				log += "POP GROUP"; break;
+		case GL_DEBUG_TYPE_OTHER:					log += "OTHER"; break;
 		default: break;
 	}
 
 	log += "\nSOURCE: ";
 	switch(source) {
-		case GL_DEBUG_SOURCE_API:
-			log += "API";
-			break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-			log += "Window system";
-			break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER:
-			log += "Shader compiler";
-			break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY:
-			log += "Third party";
-			break;
-		case GL_DEBUG_SOURCE_APPLICATION:
-			log += "Application";
-			break;
-		case GL_DEBUG_SOURCE_OTHER:
-			log += "Other";
+		case GL_DEBUG_SOURCE_API:					log += "API"; break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:			log += "Window system"; break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:		log += "Shader compiler"; break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:			log += "Third party"; break;
+		case GL_DEBUG_SOURCE_APPLICATION:			log += "Application"; break;
+		case GL_DEBUG_SOURCE_OTHER:					log += "Other"; break;
 		default: break;
 	}
 
 	log += " \nSEVERITY: ";
 	switch(severity) {
-		case GL_DEBUG_SEVERITY_HIGH:
-			log += "HIGH";
-			break;
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			log += "MEDIUM";
-			break;
-		case GL_DEBUG_SEVERITY_LOW:
-			log += "LOW";
-			break;
-		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			log += "NOTIFICATION";
+		case GL_DEBUG_SEVERITY_HIGH:				log += "HIGH"; break;
+		case GL_DEBUG_SEVERITY_MEDIUM:				log += "MEDIUM"; break;
+		case GL_DEBUG_SEVERITY_LOW:					log += "LOW"; break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:		log += "NOTIFICATION"; break;
 		default: break;
 	}
 
 	log += "\n" + std::string(message);
-
+	
 	if(type == GL_DEBUG_TYPE_ERROR) {
 		CAPP_ASSERT(type == GL_DEBUG_TYPE_ERROR, "{0}", log);
 	}

@@ -1,87 +1,65 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/Shader.h"
+#include "Cappuccino/Rendering/Shaders/Shader.h"
+#include "Cappuccino/Resource/ResourceLoader.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace Capp;
 
-std::string loadShaderAsString(const std::string& filepath) {
-	std::ifstream file(filepath.data());
-	std::stringstream fileContent;
-	CAPP_ASSERT(fileContent.good(), "File could not be read!\n\tShader file: {0}", filepath);
-	
-	fileContent << file.rdbuf();
-	file.close();
-	
-	return fileContent.str();
-}
-
-Shader::Shader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) :
-	_name(name), _vertexSrcPath(vertexPath), _fragmentSrcPath(fragmentPath) {
-	
-	CAPP_ASSERT(!vertexPath.empty(), "No vertex shader file path given!\n\tShader file: {0}", vertexPath);
-	CAPP_ASSERT(!fragmentPath.empty(), "No fragment shader file path given!\n\tShader file: {0}", fragmentPath);
-	
-	const std::string vertexSrc = loadShaderAsString(vertexPath);
-	const std::string fragmentSrc = loadShaderAsString(fragmentPath);
-	
-	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\n\tShader file: {0}", vertexPath);
-	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\n\tShader file: {0}", fragmentPath);
-
-	const unsigned int vertShader = createShader(vertexSrc, ShaderType::Vertex);
-	const unsigned int fragShader = createShader(fragmentSrc, ShaderType::Fragment);
-
-	if(geometryPath) {
-		CAPP_ASSERT(!geometryPath.value().empty(), "Invalid geometry shader file path!\n\tShader file: {0}", geometryPath.value());
-		_geometrySrcPath = geometryPath.value();
-		
-		const std::string& geometrySrc = loadShaderAsString(geometryPath.value());
-		CAPP_ASSERT(!geometrySrc.empty(), "Geometry shader could not be read!\n\tShader file: {0}", geometryPath.value());
-		
-		const unsigned int geomShader = createShader(geometrySrc, ShaderType::Geometry);
-		_id = compileProgram(vertShader, fragShader, geomShader);
-	}
-	else {
-		_id = compileProgram(vertShader, fragShader);
-	}
-}
+Shader::Shader(const std::string& name) :
+	_name(name)
+{}
 
 Shader::~Shader() { glDeleteProgram(_id); }
 
-void Shader::reload() {
-	if(_vertexSrcPath.empty() || _fragmentSrcPath.empty()) {
-		CAPP_ASSERT(!_vertexSrcPath.empty(), "No vertex shader file path to reload from!\n\tShader: {0}", _name);
-		CAPP_ASSERT(!_fragmentSrcPath.empty(), "No fragment shader file pathto reload from!\n\tShader: {0}", _name);
-		return;
-	}
+void Shader::attach(const std::string& filepath, const ShaderStage stage) {
+	CAPP_ASSERT(!filepath.empty(), "No {0} shader file path given!", stage);
 	
-	const std::string vertexSrc = loadShaderAsString(_vertexSrcPath);
-	const std::string fragmentSrc = loadShaderAsString(_fragmentSrcPath);
+	const std::string shaderSrc = ResourceLoader::loadTextFile(filepath);
+	CAPP_ASSERT(!shaderSrc.empty(), "{0} shader file is empty!\n\tShader file: {1}", stage, filepath);
 
-	CAPP_ASSERT(!vertexSrc.empty(), "Vertex shader could not be read!\n\tShader file: {0}", vertexSrc);
-	CAPP_ASSERT(!fragmentSrc.empty(), "Fragment shader could not be read!\n\tShader file: {0}", fragmentSrc);
+	const unsigned int shaderHandle = createShader(shaderSrc, stage);
 
-	const unsigned int vertShader = createShader(vertexSrc, ShaderType::Vertex);
-	const unsigned int fragShader = createShader(fragmentSrc, ShaderType::Fragment);
+	_filepaths[stage] = filepath;
+	_handles[stage] = shaderHandle;
+}
 
-	const unsigned newProgram = compileProgram(vertShader, fragShader);
-	CAPP_ASSERT(newProgram != 0, "Could not reload shader \"{0}\"!", _name);
+void Shader::compile() {
+	const unsigned newProgram = compileProgram();
+	CAPP_ASSERT(newProgram != 0, "Could not compile shader \"{0}\"!", _name);
 	_id = newProgram;
 }
 
-unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType shaderType) const {
+void Shader::reload() {
+	for(const auto& path : _filepaths) {
+		attach(path.second, path.first);
+	}
+
+	compile();
+}
+
+unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage stage) {
 	unsigned int shaderHandle = 0;
 
-	switch(shaderType) {
-		case ShaderType::Vertex:
+	switch(stage) {
+		case ShaderStage::Vertex:
 			shaderHandle = glCreateShader(GL_VERTEX_SHADER);
 			break;
-		case ShaderType::Fragment:
+		case ShaderStage::TessControl:
+			shaderHandle = glCreateShader(GL_TESS_CONTROL_SHADER);
+			break;
+		case ShaderStage::TessEvaluation:
+			shaderHandle = glCreateShader(GL_TESS_EVALUATION_SHADER);
+			break;
+		case ShaderStage::Geometry:
+			shaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
+			break;
+		case ShaderStage::Fragment:
 			shaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 			break;
-		case ShaderType::Geometry:
-			shaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
+		case ShaderStage::Compute:
+			shaderHandle = glCreateShader(GL_COMPUTE_SHADER);
 			break;
 	}
 
@@ -97,47 +75,21 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderType sha
 		std::vector<char> infoLog(logLength);
 		glGetShaderInfoLog(shaderHandle, logLength, &logLength, infoLog.data());
 		glDeleteShader(shaderHandle);
-
-		std::string type;
-		std::string path;
-		switch(shaderType) {
-			case ShaderType::Vertex:
-				type = "Vertex";
-				path = _vertexSrcPath;
-				break;
-			case ShaderType::Fragment:
-				type = "Fragment";
-				path = _fragmentSrcPath;
-				break;
-			case ShaderType::Geometry:
-				type = "Geometry";
-				path = _geometrySrcPath;
-				break;
-			default:
-				type = "Unknown";
-				path = "";
-				break;
-		}
 		
-		CAPP_ASSERT(success, "Failed to compile shader!\n\t{0} shader at {1}:\n{2}", type, path, infoLog.data());
+		CAPP_PRINT_ERROR("Failed to compile shader!\n\t{0} shader at {1}:\n{2}", stage, _filepaths[stage], infoLog.data());
 		return 0;
 	}
 
 	return shaderHandle;
 }
 
-unsigned Shader::compileProgram(const unsigned int vertShader, const unsigned int fragShader, const std::optional<unsigned>& geomShader) const {
+unsigned Shader::compileProgram() const {
+	
 	const unsigned programHandle = glCreateProgram();
 
-	CAPP_ASSERT(vertShader, "No vertex shader linked!");
-	CAPP_ASSERT(fragShader, "No fragment shader linked!");
-
-	glAttachShader(programHandle, vertShader);
-	glAttachShader(programHandle, fragShader);
-
-	if(geomShader) {
-		CAPP_ASSERT(!geomShader.value(), "No geometry shader linked!");
-		glAttachShader(programHandle, geomShader.value());
+	for(const auto handle : _handles) {
+		CAPP_ASSERT(handle.second == 0, "No {0} shader linked!\n\tShader: {1}", _name);
+		glAttachShader(programHandle, handle.second);
 	}
 
 	glLinkProgram(programHandle);
@@ -151,31 +103,30 @@ unsigned Shader::compileProgram(const unsigned int vertShader, const unsigned in
 		glGetProgramInfoLog(programHandle, logLength, &logLength, infoLog.data());
 
 		glDeleteProgram(programHandle);
-		glDeleteShader(vertShader);
-		glDeleteShader(fragShader);
-		if(geomShader) {
-			glDeleteShader(geomShader.value());
+		for(const auto handle : _handles) {
+			glDeleteShader(handle.second);
 		}
 
 		CAPP_ASSERT(success, "Failed to link shader program!\n\tShader: {0}\n{1}", _name, infoLog.data());
 		return 0;
 	}
 
-	glDetachShader(programHandle, vertShader);
-	glDetachShader(programHandle, fragShader);
-	if(geomShader) {
-		glDetachShader(programHandle, geomShader.value());
+	for(const auto handle : _handles) {
+		glDetachShader(programHandle, handle.second);
 	}
 
 	return programHandle;
 }
 
-
-void Shader::bind() const { glUseProgram(_id); }
+void Shader::bind() const {
+	CAPP_ASSERT(_id == 0, "Shader is not compiled!\n\tShader: {0}", _name);
+	glUseProgram(_id);
+}
 void Shader::unbind() { glUseProgram(0); }
 
 void Shader::setName(const std::string& name) { _name = name; }
 const std::string& Shader::getName() const { return _name; }
+
 unsigned Shader::getRendererID() const { return _id; }
 
 int Shader::getUniformLocation(const std::string& uniformName) const {
@@ -186,27 +137,27 @@ int Shader::getUniformLocation(const std::string& uniformName) const {
 	return uniformLocation;
 }
 
-void Shader::setUniform(const std::string& uniformName, const bool value) const {
+void Shader::setUniformBool(const std::string& uniformName, const bool value) const {
 	glUniform1i(getUniformLocation(uniformName), static_cast<int>(value));
 }
-void Shader::setUniform(const std::string& uniformName, const int value) const {
+void Shader::setUniformInt(const std::string& uniformName, const int value) const {
 	glUniform1i(getUniformLocation(uniformName), value);
 }
-void Shader::setUniform(const std::string& uniformName, const float value) const {
+void Shader::setUniformFloat(const std::string& uniformName, const float value) const {
 	glUniform1f(getUniformLocation(uniformName), value);
 }
-void Shader::setUniform(const std::string& uniformName, const glm::vec2& value) const {
+void Shader::setUniformVec2(const std::string& uniformName, const glm::vec2& value) const {
 	glUniform2fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
-void Shader::setUniform(const std::string& uniformName, const glm::vec3& value) const {
+void Shader::setUniformVec3(const std::string& uniformName, const glm::vec3& value) const {
 	glUniform3fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
-void Shader::setUniform(const std::string& uniformName, const glm::vec4& value) const {
+void Shader::setUniformVec4(const std::string& uniformName, const glm::vec4& value) const {
 	glUniform4fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
-void Shader::setUniform(const std::string& uniformName, const glm::mat3& value) const {
+void Shader::setUniformMat3(const std::string& uniformName, const glm::mat3& value) const {
 	glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
 }
-void Shader::setUniform(const std::string& uniformName, const glm::mat4& value) const {
+void Shader::setUniformMat4(const std::string& uniformName, const glm::mat4& value) const {
 	glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
 }

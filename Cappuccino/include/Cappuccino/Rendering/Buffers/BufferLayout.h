@@ -1,15 +1,11 @@
 #pragma once
 
+#include "Cappuccino/Rendering/Shaders/ShaderTypes.h"
+
 #include <string>
 #include <vector>
 
 namespace Capp {
-
-	enum class ShaderDataType : unsigned int {
-		Bool = 0, Int, Float,
-		Vec2, Vec3, Vec4,
-		Mat3, Mat4
-	};
 
 	struct BufferElement {
 		std::string name;

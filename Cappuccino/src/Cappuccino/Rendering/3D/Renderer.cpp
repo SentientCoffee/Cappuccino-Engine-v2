@@ -51,10 +51,25 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		rendererStorage->defaultShader = new Shader("3D Default", "Assets/Cappuccino/Shaders/BlinnPhongShader.vert", "Assets/Cappuccino/Shaders/BlinnPhongShader.frag");
-		rendererStorage->hitboxShader = new Shader("Hitbox Default", "Assets/Cappuccino/Shaders/HitboxShader.vert", "Assets/Cappuccino/Shaders/HitboxShader.frag");
-		rendererStorage->skyboxShader = new Shader("Skybox Default", "Assets/Cappuccino/Shaders/CubemapShader.vert", "Assets/Cappuccino/Shaders/CubemapShader.frag");
-		rendererStorage->mainBufferShader = new Shader("Framebuffer Default", "Assets/Cappuccino/Shaders/FramebufferShader.vert", "Assets/Cappuccino/Shaders/FramebufferShader.frag");
+		rendererStorage->defaultShader = new Shader("3D Default");
+		rendererStorage->defaultShader->attach("Assets/Cappuccino/Shaders/BlinnPhongShader.vert", ShaderStage::Vertex);
+		rendererStorage->defaultShader->attach("Assets/Cappuccino/Shaders/BlinnPhongShader.frag", ShaderStage::Fragment);
+		rendererStorage->defaultShader->compile();
+		
+		rendererStorage->hitboxShader = new Shader("Hitbox Default");
+		rendererStorage->hitboxShader->attach("Assets/Cappuccino/Shaders/HitboxShader.vert", ShaderStage::Vertex);
+		rendererStorage->hitboxShader->attach("Assets/Cappuccino/Shaders/HitboxShader.frag", ShaderStage::Fragment);
+		rendererStorage->hitboxShader->compile();
+		
+		rendererStorage->skyboxShader = new Shader("Skybox Default");
+		rendererStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/CubemapShader.vert", ShaderStage::Vertex);
+		rendererStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/CubemapShader.frag", ShaderStage::Fragment);
+		rendererStorage->skyboxShader->compile();
+
+		rendererStorage->mainBufferShader = new Shader("Framebuffer Default");
+		rendererStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.vert", ShaderStage::Vertex);
+		rendererStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.frag", ShaderStage::Fragment);
+		rendererStorage->mainBufferShader->compile();
 	}
 	
 	// --------------------------------------------------
@@ -200,33 +215,33 @@ void Renderer::addToRenderList(VertexArray* vertexArray, Material* material) {
 	material->apply();
 
 	material->getShader()->bind();
-	material->getShader()->setUniform("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
-	material->getShader()->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
-	material->getShader()->setUniform("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
-	material->getShader()->setUniform("uNumDirectionalLights", static_cast<int>(rendererStorage->activeLights.directionalLights.size()));
-	material->getShader()->setUniform("uNumSpotlights", static_cast<int>(rendererStorage->activeLights.spotlights.size()));
+	material->getShader()->setUniform<Vec3>("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
+	material->getShader()->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
+	material->getShader()->setUniform<Int>("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
+	material->getShader()->setUniform<Int>("uNumDirectionalLights", static_cast<int>(rendererStorage->activeLights.directionalLights.size()));
+	material->getShader()->setUniform<Int>("uNumSpotlights", static_cast<int>(rendererStorage->activeLights.spotlights.size()));
 
-	material->getShader()->setUniform("uAmbientColour", { 0.2f, 0.4f, 0.8f });
-	material->getShader()->setUniform("uAmbientPower", 0.3f);
+	material->getShader()->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.8f));
+	material->getShader()->setUniform<Float>("uAmbientPower", 0.3f);
 
 	for(unsigned i = 0; i < rendererStorage->activeLights.directionalLights.size(); ++i) {
-		material->getShader()->setUniform("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.directionalLights[i]->getDirection());
-		material->getShader()->setUniform("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.directionalLights[i]->getColour());
+		material->getShader()->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.directionalLights[i]->getDirection());
+		material->getShader()->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.directionalLights[i]->getColour());
 	}
 
 	for(unsigned i = 0; i < rendererStorage->activeLights.pointLights.size(); ++i) {
-		material->getShader()->setUniform("uPointLights[" + std::to_string(i) + "].position", rendererStorage->activeLights.pointLights[i]->getPosition());
-		material->getShader()->setUniform("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.pointLights[i]->getColour());
-		material->getShader()->setUniform("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.pointLights[i]->getAttenuation());
+		material->getShader()->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].position", rendererStorage->activeLights.pointLights[i]->getPosition());
+		material->getShader()->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.pointLights[i]->getColour());
+		material->getShader()->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.pointLights[i]->getAttenuation());
 	}
 
 	for(unsigned i = 0; i < rendererStorage->activeLights.spotlights.size(); ++i) {
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->activeLights.spotlights[i]->getPosition());
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.spotlights[i]->getDirection());
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.spotlights[i]->getColour());
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.spotlights[i]->getAttenuation());
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
-		material->getShader()->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
+		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->activeLights.spotlights[i]->getPosition());
+		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.spotlights[i]->getDirection());
+		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.spotlights[i]->getColour());
+		material->getShader()->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.spotlights[i]->getAttenuation());
+		material->getShader()->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
+		material->getShader()->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
 	}
 	
 	addToRenderList(vertexArray, material->getShader());
@@ -243,8 +258,8 @@ void Renderer::addToRenderList(Mesh* mesh, Material* material) {
 
 void Renderer::addToRenderList(Model* model) {
 	//model->getMaterial()->getShader()->bind();
-	//model->getMaterial()->getShader()->setUniform("uTransform", model->getTransform().getWorldTransform());
-	//model->getMaterial()->getShader()->setUniform("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
+	//model->getMaterial()->getShader()->setUniformMat4("uTransform", model->getTransform().getWorldTransform());
+	//model->getMaterial()->getShader()->setUniformMat3("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
 	rendererStorage->modelsToRender.push_back(model);
 
 	//addToRenderList(model->getMesh(), model->getMaterial());
@@ -259,9 +274,9 @@ void Renderer::addToRenderList(Hitbox* hitbox) {
 	//RenderCommand::setDrawMode(DrawMode::Line);
 
 	//rendererStorage->hitboxShader->bind();
-	//rendererStorage->hitboxShader->setUniform("uHitboxColour", { 1.0f, 0.0f, 0.0f, 1.0f });
-	//rendererStorage->hitboxShader->setUniform("uTransform", hitbox->getTransform().getWorldTransform());
-	//rendererStorage->hitboxShader->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
+	//rendererStorage->hitboxShader->setUniformVec4("uHitboxColour", { 1.0f, 0.0f, 0.0f, 1.0f });
+	//rendererStorage->hitboxShader->setUniformMat4("uTransform", hitbox->getTransform().getWorldTransform());
+	//rendererStorage->hitboxShader->setUniformMat4("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
 
 	//hitbox->getVAO()->bind();
 	//RenderCommand::drawIndexed(hitbox->getVAO());
@@ -329,39 +344,39 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				boundShader = shader;
 				boundShader->bind();
 				
-				shader->setUniform("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
+				shader->setUniform<Vec3>("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
 				
-				shader->setUniform("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
-				shader->setUniform("uNumDirectionalLights", static_cast<int>(rendererStorage->activeLights.directionalLights.size()));
-				shader->setUniform("uNumSpotlights", static_cast<int>(rendererStorage->activeLights.spotlights.size()));
+				shader->setUniform<Int>("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
+				shader->setUniform<Int>("uNumDirectionalLights", static_cast<int>(rendererStorage->activeLights.directionalLights.size()));
+				shader->setUniform<Int>("uNumSpotlights", static_cast<int>(rendererStorage->activeLights.spotlights.size()));
 
-				shader->setUniform("uAmbientColour", { 0.2f, 0.4f, 0.6f });
-				shader->setUniform("uAmbientPower", 0.3f);
+				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
+				shader->setUniform<Float>("uAmbientPower", 0.3f);
 
 				for(unsigned i = 0; i < rendererStorage->activeLights.directionalLights.size(); ++i) {
-					shader->setUniform("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.directionalLights[i]->getDirection());
-					shader->setUniform("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.directionalLights[i]->getColour());
+					shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.directionalLights[i]->getDirection());
+					shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.directionalLights[i]->getColour());
 				}
 
 				for(unsigned i = 0; i < rendererStorage->activeLights.pointLights.size(); ++i) {
-					shader->setUniform("uPointLights[" + std::to_string(i) + "].position", rendererStorage->activeLights.pointLights[i]->getPosition());
-					shader->setUniform("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.pointLights[i]->getColour());
-					shader->setUniform("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.pointLights[i]->getAttenuation());
+					shader->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].position", rendererStorage->activeLights.pointLights[i]->getPosition());
+					shader->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.pointLights[i]->getColour());
+					shader->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.pointLights[i]->getAttenuation());
 				}
 
 				for(unsigned i = 0; i < rendererStorage->activeLights.spotlights.size(); ++i) {
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->activeLights.spotlights[i]->getPosition());
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.spotlights[i]->getDirection());
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.spotlights[i]->getColour());
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.spotlights[i]->getAttenuation());
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
-					shader->setUniform("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
+					shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].position", rendererStorage->activeLights.spotlights[i]->getPosition());
+					shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].direction", rendererStorage->activeLights.spotlights[i]->getDirection());
+					shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].colour", rendererStorage->activeLights.spotlights[i]->getColour());
+					shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].attenuation", rendererStorage->activeLights.spotlights[i]->getAttenuation());
+					shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
+					shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rendererStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
 				}
 			}
 
-			shader->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
-			shader->setUniform("uTransform", model->getTransform().getWorldTransform());
-			shader->setUniform("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
+			shader->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
+			shader->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
+			shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
 			model->getMaterial()->apply();
 			
 			model->getMesh()->getVAO()->bind();
@@ -380,9 +395,9 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			
 			for(auto hitbox : rendererStorage->hitboxesToRender) {
 				rendererStorage->hitboxShader->bind();
-				rendererStorage->hitboxShader->setUniform("uHitboxColour", { 1.0f, 0.0f, 0.0f, 1.0f });
-				rendererStorage->hitboxShader->setUniform("uTransform", hitbox->getTransform().getWorldTransform());
-				rendererStorage->hitboxShader->setUniform("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
+				rendererStorage->hitboxShader->setUniform<Vec4>("uHitboxColour", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				rendererStorage->hitboxShader->setUniform<Mat4>("uTransform", hitbox->getTransform().getWorldTransform());
+				rendererStorage->hitboxShader->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
 
 				hitbox->getVAO()->bind();
 				RenderCommand::drawIndexed(hitbox->getVAO());
@@ -399,10 +414,10 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 			rendererStorage->skyboxShader->bind();
 			const glm::mat4 viewProjection = rendererStorage->perspectiveCamera.getProjectionMatrix() * glm::mat4(glm::mat3(rendererStorage->perspectiveCamera.getViewMatrix()));
-			rendererStorage->skyboxShader->setUniform("uViewProjection", viewProjection);
+			rendererStorage->skyboxShader->setUniform<Mat4>("uViewProjection", viewProjection);
 
 			rendererStorage->activeSkybox->bind(0);
-			rendererStorage->skyboxShader->setUniform("uSkybox", 0);
+			rendererStorage->skyboxShader->setUniform<Int>("uSkybox", 0);
 
 			rendererStorage->skyboxMesh->getVAO()->bind();
 			RenderCommand::drawIndexed(rendererStorage->skyboxMesh->getVAO());
@@ -427,8 +442,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		
 		pass.shader->bind();
 		lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
-		pass.shader->setUniform("uImage", 0);
-		pass.shader->setUniform("uScreenSize", { window->getWidth(), window->getHeight() });
+		pass.shader->setUniform<Int>("uImage", 0);
+		pass.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
 		
 		rendererStorage->fullscreenQuad->getVAO()->bind();
 		RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());

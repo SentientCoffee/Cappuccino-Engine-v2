@@ -5,9 +5,9 @@
 #include "Cappuccino/Objects/Transform.h"
 
 #include "Cappuccino/Rendering/RenderCommand.h"
-#include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/Buffers/Framebuffer.h"
+#include "Cappuccino/Rendering/Shaders/Shader.h"
 #include "Cappuccino/Rendering/Textures/TextureDefaults.h"
 
 using namespace Capp;
@@ -65,22 +65,31 @@ void Renderer2D::init() {
 			0, 2, 3
 		};
 
-		renderer2DStorage->fullscreenQuad = new Mesh("Main 2D framebuffer fullscreen quad", vertices, indices);
+		renderer2DStorage->fullscreenQuad = new Mesh("DefaultFramebufferFullscreenQuad", vertices, indices);
 	}
 
 	{
-		renderer2DStorage->quadShader = new Shader("Default2D", "Assets/Cappuccino/Shaders/2DShader.vert", "Assets/Cappuccino/Shaders/2DShader.frag");
-		renderer2DStorage->textShader = new Shader("DefaultText", "Assets/Cappuccino/Shaders/TextShader.vert", "Assets/Cappuccino/Shaders/TextShader.frag");
-		renderer2DStorage->mainBufferShader = new Shader("Framebuffer Default", "Assets/Cappuccino/Shaders/FramebufferShader.vert", "Assets/Cappuccino/Shaders/FramebufferShader.frag");
-		
+		renderer2DStorage->quadShader = new Shader("Default2D");
+		renderer2DStorage->quadShader->attach("Assets/Cappuccino/Shaders/2DShader.vert", ShaderStage::Vertex);
+		renderer2DStorage->quadShader->attach("Assets/Cappuccino/Shaders/2DShader.frag", ShaderStage::Fragment);
+		renderer2DStorage->quadShader->compile();
 		renderer2DStorage->quadShader->bind();
-		renderer2DStorage->quadShader->setUniform("uTextureSlot", 0);
+		renderer2DStorage->quadShader->setUniform<Int>("uTextureSlot", 0);
 
+		renderer2DStorage->textShader = new Shader("DefaultText");
+		renderer2DStorage->textShader->attach("Assets/Cappuccino/Shaders/TextShader.vert", ShaderStage::Vertex);
+		renderer2DStorage->textShader->attach("Assets/Cappuccino/Shaders/TextShader.frag", ShaderStage::Fragment);
+		renderer2DStorage->textShader->compile();
 		renderer2DStorage->textShader->bind();
-		renderer2DStorage->textShader->setUniform("uTextureSlot", 0);
+		renderer2DStorage->textShader->setUniform<Int>("uTextureSlot", 0);
 
+		renderer2DStorage->mainBufferShader = new Shader("DefaultFramebuffer");
+		renderer2DStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.vert", ShaderStage::Vertex);
+		renderer2DStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.frag", ShaderStage::Fragment);
+		renderer2DStorage->mainBufferShader->compile();
 		renderer2DStorage->mainBufferShader->bind();
-		renderer2DStorage->mainBufferShader->setUniform("uTextureSlot", 0);
+		renderer2DStorage->mainBufferShader->setUniform<Int>("uTextureSlot", 0);
+		
 	}
 
 	{
@@ -115,10 +124,10 @@ void Renderer2D::start(const OrthographicCamera& camera) {
 	RenderCommand::disableCulling();
 	
 	renderer2DStorage->quadShader->bind();
-	renderer2DStorage->quadShader->setUniform("uViewProjection", camera.getViewProjection());
+	renderer2DStorage->quadShader->setUniform<Mat4>("uViewProjection", camera.getViewProjection());
 
 	renderer2DStorage->textShader->bind();
-	renderer2DStorage->textShader->setUniform("uProjection", camera.getProjectionMatrix());
+	renderer2DStorage->textShader->setUniform<Mat4>("uProjection", camera.getProjectionMatrix());
 
 	renderer2DStorage->quadsToRender.clear();
 	renderer2DStorage->quadsToRender.reserve(200);
@@ -158,9 +167,9 @@ void Renderer2D::finish() {
 
 		transform.setPosition(quad.zIndexedPosition).setScale(quad.dimensions.x, quad.dimensions.y, 0.0f);
 
-		renderer2DStorage->quadShader->setUniform("uTransform", transform.getWorldTransform());
-		renderer2DStorage->quadShader->setUniform("uColour", quad.tint);
-		renderer2DStorage->quadShader->setUniform("uTileFactor", quad.tilingFactor);
+		renderer2DStorage->quadShader->setUniform<Mat4>("uTransform", transform.getWorldTransform());
+		renderer2DStorage->quadShader->setUniform<Vec4>("uColour", quad.tint);
+		renderer2DStorage->quadShader->setUniform<Float>("uTileFactor", quad.tilingFactor);
 
 		renderer2DStorage->quadMesh->getVAO()->bind();
 		RenderCommand::drawIndexed(renderer2DStorage->quadMesh->getVAO());
@@ -168,7 +177,7 @@ void Renderer2D::finish() {
 
 	renderer2DStorage->textShader->bind();
 	for(auto text : renderer2DStorage->textToRender) {
-		renderer2DStorage->textShader->setUniform("uTextColour", text->getTextColour());
+		renderer2DStorage->textShader->setUniform<Vec4>("uTextColour", text->getTextColour());
 
 		auto tempPos = text->getTransform().getPosition();
 		for(auto ch = text->getText().begin(); ch != text->getText().end(); ++ch) {

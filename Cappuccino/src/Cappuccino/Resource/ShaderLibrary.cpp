@@ -32,13 +32,13 @@ void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
 	_shaders[name] = shader;
 }
 
-Shader* ShaderLibrary::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::string>& geometryPath) {
+Shader* ShaderLibrary::loadShader(const std::string& name) {
 	if(hasShader(name)) {
 		CAPP_PRINT_INFO("Shader \"{0}\" already exists, using loaded shader...", name);
 		return _shaders[name];
 	}
 
-	return _shaders[name] = new Shader(name, vertexPath, fragmentPath, geometryPath);
+	return _shaders[name] = new Shader(name); //, vertexPath, fragmentPath, geometryPath);
 }
 
 Shader* ShaderLibrary::getShader(const std::string& name) {

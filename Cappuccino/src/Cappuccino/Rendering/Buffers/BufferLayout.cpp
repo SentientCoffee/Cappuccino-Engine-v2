@@ -5,7 +5,7 @@ using namespace Capp;
 
 static unsigned int SDTypeSize(const ShaderDataType type) {
 	switch(type) {
-		case ShaderDataType::Bool:		return sizeof(int);
+		case ShaderDataType::Bool:
 		case ShaderDataType::Int:		return sizeof(int);
 		case ShaderDataType::Float:		return sizeof(float);
 
@@ -15,10 +15,8 @@ static unsigned int SDTypeSize(const ShaderDataType type) {
 
 		case ShaderDataType::Mat3:		return 3 * 3 * sizeof(float);
 		case ShaderDataType::Mat4:		return 4 * 4 * sizeof(float);
+		default:						return 0;
 	}
-
-	CAPP_ASSERT(false, "Unknown shader data type!");
-	return 0;
 }
 
 // ----------------------------------------
@@ -30,8 +28,8 @@ BufferElement::BufferElement(const ShaderDataType type, const std::string& name,
 
 unsigned BufferElement::getComponentCount() const {
 	switch(type) {
-		case ShaderDataType::Bool:		return 1;
-		case ShaderDataType::Int:		return 1;
+		case ShaderDataType::Bool:
+		case ShaderDataType::Int:
 		case ShaderDataType::Float:		return 1;
 
 		case ShaderDataType::Vec2:		return 2;
@@ -40,9 +38,8 @@ unsigned BufferElement::getComponentCount() const {
 
 		case ShaderDataType::Mat3:		return 3 * 3;
 		case ShaderDataType::Mat4:		return 4 * 4;
+		default:						return 0;
 	}
-
-	return 0;
 }
 
 // ----------------------------------------

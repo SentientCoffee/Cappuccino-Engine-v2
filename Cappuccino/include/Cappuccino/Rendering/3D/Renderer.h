@@ -5,7 +5,6 @@
 #include "Cappuccino/Objects/Rigidbody.h"
 
 #include "Cappuccino/Rendering/Camera.h"
-#include "Cappuccino/Rendering/Shader.h"
 #include "Cappuccino/Rendering/VertexArray.h"
 
 #include "Cappuccino/Rendering/3D/Light.h"
@@ -14,6 +13,7 @@
 #include "Cappuccino/Rendering/3D/Model.h"
 
 #include "Cappuccino/Rendering/Buffers/Framebuffer.h"
+#include "Cappuccino/Rendering/Shaders/Shader.h"
 #include "Cappuccino/Rendering/Textures/TextureCubemap.h"
 
 namespace Capp {

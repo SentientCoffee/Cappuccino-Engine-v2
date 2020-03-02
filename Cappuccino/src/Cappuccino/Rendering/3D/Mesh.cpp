@@ -7,7 +7,7 @@ using namespace Capp;
 Mesh::Mesh(const std::string& name, const std::string& filepath) :
 	_name(name), _meshPath(filepath) {
 	_vao = new VertexArray;
-	auto [vbo, ibo] = ResourceLoader::loadOBJ(filepath);
+	auto [vbo, ibo] = ResourceLoader::loadOBJFile(filepath);
 
 	const BufferLayout layout = {
 		{ ShaderDataType::Vec3, "inPosition" },

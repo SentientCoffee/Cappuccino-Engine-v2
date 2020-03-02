@@ -7,8 +7,9 @@ namespace Capp {
 	class ResourceLoader {
 	public:
 
-		static Texture3D* loadCUBE(const std::string& filepath);
-		static std::tuple<VertexBuffer*, IndexBuffer*> loadOBJ(const std::string& filepath);
+		static Texture3D* loadCUBEFile(const std::string& filepath);
+		static std::tuple<VertexBuffer*, IndexBuffer*> loadOBJFile(const std::string& filepath);
+		static std::string loadTextFile(const std::string& filepath);
 		
 	};
 	

@@ -69,27 +69,26 @@ void Renderer2D::init() {
 	}
 
 	{
-		renderer2DStorage->quadShader = new Shader("Default2D");
+		renderer2DStorage->quadShader = new Shader("2D Default");
 		renderer2DStorage->quadShader->attach("Assets/Cappuccino/Shaders/2DShader.vert", ShaderStage::Vertex);
 		renderer2DStorage->quadShader->attach("Assets/Cappuccino/Shaders/2DShader.frag", ShaderStage::Fragment);
 		renderer2DStorage->quadShader->compile();
 		renderer2DStorage->quadShader->bind();
 		renderer2DStorage->quadShader->setUniform<Int>("uTextureSlot", 0);
 
-		renderer2DStorage->textShader = new Shader("DefaultText");
+		renderer2DStorage->textShader = new Shader("Text Default");
 		renderer2DStorage->textShader->attach("Assets/Cappuccino/Shaders/TextShader.vert", ShaderStage::Vertex);
 		renderer2DStorage->textShader->attach("Assets/Cappuccino/Shaders/TextShader.frag", ShaderStage::Fragment);
 		renderer2DStorage->textShader->compile();
 		renderer2DStorage->textShader->bind();
 		renderer2DStorage->textShader->setUniform<Int>("uTextureSlot", 0);
 
-		renderer2DStorage->mainBufferShader = new Shader("DefaultFramebuffer");
+		renderer2DStorage->mainBufferShader = new Shader("2D Framebuffer Default");
 		renderer2DStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.vert", ShaderStage::Vertex);
 		renderer2DStorage->mainBufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.frag", ShaderStage::Fragment);
 		renderer2DStorage->mainBufferShader->compile();
 		renderer2DStorage->mainBufferShader->bind();
 		renderer2DStorage->mainBufferShader->setUniform<Int>("uTextureSlot", 0);
-		
 	}
 
 	{
@@ -99,8 +98,8 @@ void Renderer2D::init() {
 	{
 		renderer2DStorage->mainBuffer = new Framebuffer(window->getWidth(), window->getHeight());
 		renderer2DStorage->mainBuffer->setName("Main 2D Framebuffer");
-		const Attachment mainColour = { AttachmentType::Texture, AttachmentFormat::RGBA8 };
-		const Attachment depthStencil = { AttachmentType::RenderBuffer, AttachmentFormat::Depth24Stencil8 };
+		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGBA8 };
+		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
 		renderer2DStorage->mainBuffer->addAttachment(AttachmentTarget::Colour0, mainColour);
 		renderer2DStorage->mainBuffer->addAttachment(AttachmentTarget::DepthStencil, depthStencil);
 	}

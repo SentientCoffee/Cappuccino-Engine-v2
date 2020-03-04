@@ -16,6 +16,8 @@
 #include "Cappuccino/Rendering/Shaders/Shader.h"
 #include "Cappuccino/Rendering/Textures/TextureCubemap.h"
 
+#include <optional>
+
 namespace Capp {
 
 	struct PostProcessingPass {
@@ -38,18 +40,18 @@ namespace Capp {
 		
 		static void finish(const PostPasses& postProcessing = {});
 
-		static void addToRenderList(VertexArray* vertexArray, Shader* shader = nullptr);
-		static void addToRenderList(VertexArray* vertexArray, Material* material);
+		static void addToQueue(VertexArray* vertexArray, Shader* shader = nullptr);
+		static void addToQueue(VertexArray* vertexArray, Material* material);
 		
-		static void addToRenderList(Mesh* mesh, Shader* shader);
-		static void addToRenderList(Mesh* mesh, Material* material);
+		static void addToQueue(Mesh* mesh, Shader* shader);
+		static void addToQueue(Mesh* mesh, Material* material);
 
-		static void addToRenderList(Model* model);
+		static void addToQueue(Model* model);
 
-		static void addToRenderList(Hitbox* hitbox);
-		static void addToRenderList(const RigidBody& rigidBody);
+		static void addToQueue(Hitbox* hitbox);
+		static void addToQueue(const RigidBody& rigidBody);
 
-		static void addToRenderList(GameObject* gameObject);
+		static void addToQueue(GameObject* gameObject);
 		
 	};
 	

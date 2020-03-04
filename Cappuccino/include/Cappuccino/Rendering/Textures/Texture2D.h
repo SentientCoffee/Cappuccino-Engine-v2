@@ -10,8 +10,9 @@ namespace Capp {
 	class Texture2D {
 	public:
 
-		Texture2D(unsigned width, unsigned height, void* data = nullptr, unsigned channels = 4);
-		Texture2D(const std::string& filepath);
+		Texture2D(unsigned width, unsigned height, void* data = nullptr, InternalFormat format = InternalFormat::RGBA8, Mipmaps enableMipmaps = Mipmaps::On);
+		Texture2D(unsigned width, unsigned height, InternalFormat format = InternalFormat::RGBA8, Mipmaps enableMipmaps = Mipmaps::On);
+		Texture2D(const std::string& filepath, Mipmaps enableMipmaps = Mipmaps::On);
 		~Texture2D();
 
 		unsigned getRendererID() const;
@@ -20,27 +21,20 @@ namespace Capp {
 		glm::vec2 getSize() const;
 
 
-		void bind(unsigned slot = 0) const;
-		static void unbind(unsigned slot = 0);
+		void bind(unsigned slot) const;
+		static void unbind(unsigned slot);
 
 		void setData(void* data, unsigned size);
-		
 		void setParameters(const TextureParams& params);
 
 	private:
 
-		void createTexture();
-
 		unsigned _id = 0;
 		unsigned _width = 0, _height = 0;
-		unsigned _mipLevels = 1;
-		unsigned char* _data = nullptr;
-		
-		std::string _texturePath;
+		unsigned _mipLevels = 0;
 
 		TextureFormats _formats;
 		TextureParams _parameters;
-		
 	};
 	
 }

@@ -39,9 +39,9 @@ namespace Capp {
 
 		int getUniformLocation(const std::string& uniformName) const;
 		
-		void setUniformBool(const std::string& uniformName, bool value) const;
-		void setUniformInt(const std::string& uniformName, int value) const;
-		void setUniformFloat(const std::string& uniformName, float value) const;
+		void setUniformBool(const std::string& uniformName, const bool& value) const;
+		void setUniformInt(const std::string& uniformName, const int& value) const;
+		void setUniformFloat(const std::string& uniformName, const float& value) const;
 
 		void setUniformVec2(const std::string& uniformName, const glm::vec2& value) const;
 		void setUniformVec3(const std::string& uniformName, const glm::vec3& value) const;
@@ -52,6 +52,7 @@ namespace Capp {
 		
 		unsigned int _id = 0;
 		std::string _name;
+		bool _isCompiled = false;
 		
 		std::unordered_map<ShaderStage, std::string> _filepaths;
 		std::unordered_map<ShaderStage, unsigned int> _handles;

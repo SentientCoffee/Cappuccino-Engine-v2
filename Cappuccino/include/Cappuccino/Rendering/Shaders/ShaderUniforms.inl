@@ -4,7 +4,7 @@ namespace Capp {
 	
 	template<SDT Val, typename S>
 	void Shader::setUniform(const std::string& uniformName, const S& value) {
-		CAPP_ASSERT(false, "Invalid shader data type to send to uniform!");
+		CAPP_ASSERT(false, "Invalid shader data type to send to uniform!\n\tUniform: {0}", uniformName);
 	}
 
 	template<>
@@ -33,17 +33,17 @@ namespace Capp {
 	}
 
 	template<>
-	inline void Shader::setUniform<Bool>(const std::string& uniformName, const glm::vec4& value) {
+	inline void Shader::setUniform<Vec4>(const std::string& uniformName, const glm::vec4& value) {
 		setUniformVec4(uniformName, value);
 	}
 
 	template<>
-	inline void Shader::setUniform<Bool>(const std::string& uniformName, const glm::mat3& value) {
+	inline void Shader::setUniform<Mat3>(const std::string& uniformName, const glm::mat3& value) {
 		setUniformMat3(uniformName, value);
 	}
 
 	template<>
-	inline void Shader::setUniform<Bool>(const std::string& uniformName, const glm::mat4& value) {
+	inline void Shader::setUniform<Mat4>(const std::string& uniformName, const glm::mat4& value) {
 		setUniformMat4(uniformName, value);
 	}
 	

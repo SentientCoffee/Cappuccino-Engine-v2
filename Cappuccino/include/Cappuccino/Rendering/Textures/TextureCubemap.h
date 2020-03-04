@@ -31,8 +31,8 @@ namespace Capp {
 		
 		~TextureCubemap();
 
-		void bind(unsigned slot = 0) const;
-		static void unbind(unsigned slot = 0);
+		void bind(unsigned slot) const;
+		static void unbind(unsigned slot);
 
 		void setCubemapTextures(const StringVector& filepaths);
 		void setCubemapTextures(const StringInitList& filepaths);

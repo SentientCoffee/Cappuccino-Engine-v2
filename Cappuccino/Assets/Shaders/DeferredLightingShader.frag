@@ -9,15 +9,13 @@
 // -----------------------------------------------
 
 layout(location = 0) in DATA {
-	vec3 worldPosition;
 	vec2 uv;
-	vec3 normal;
 } inFrag;
 
 layout(location = 0) out vec4 outColour;
 
 // -----------------------------------------------
-// ----- Structs ---------------------------------
+// ----- Light structs ---------------------------
 // -----------------------------------------------
 
 struct DirectionalLight {
@@ -40,13 +38,27 @@ struct Spotlight {
 	float outerCutoffAngle;
 };
 
+// -----------------------------------------------
+// ----- Structs ---------------------------------
+// -----------------------------------------------
+
+// Pseudo material (for lighting)
 struct Material {
-	sampler2D diffuse;
-	sampler2D specular;
-	sampler2D normal;
-	sampler2D emission;
-	sampler2D bump;
+	vec3 diffuse;
+	vec3 specular;
+	vec3 normal;
+	vec3 emission;
+	vec3 bump;
 	float roughness;
+} mat;
+
+// GBuffer texture inputs
+struct GBuffer {
+	sampler2D position;
+	sampler2D normal;
+	sampler2D albedo;
+	sampler2D specRough;
+	sampler2D emission;
 };
 
 // -----------------------------------------------
@@ -65,7 +77,7 @@ uniform DirectionalLight uDirectionalLights[MAX_DIR_LIGHTS];
 uniform PointLight uPointLights[MAX_POINT_LIGHTS];
 uniform Spotlight uSpotlights[MAX_SPOTLIGHTS];
 
-uniform Material uMaterial;
+uniform GBuffer uGBuffer;
 
 // -----------------------------------------------
 // ----- Functions -------------------------------
@@ -80,29 +92,33 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec3 worldPosition, 
 // -----------------------------------------------
 
 void main() {
-	vec3 normal = normalize(inFrag.normal);
-	vec3 viewDirection = normalize(uCameraPosition - inFrag.worldPosition);
+	vec3 worldPosition = texture(uGBuffer.position, inFrag.uv).rgb;
+	vec3 normal = texture(uGBuffer.normal, inFrag.uv).rgb;
 	
-	vec3 result = uAmbientColour * uAmbientPower * texture(uMaterial.diffuse, inFrag.uv).xyz;
+	mat.diffuse   = texture(uGBuffer.albedo,    inFrag.uv).rgb;
+	mat.emission  = texture(uGBuffer.emission,  inFrag.uv).rgb;
+	mat.specular  = texture(uGBuffer.specRough, inFrag.uv).rgb;
+	mat.roughness = texture(uGBuffer.specRough, inFrag.uv).g;
+
+	vec3 viewDirection = normalize(uCameraPosition - worldPosition);
+	vec3 result = uAmbientColour * uAmbientPower * mat.diffuse;
 
 	for(int i = 0; i < uNumDirectionalLights; ++i) {
 		if(i >= MAX_DIR_LIGHTS) break;
-		result += calculateDirectionalLight(uDirectionalLights[i], uMaterial, normal, viewDirection);
+		result += calculateDirectionalLight(uDirectionalLights[i], mat, normal, viewDirection);
 	}
 
 	for(int i = 0; i < uNumPointLights; ++i) {
 		if(i >= MAX_POINT_LIGHTS) break;
-		result += calculatePointLight(uPointLights[i], uMaterial, inFrag.worldPosition, normal, viewDirection);
+		result += calculatePointLight(uPointLights[i], mat, worldPosition, normal, viewDirection);
 	}
 
 	for(int i = 0; i < uNumSpotlights; ++i) {
 		if(i >= MAX_SPOTLIGHTS) break;
-		result += calculateSpotlight(uSpotlights[i], uMaterial, inFrag.worldPosition, normal, viewDirection);
+		result += calculateSpotlight(uSpotlights[i], mat, worldPosition, normal, viewDirection);
 	}
 
-	vec3 emission = texture(uMaterial.emission, inFrag.uv).rgb;
-	result += emission;
-
+	result += mat.emission;
 	outColour = vec4(result, 1.0);
 }
 
@@ -114,15 +130,15 @@ vec3 calculateDirectionalLight(DirectionalLight light, Material material, vec3 n
 	vec3 lightDirection = normalize(-light.direction);
 
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
-	vec3 diffuse = light.colour * diffusePower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 diffuse = light.colour * diffusePower * material.diffuse;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - material.roughness) * 256);
-	vec3 specular = light.colour * specularPower * texture(material.specular, inFrag.uv).rgb;
+	vec3 specular = light.colour * specularPower * material.specular;
 
 	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
 	rimPower = smoothstep(0.6, 1.0, rimPower);
-	vec3 rim = light.colour * rimPower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 rim = light.colour * rimPower * material.diffuse;
 
 	return diffuse + specular + rim;
 }
@@ -132,15 +148,15 @@ vec3 calculatePointLight(PointLight light, Material material, vec3 worldPosition
 	vec3 lightDirection = normalize(lightToPositionDifference);
 
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
-	vec3 diffuse = light.colour * diffusePower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 diffuse = light.colour * diffusePower * material.diffuse;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - material.roughness) * 256);
-	vec3 specular = light.colour * specularPower * texture(material.specular, inFrag.uv).rgb;
+	vec3 specular = light.colour * specularPower * material.specular;
 
 	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
 	rimPower = smoothstep(0.6, 1.0, rimPower);
-	vec3 rim = light.colour * rimPower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 rim = light.colour * rimPower * material.diffuse;
 
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
@@ -153,15 +169,15 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec3 worldPosition, 
 	vec3 lightDirection = normalize(lightToPositionDifference);
 
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
-	vec3 diffuse = light.colour * diffusePower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 diffuse = light.colour * diffusePower * material.diffuse;
 
 	vec3 halfwayDirection = normalize(lightDirection + viewDirection);
 	float specularPower = pow(max(dot(viewDirection, halfwayDirection), 0.0), (1 - material.roughness) * 256);
-	vec3 specular = light.colour * specularPower * texture(material.specular, inFrag.uv).rgb;
+	vec3 specular = light.colour * specularPower * material.specular;
 
 	float rimPower = 1.0 - max(dot(viewDirection, normal), 0.0);
 	rimPower = smoothstep(0.6, 1.0, rimPower);
-	vec3 rim = light.colour * rimPower * texture(material.diffuse, inFrag.uv).rgb;
+	vec3 rim = light.colour * rimPower * material.diffuse;
 
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));

@@ -18,8 +18,8 @@ namespace Capp {
 
 		unsigned int getSize() const;
 
-		void bind(unsigned slot = 0) const;
-		static void unbind(unsigned slot = 0);
+		void bind(unsigned slot) const;
+		static void unbind(unsigned slot);
 
 		void setParameters(const TextureParams& params);
 

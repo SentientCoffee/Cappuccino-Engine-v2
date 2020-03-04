@@ -40,7 +40,7 @@ void Framebuffer::resize(const unsigned width, const unsigned height) {
 void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment& attachment) {
 	const auto it = _attachments.find(target);
 	if(it != _attachments.end()) {
-		CAPP_PRINT_WARNING("An attachment in framebuffer \"{0}\" is already bound to target 0x{1:X}, replacing with new attachment...", _name, static_cast<unsigned>(target));
+		CAPP_PRINT_WARNING("An attachment in framebuffer \"{0}\" is already bound to target \"{1}\", replacing with new attachment...", _name, target);
 
 		if(it->second.type == AttachmentType::RenderBuffer) {
 			glDeleteRenderbuffers(1, &it->second.id);
@@ -48,6 +48,10 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 		else {
 			it->second.texture = nullptr;
 		}
+	}
+	else if(target >= AttachmentTarget::Colour0 && target <= AttachmentTarget::Colour7) {
+		_drawTargets.push_back(target);
+		glNamedFramebufferDrawBuffers(_id, static_cast<GLsizei>(_drawTargets.size()), reinterpret_cast<const GLenum*>(_drawTargets.data()));
 	}
 	
 	Attachment a = attachment;
@@ -58,42 +62,25 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 		glNamedFramebufferRenderbuffer(_id, static_cast<GLenum>(target), GL_RENDERBUFFER, a.id);
 	}
 	else {
-		unsigned numChannels = 0;
-		switch(a.format) {
-			case AttachmentFormat::Red8:
-				numChannels = 1;
-				break;
-			case AttachmentFormat::RG8:
-				numChannels = 2;
-				break;
-			case AttachmentFormat::RGB8:
-				numChannels = 3;
-				break;
-			case AttachmentFormat::RGBA8:
-				numChannels = 4;
-			default:
-				break;
-		}
-
-		const TextureParams params = {
-			WrapMode::ClampToEdge,
-			MinFilter::Linear,
-			MagFilter::Linear
-		};
-		
-		a.texture = new Texture2D(_width, _height, nullptr, numChannels);
-		a.texture->setParameters(params);
+		a.texture = new Texture2D(_width, _height, a.format, Mipmaps::Off);
+		a.texture->setParameters(a.parameters);
 		a.id = a.texture->getRendererID();
 
 		glNamedFramebufferTexture(_id, static_cast<GLenum>(target), a.id, 0);
 	}
 
 	_attachments[target] = a;
+	validateFramebuffer();
 }
 
 Texture2D* Framebuffer::getAttachment(const AttachmentTarget target) {
 	const auto it = _attachments.find(target);
-	if(it == _attachments.end() || it->second.type == AttachmentType::RenderBuffer) {
+	if(it == _attachments.end()) {
+		CAPP_ASSERT(it != _attachments.end(), "Could not get attachment {0} from framebuffer \"{1}\"!", target, _name);
+		return nullptr;
+	}
+	if(it->second.type == AttachmentType::RenderBuffer) {
+		CAPP_ASSERT(it->second.type != AttachmentType::RenderBuffer, "Attachment {0} from framebuffer \"{1}\" is a renderbuffer, cannot retrieve", target, _name);
 		return nullptr;
 	}
 
@@ -114,7 +101,7 @@ void Framebuffer::unbind() {
 	_binding = FramebufferBinding::None;
 }
 
-void Framebuffer::blit(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, ClearFlags flags, MagFilter magFilter) {
+void Framebuffer::blitBufferData(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, const ClearFlags flags, const MagFilter magFilter) {
 	glBlitFramebuffer(sourceBounds.x, sourceBounds.y, sourceBounds.z, sourceBounds.w,
 		destinationBounds.x, destinationBounds.y, destinationBounds.z, destinationBounds.w,
 		static_cast<GLbitfield>(flags), static_cast<GLenum>(magFilter));

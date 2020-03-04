@@ -29,7 +29,7 @@ namespace Capp {
 		void bind(FramebufferBinding binding = FramebufferBinding::DrawOnly);
 		void unbind();
 
-		static void blit(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, ClearFlags flags = ClearFlags::All, MagFilter magFilter = MagFilter::Linear);
+		static void blitBufferData(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, ClearFlags flags = ClearFlags::All, MagFilter magFilter = MagFilter::Linear);
 		
 	private:
 		
@@ -41,6 +41,7 @@ namespace Capp {
 		FramebufferBinding _binding = FramebufferBinding::None;
 		
 		std::unordered_map<AttachmentTarget, Attachment> _attachments;
+		std::vector<AttachmentTarget> _drawTargets;
 		
 	};
 	

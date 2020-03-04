@@ -29,7 +29,7 @@ void Font::load(const std::string& name, const std::string& filepath) {
 		const int ftLoadCharStatus = FT_Load_Char(typeface, ch, FT_LOAD_RENDER);
 		CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!\nGlyph: {0}", ch);
 		
-		auto texture = new Texture2D(typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows, typeface->glyph->bitmap.buffer, 1);
+		auto texture = new Texture2D(typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows, typeface->glyph->bitmap.buffer, InternalFormat::Red8);
 		TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
 		texture->setParameters(params);
 

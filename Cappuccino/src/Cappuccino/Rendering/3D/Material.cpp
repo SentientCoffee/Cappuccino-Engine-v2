@@ -6,11 +6,11 @@
 using namespace Capp;
 
 Material::Material() {
-	setValue("diffuseMap", new Texture2D(1, 1, &whiteTexture));
-	setValue("specularMap", new Texture2D(1, 1, &whiteTexture));
-	setValue("emissionMap", new Texture2D(1, 1, &blackTexture));
-	//setValue("normalMap", new Texture2D(1, 1, &normalTexture));					// TODO: NORMAL MAPPING
-	//setValue("bumpMap", new Texture2D(1, 1, &normalTexture));						// TODO: PARALLAX MAPPING
+	setValue("diffuse", new Texture2D(1, 1, &whiteTexture));
+	setValue("specular", new Texture2D(1, 1, &whiteTexture));
+	setValue("emission", new Texture2D(1, 1, &blackTexture));
+	//setValue("normal", new Texture2D(1, 1, &normalTexture));					// TODO: NORMAL MAPPING
+	//setValue("bump", new Texture2D(1, 1, &normalTexture));						// TODO: PARALLAX MAPPING
 }
 
 Material::Material(Shader* shader) :

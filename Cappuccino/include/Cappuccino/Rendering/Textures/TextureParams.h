@@ -32,23 +32,28 @@ namespace Capp {
 		Off                  = false
 	};
 
-	enum class Anisotropy : bool {
-		On                   = true,
-		Off                  = false
+	enum class Anisotropy : unsigned int {
+		Aniso1x              = 1,
+		Aniso2x              = 2,
+		Aniso4x              = 4,
+		Aniso8x              = 8,
+		Aniso16x             = 16,
 	};
 	
 	struct TextureParams {
-		WrapMode wrapS, wrapT, wrapR;
+		WrapMode wrapS = WrapMode::Repeat;
+		WrapMode wrapT = WrapMode::Repeat;
+		WrapMode wrapR = WrapMode::Repeat;
 
-		MinFilter minFilter;
-		MagFilter magFilter;
-
-		Mipmaps enableMipmaps;
-		Anisotropy anisotropyEnabled;
+		MinFilter minFilter = MinFilter::Linear;
+		MagFilter magFilter = MagFilter::Nearest;
+		
+		Anisotropy anisotropyLevel = Anisotropy::Aniso1x;
+		glm::vec4 borderColour = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		TextureParams() = default;
-		TextureParams(WrapMode wrapMode, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
-		TextureParams(WrapMode s, WrapMode t, WrapMode r, MinFilter min, MagFilter mag, Mipmaps mipmaps = Mipmaps::On, Anisotropy anisotropy = Anisotropy::On);
+		TextureParams(WrapMode wrapMode, MinFilter minFilter, MagFilter magFilter, Anisotropy anisotropyLevel = Anisotropy::Aniso1x, const glm::vec4& borderColour = { 0.0f, 0.0f, 0.0f, 1.0f });
+		TextureParams(WrapMode wrapS, WrapMode wrapT, WrapMode wrapR, MinFilter minFilter, MagFilter magFilter, Anisotropy anisotropyLevel = Anisotropy::Aniso1x, const glm::vec4& borderColour = { 0.0f, 0.0f, 0.0f, 1.0f });
 	};
 	
 }

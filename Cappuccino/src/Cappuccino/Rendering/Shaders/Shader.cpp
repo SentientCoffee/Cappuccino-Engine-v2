@@ -14,6 +14,11 @@ Shader::Shader(const std::string& name) :
 Shader::~Shader() { glDeleteProgram(_id); }
 
 void Shader::attach(const std::string& filepath, const ShaderStage stage) {
+	if(_isCompiled) {
+		CAPP_ASSERT(!_isCompiled, "Cannot modify shader program after compilation!\n\tShader: {0}", _name);
+		return;
+	}
+	
 	CAPP_ASSERT(!filepath.empty(), "No {0} shader file path given!", stage);
 	
 	const std::string shaderSrc = ResourceLoader::loadTextFile(filepath);
@@ -29,9 +34,12 @@ void Shader::compile() {
 	const unsigned newProgram = compileProgram();
 	CAPP_ASSERT(newProgram != 0, "Could not compile shader \"{0}\"!", _name);
 	_id = newProgram;
+	_isCompiled = true;
 }
 
 void Shader::reload() {
+	_isCompiled = false;
+	
 	for(const auto& path : _filepaths) {
 		attach(path.second, path.first);
 	}
@@ -72,7 +80,8 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage st
 	if(!success) {
 		int logLength;
 		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLength);
-		std::vector<char> infoLog(logLength);
+		std::vector<char> infoLog;
+		infoLog.reserve(logLength);
 		glGetShaderInfoLog(shaderHandle, logLength, &logLength, infoLog.data());
 		glDeleteShader(shaderHandle);
 		
@@ -88,7 +97,7 @@ unsigned Shader::compileProgram() const {
 	const unsigned programHandle = glCreateProgram();
 
 	for(const auto handle : _handles) {
-		CAPP_ASSERT(handle.second == 0, "No {0} shader linked!\n\tShader: {1}", _name);
+		CAPP_ASSERT(handle.second != 0, "No {0} shader linked!\n\tShader: {1}", handle.first, _name);
 		glAttachShader(programHandle, handle.second);
 	}
 
@@ -99,7 +108,8 @@ unsigned Shader::compileProgram() const {
 	if(!success) {
 		int logLength;
 		glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLength);
-		std::vector<char> infoLog(logLength);
+		std::vector<char> infoLog;
+		infoLog.reserve(logLength);
 		glGetProgramInfoLog(programHandle, logLength, &logLength, infoLog.data());
 
 		glDeleteProgram(programHandle);
@@ -119,7 +129,7 @@ unsigned Shader::compileProgram() const {
 }
 
 void Shader::bind() const {
-	CAPP_ASSERT(_id == 0, "Shader is not compiled!\n\tShader: {0}", _name);
+	CAPP_ASSERT(_isCompiled, "Shader is not compiled!\n\tShader: {0}", _name);
 	glUseProgram(_id);
 }
 void Shader::unbind() { glUseProgram(0); }
@@ -137,13 +147,13 @@ int Shader::getUniformLocation(const std::string& uniformName) const {
 	return uniformLocation;
 }
 
-void Shader::setUniformBool(const std::string& uniformName, const bool value) const {
+void Shader::setUniformBool(const std::string& uniformName, const bool& value) const {
 	glUniform1i(getUniformLocation(uniformName), static_cast<int>(value));
 }
-void Shader::setUniformInt(const std::string& uniformName, const int value) const {
+void Shader::setUniformInt(const std::string& uniformName, const int& value) const {
 	glUniform1i(getUniformLocation(uniformName), value);
 }
-void Shader::setUniformFloat(const std::string& uniformName, const float value) const {
+void Shader::setUniformFloat(const std::string& uniformName, const float& value) const {
 	glUniform1f(getUniformLocation(uniformName), value);
 }
 void Shader::setUniformVec2(const std::string& uniformName, const glm::vec2& value) const {

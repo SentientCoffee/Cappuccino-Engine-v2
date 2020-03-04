@@ -3,7 +3,6 @@
 #include "Cappuccino/Rendering/VertexArray.h"
 
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace Capp {

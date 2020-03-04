@@ -17,7 +17,7 @@ Capp::Texture1D::Texture1D(const std::string& filepath) :
 
 	switch(channels) {
 		case 1:
-			_formats.internalFormat = InternalFormat::R8;
+			_formats.internalFormat = InternalFormat::Red8;
 			_formats.pixelFormat = PixelFormat::Red;
 			break;
 		case 2:
@@ -45,7 +45,7 @@ Capp::Texture1D::Texture1D(const std::string& filepath) :
 Capp::Texture1D::Texture1D(const unsigned size, void* data) :
 	_size(size), _data(data), _parameters({}) {
 
-	_formats.internalFormat = InternalFormat::R8;
+	_formats.internalFormat = InternalFormat::Red8;
 	_formats.pixelFormat = PixelFormat::Red;
 
 	createTexture();

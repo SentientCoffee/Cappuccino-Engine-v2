@@ -3,33 +3,28 @@
 
 using namespace Capp;
 
-Random::HRC::time_point Random::_timeNow;
-Random::HRC::duration Random::_seed;
-Random::DefaultRandomEngine Random::_generator;
+Random::MTEngine Random::_randomEngine = MTEngine(std::random_device()());
+
+void Random::newSeed() {
+	_randomEngine.seed(std::random_device()());
+}
 
 int Random::Int(const int low, const int high) {
-	_timeNow = std::chrono::high_resolution_clock::now();
-	_seed = _timeNow.time_since_epoch();
-	_generator.seed(static_cast<unsigned>(_seed.count()));
+	const int range = static_cast<int>(_intDistribution(_randomEngine)) / static_cast<int>(std::numeric_limits<uint32_t>::max());
+	return range * high + low;
+}
 
-	const std::uniform_int_distribution distribution(low, high);
-	return distribution(_generator);
+unsigned Random::Unsigned(const unsigned low, const unsigned high) {
+	const unsigned range = _intDistribution(_randomEngine) / std::numeric_limits<uint32_t>::max();
+	return range * high + low;
 }
 
 float Random::Float(const float low, const float high) {
-	_timeNow = std::chrono::high_resolution_clock::now();
-	_seed = _timeNow.time_since_epoch();
-	_generator.seed(static_cast<unsigned>(_seed.count()));
-
-	const std::uniform_real_distribution<float> distribution(low, high);
-	return distribution(_generator);
+	const float range = static_cast<float>(_intDistribution(_randomEngine)) / static_cast<float>(std::numeric_limits<uint32_t>::max());
+	return range * high + low;
 }
 
 double Random::Double(const double low, const double high) {
-	_timeNow = std::chrono::high_resolution_clock::now();
-	_seed = _timeNow.time_since_epoch();
-	_generator.seed(static_cast<unsigned>(_seed.count()));
-
-	const std::uniform_real_distribution<double> distribution(low, high);
-	return distribution(_generator);
+	const double range = static_cast<double>(_intDistribution(_randomEngine)) / static_cast<double>(std::numeric_limits<uint32_t>::max());
+	return range * high + low;
 }

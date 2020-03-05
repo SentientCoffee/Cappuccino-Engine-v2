@@ -27,8 +27,9 @@ More on the way:
 Currently, only Windows builds are supported. Other platforms will be supported in the future.
 
 ### Building
-All you have to do to build Cappuccino Engine is run `CappEngineGeneration.bat`, which is included in the files.
-Then you can make a game project using the `CappGameGeneraion.bat` file in the `GameGeneration` folder, which will make a new project that links into the Cappuccino Engine.
+All you have to do to build Cappuccino Engine is run `CappEngineGeneration.bat`, which is included in the files. A Sandbox application is included in the engine to see its capabilities.
+
+Optionally, you can make a game project using the `CappGameGeneraion.bat` file in the `GameGeneration` folder, which will make a new project that links into the Cappuccino Engine.
 Note that you need to have Cappuccino Engine installed and built <b>BEFORE</b> you try to make a game project.
 
 # One Last Thing

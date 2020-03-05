@@ -40,6 +40,11 @@ project "Sandbox"
 			"CAPP_PLATFORM_WINDOWS" 
 		}
 		
+		prebuildcommands {
+			-- Update any default assets
+			"robocopy \"%{wks.location}\\Cappuccino\\Assets\" \"%{prj.location}\\Assets\\Cappuccino\" /mir /xo /ns /np /ndl /njh /njs",
+		}
+
 		postbuildcommands {
 			-- Copy all dll files next to executable
 			"robocopy \"%{wks.location}\\Externals\\dll\" \"%{cfg.targetdir}\" /e /xo /xx /ns /np /ndl /njh /njs",

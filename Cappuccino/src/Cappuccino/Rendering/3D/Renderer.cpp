@@ -342,6 +342,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	RenderCommand::enableCulling();
 	RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
 
+	const auto window = Application::getInstance()->getWindow();
+	
 	#if 0
 	// Forward rendering
 	{
@@ -517,7 +519,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			#endif
 		}
 		rendererStorage->gBuffer->unbind();
-
+		RenderCommand::disableDepthTesting();
+		
 		// Lighting pass
 		rendererStorage->deferredComposite->bind();
 		RenderCommand::setViewport(0, 0, rendererStorage->deferredComposite->getWidth(), rendererStorage->deferredComposite->getHeight());
@@ -571,11 +574,18 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		rendererStorage->deferredComposite->unbind();
 	}
 
-	// TODO: SKYBOX
+	rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
+	Framebuffer::blitBufferData(
+		{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
+		{ 0, 0, window->getWidth(), window->getHeight() },
+		ClearFlags::Depth, MagFilter::Nearest);
+	rendererStorage->gBuffer->unbind();
 
-	#if 0
+	rendererStorage->deferredComposite->bind();
+	// TODO: SKYBOX
 	if(rendererStorage->activeSkybox != nullptr) {
 		RenderCommand::disableCulling();
+		RenderCommand::enableDepthTesting();
 		RenderCommand::setDepthTestFunction(DepthTestFunction::LessThanOrEqual);
 		RenderCommand::disableDepthMask();
 
@@ -591,16 +601,13 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 		RenderCommand::enableDepthMask();
 		RenderCommand::setDepthTestFunction(DepthTestFunction::LessThan);
+		RenderCommand::disableDepthTesting();
 	}
-	#endif
+	rendererStorage->deferredComposite->unbind();
+
 
 	// TODO: HITBOX RENDERING
 	// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
-
-	// TODO: POST PROCESSING
-
-	RenderCommand::disableDepthTesting();
-	const auto window = Application::getInstance()->getWindow();
 
 	// Post processing passes
 	Framebuffer* lastPass = rendererStorage->deferredComposite;
@@ -629,15 +636,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
 	rendererStorage->fullscreenQuad->getVAO()->bind();
 	RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
-
-	#if 0
-	rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
-	Framebuffer::blitBufferData(
-		{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
-		{ 0, 0, window->getWidth(), window->getHeight() },
-		ClearFlags::Depth, MagFilter::Nearest);
-	rendererStorage->gBuffer->unbind();
-	#endif
 	
 	for(unsigned i = 0; i < 24; ++i) {
 		Texture1D::unbind(i);

@@ -32,12 +32,12 @@ void Layer3D::onPush() {
 
 	skybox = new Capp::TextureCubemap(filepaths);
 	
-	//DEBUG_PRINT("Loading Cool-512.cube...");
-	//coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-	//DEBUG_PRINT("Loading Warm-512.cube...");
-	//warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-	//DEBUG_PRINT("Loading Bleach-512.cube...");
-	//customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+	DEBUG_PRINT("Loading Cool-512.cube...");
+	coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
+	DEBUG_PRINT("Loading Warm-512.cube...");
+	warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
+	DEBUG_PRINT("Loading Bleach-512.cube...");
+	customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
 	
 	const auto window = Capp::Application::getInstance()->getWindow();
 	const Capp::Attachment mainColour = { Capp::AttachmentType::Texture, Capp::InternalFormat::RGB8 };
@@ -182,7 +182,7 @@ void Layer3D::update() {
 		Capp::Renderer::addToQueue(sentry2);
 		Capp::Renderer::addToQueue(f16);
 	}
-	Capp::Renderer::finish(/*postPasses*/);
+	Capp::Renderer::finish(postPasses);
 }
 
 void Layer3D::drawImgui() {

@@ -597,7 +597,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// TODO: HITBOX RENDERING
 	// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
 
-	#if 0
+	// TODO: POST PROCESSING
+
 	RenderCommand::disableDepthTesting();
 	const auto window = Application::getInstance()->getWindow();
 
@@ -629,6 +630,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	rendererStorage->fullscreenQuad->getVAO()->bind();
 	RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
 
+	#if 0
 	rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
 	Framebuffer::blitBufferData(
 		{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
@@ -636,7 +638,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		ClearFlags::Depth, MagFilter::Nearest);
 	rendererStorage->gBuffer->unbind();
 	#endif
-
+	
 	for(unsigned i = 0; i < 24; ++i) {
 		Texture1D::unbind(i);
 		Texture2D::unbind(i);

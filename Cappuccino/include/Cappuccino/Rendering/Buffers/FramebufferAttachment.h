@@ -74,7 +74,7 @@ namespace Capp {
 			type(type), format(format), parameters(parameters) {}
 	};
 
-	#if CAPP_DEBUG
+	#if CAPP_DEBUG || CAPP_RELEASE
 	
 	inline std::string enumToString(const AttachmentTarget& target) {
 		switch(target) {

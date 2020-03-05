@@ -21,7 +21,7 @@ namespace Capp {
 
 	#define BIND_EVENT_FN(fn)				std::bind(&fn, this, std::placeholders::_1)
 	
-	#if CAPP_DEBUG
+	#if CAPP_DEBUG || CAPP_RELEASE
 	
 	#define EVENT_CLASS_TYPE(type)			static EventType getStaticType() { return EventType::##type; }\
 											virtual EventType getEventType() const override { return getStaticType(); }\
@@ -44,7 +44,7 @@ namespace Capp {
 
 		bool isHandled() const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 
 		virtual const char* getName() const = 0;
 		virtual std::string toString() const;
@@ -60,7 +60,7 @@ namespace Capp {
 		
 	};
 
-	#if CAPP_DEBUG
+	#if CAPP_DEBUG || CAPP_RELEASE
 	inline std::ostream& operator<<(std::ostream& out, const Event& e) { return out << e.toString(); }
 	#endif
 	

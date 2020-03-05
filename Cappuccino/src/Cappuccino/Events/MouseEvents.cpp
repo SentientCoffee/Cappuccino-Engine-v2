@@ -27,7 +27,7 @@ MouseButtonReleasedEvent::MouseButtonReleasedEvent(const int button) :
 int MouseButtonReleasedEvent::getMouseButton() const { return _mouseButton; }
 bool MouseButtonReleasedEvent::compareMouseButton(const MouseButton mouseButton) const { return _mouseButton == static_cast<int>(mouseButton); }
 
-#if CAPP_DEBUG
+#if CAPP_DEBUG || CAPP_RELEASE
 
 std::string MouseMovedEvent::toString() const {
 	return std::string("MouseMoved: " + std::to_string(static_cast<int>(_mouseX)) + ", " + std::to_string(static_cast<int>(_mouseY)));

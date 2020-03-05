@@ -9,6 +9,13 @@ project "Externals"
 	targetdir "Build/bin/%{cfg.architecture}/%{cfg.buildcfg}"
 	objdir "Build/obj/%{cfg.architecture}/%{cfg.buildcfg}"
 	
+	includedirs {
+		"glad/include",
+		"glfw3/include",
+		"imgui/include/imgui",
+		"stb/include/stb"
+	}
+	
 	files {
 		"glad/include/KHR/khrplatform.h",
 		"glad/include/glad/glad.h",
@@ -45,12 +52,9 @@ project "Externals"
         "stb/src/stb_impl.cpp"
 	}
 	
-	includedirs {
-		"glad/include",
-		"glfw3/include",
-		"imgui/include",
-		"imgui/include/imgui",
-		"stb/include/stb"
+	links {
+		"fmod/fmod64",
+		"freetype/freetype"
 	}
 	
 	filter "system:windows"		
@@ -74,17 +78,13 @@ project "Externals"
 		}
 		
 	filter "configurations:Debug"
-		defines {
-			"CAPP_DEBUG=1",
-			"CAPP_RELEASE=0"
-		}
 		runtime "Debug"
 		symbols "on"
 	
 	filter "configurations:Release"
-		defines {
-			"CAPP_DEBUG=0",
-			"CAPP_RELEASE=1"
-		}
+		runtime "Release"
+		optimize "on"
+	
+	filter "configurations:Distribution"
 		runtime "Release"
 		optimize "on"

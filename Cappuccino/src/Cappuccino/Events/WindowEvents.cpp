@@ -9,7 +9,7 @@ WindowResizedEvent::WindowResizedEvent(const unsigned int width, const unsigned 
 unsigned WindowResizedEvent::getWidth() const { return _width; }
 unsigned WindowResizedEvent::getHeight() const { return _height; }
 
-#if CAPP_DEBUG
+#if CAPP_DEBUG || CAPP_RELEASE
 std::string WindowResizedEvent::toString() const {
 	return std::string("WindowResized: " + std::to_string(_width) + " x " + std::to_string(_height));
 }

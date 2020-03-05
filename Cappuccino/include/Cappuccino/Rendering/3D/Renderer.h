@@ -26,6 +26,7 @@ namespace Capp {
 	};
 
 	using PostPasses = std::vector<PostProcessingPass>;
+	using Skybox = std::optional<TextureCubemap*>;
 
 	class Renderer {
 	public:
@@ -36,7 +37,7 @@ namespace Capp {
 		static void onWindowResized(unsigned width, unsigned height);
 		
 		static void start();
-		static void start(const PerspectiveCamera& camera, const Lights& lights, const std::optional<TextureCubemap*>& skybox = std::nullopt);
+		static void start(const PerspectiveCamera& camera, const Lights& lights, const Skybox& skybox = std::nullopt);
 		
 		static void finish(const PostPasses& postProcessing = {});
 

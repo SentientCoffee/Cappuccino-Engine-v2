@@ -15,7 +15,7 @@ namespace Capp {
 		float getMouseX() const;
 		float getMouseY() const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 
@@ -35,7 +35,7 @@ namespace Capp {
 		float getXOffset() const;
 		float getYOffset() const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 
@@ -55,7 +55,7 @@ namespace Capp {
 		int getMouseButton() const;
 		bool compareMouseButton(MouseButton mouseButton) const;
 		
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 
@@ -75,7 +75,7 @@ namespace Capp {
 		int getMouseButton() const;
 		bool compareMouseButton(MouseButton mouseButton) const;
 		
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 

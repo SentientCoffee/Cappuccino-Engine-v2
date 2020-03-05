@@ -26,7 +26,7 @@ void Scene::update() {
 		}
 	}
 	
-	#if CAPP_DEBUG
+	#if CAPP_DEBUG || CAPP_RELEASE
 	
 	_imguiLayer->begin();
 	drawImgui();

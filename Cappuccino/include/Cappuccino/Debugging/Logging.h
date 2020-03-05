@@ -22,7 +22,7 @@ namespace Capp {
 	
 }
 
-#if CAPP_DEBUG
+#if CAPP_DEBUG || CAPP_RELEASE
 
 // Engine log macros
 #define CAPP_PRINT_CRITICAL(message, ...)	::Capp::Logger::getEngineLogger()->critical(message, ##__VA_ARGS__);

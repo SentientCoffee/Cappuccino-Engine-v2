@@ -33,7 +33,7 @@ namespace Capp {
 		Compute
 	};
 	
-	#if CAPP_DEBUG
+	#if CAPP_DEBUG || CAPP_RELEASE
 	inline std::string enumToString(const ShaderDataType& dataType) {
 		switch(dataType) {
 			case ShaderDataType::Bool:		return "Bool";

@@ -14,7 +14,7 @@ namespace Capp {
 		unsigned getWidth() const;
 		unsigned getHeight() const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 

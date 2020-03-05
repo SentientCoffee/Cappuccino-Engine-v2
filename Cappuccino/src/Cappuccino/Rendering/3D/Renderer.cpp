@@ -9,28 +9,32 @@
 
 using namespace Capp;
 
+#define MAX_DIR_LIGHTS 10
+#define MAX_POINT_LIGHTS 50
+#define MAX_SPOTLIGHTS 50
+
 struct RendererStorage {
 	PerspectiveCamera defaultCamera;
 	PerspectiveCamera perspectiveCamera;
 
-	Shader* blinnPhongShader = nullptr;
-	Shader* hitboxShader = nullptr;
-	Shader* skyboxShader = nullptr;
-	Shader* framebufferShader = nullptr;
-	Shader* gBufferPass = nullptr;
+	Shader* blinnPhongShader     = nullptr;
+	Shader* hitboxShader         = nullptr;
+	Shader* skyboxShader         = nullptr;
+	Shader* framebufferShader    = nullptr;
+	Shader* gBufferPass          = nullptr;
 	Shader* deferredLightingPass = nullptr;
 
 	Lights defaultLights;
 	Lights activeLights;
 
-	Mesh* skyboxMesh = nullptr;
+	Mesh* skyboxMesh     = nullptr;
 	Mesh* fullscreenQuad = nullptr;
 
 	TextureCubemap* defaultSkybox = nullptr;
-	TextureCubemap* activeSkybox = nullptr;
+	TextureCubemap* activeSkybox  = nullptr;
 
 	Framebuffer* deferredComposite = nullptr;
-	Framebuffer* gBuffer = nullptr;
+	Framebuffer* gBuffer           = nullptr;
 
 	std::deque<Model*> modelRenderQueue;
 	std::deque<Hitbox*> hitboxRenderQueue;
@@ -39,7 +43,7 @@ struct RendererStorage {
 static RendererStorage* rendererStorage;
 
 void Renderer::init() {
-	rendererStorage = new RendererStorage;
+	rendererStorage   = new RendererStorage;
 	const auto window = Application::getInstance()->getWindow();
 
 	// --------------------------------------------------
@@ -105,9 +109,9 @@ void Renderer::init() {
 		spotlight->setPosition(rendererStorage->defaultCamera.getPosition()).setDirection(rendererStorage->defaultCamera.getForward());
 		rendererStorage->defaultLights.spotlights = { spotlight };
 
-		rendererStorage->activeLights.directionalLights.reserve(10);
-		rendererStorage->activeLights.pointLights.reserve(50);
-		rendererStorage->activeLights.spotlights.reserve(50);
+		rendererStorage->activeLights.directionalLights.reserve(MAX_DIR_LIGHTS);
+		rendererStorage->activeLights.pointLights.reserve(MAX_POINT_LIGHTS);
+		rendererStorage->activeLights.spotlights.reserve(MAX_SPOTLIGHTS);
 	}
 
 	// --------------------------------------------------
@@ -198,7 +202,7 @@ void Renderer::init() {
 	{
 		rendererStorage->deferredComposite = new Framebuffer(window->getWidth(), window->getHeight());
 		rendererStorage->deferredComposite->setName("Deferred Composite Framebuffer");
-		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGBA8 };
+		const Attachment mainColour   = { AttachmentType::Texture, InternalFormat::RGBA8 };
 		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
 		rendererStorage->deferredComposite->addAttachment(AttachmentTarget::Colour0, mainColour);
 		rendererStorage->deferredComposite->addAttachment(AttachmentTarget::DepthStencil, depthStencil);
@@ -206,28 +210,36 @@ void Renderer::init() {
 
 }
 
-void Renderer::shutdown() { delete rendererStorage; }
+void Renderer::shutdown() {
+	delete rendererStorage;
+}
 
 void Renderer::onWindowResized(const unsigned width, const unsigned height) {
 	rendererStorage->defaultCamera.setProjection(60.0f, width, height);
 	rendererStorage->deferredComposite->resize(width, height);
 }
 
-void Renderer::start() { start(rendererStorage->defaultCamera, rendererStorage->defaultLights, rendererStorage->defaultSkybox); }
+void Renderer::start() {
+	start(rendererStorage->defaultCamera, rendererStorage->defaultLights, rendererStorage->defaultSkybox);
+}
 
-void Renderer::start(const PerspectiveCamera& camera, const Lights& lights, const std::optional<TextureCubemap*>& skybox) {
-	rendererStorage->perspectiveCamera = camera;
+void Renderer::start(const PerspectiveCamera& camera, const Lights& lights, const Skybox& skybox) {
+	rendererStorage->perspectiveCamera              = camera;
 	rendererStorage->activeLights.directionalLights = lights.directionalLights;
-	rendererStorage->activeLights.pointLights = lights.pointLights;
-	rendererStorage->activeLights.spotlights = lights.spotlights;
-	rendererStorage->activeSkybox = skybox.value_or(nullptr);
+	rendererStorage->activeLights.pointLights       = lights.pointLights;
+	rendererStorage->activeLights.spotlights        = lights.spotlights;
+	rendererStorage->activeSkybox                   = skybox.value_or(nullptr);
 }
 
 void Renderer::addToQueue(VertexArray* vertexArray, Shader* shader) {
 	shader->bind();
 	vertexArray->bind();
-	if(vertexArray->getIndexBuffer() != nullptr) { RenderCommand::drawIndexed(vertexArray); }
-	else { RenderCommand::drawArray(vertexArray); }
+	if(vertexArray->getIndexBuffer() != nullptr) {
+		RenderCommand::drawIndexed(vertexArray);
+	}
+	else {
+		RenderCommand::drawArray(vertexArray);
+	}
 }
 
 void Renderer::addToQueue(VertexArray* vertexArray, Material* material) {
@@ -266,36 +278,60 @@ void Renderer::addToQueue(VertexArray* vertexArray, Material* material) {
 	addToQueue(vertexArray, material->getShader());
 }
 
-void Renderer::addToQueue(Mesh* mesh, Shader* shader) { addToQueue(mesh->getVAO(), shader); }
+void Renderer::addToQueue(Mesh* mesh, Shader* shader) {
+	addToQueue(mesh->getVAO(), shader);
+}
 
-void Renderer::addToQueue(Mesh* mesh, Material* material) { addToQueue(mesh->getVAO(), material->getShader()); }
+void Renderer::addToQueue(Mesh* mesh, Material* material) {
+	addToQueue(mesh->getVAO(), material->getShader());
+}
 
-void Renderer::addToQueue(Model* model) { rendererStorage->modelRenderQueue.push_back(model); }
+void Renderer::addToQueue(Model* model) {
+	rendererStorage->modelRenderQueue.push_back(model);
+}
 
-void Renderer::addToQueue(Hitbox* hitbox) { rendererStorage->hitboxRenderQueue.push_back(hitbox); }
+void Renderer::addToQueue(Hitbox* hitbox) {
+	rendererStorage->hitboxRenderQueue.push_back(hitbox);
+}
 
 void Renderer::addToQueue(const RigidBody& rigidBody) {
-	if(!Hitbox::shouldDraw()) { return; }
-	for(auto hitbox : rigidBody) { addToQueue(hitbox); }
+	if(!Hitbox::shouldDraw()) {
+		return;
+	}
+	for(auto hitbox : rigidBody) {
+		addToQueue(hitbox);
+	}
 }
 
 void Renderer::addToQueue(GameObject* gameObject) {
-	for(auto model : gameObject->getModels()) { addToQueue(model); }
-	if(gameObject->isVisible()) { addToQueue(gameObject->getRigidBody()); }
+	for(auto model : gameObject->getModels()) {
+		addToQueue(model);
+	}
+	if(gameObject->isVisible()) {
+		addToQueue(gameObject->getRigidBody());
+	}
 }
 
 void Renderer::finish(const PostPasses& postProcessing) {
 
 	// Sort by shader ID (to avoid rebinding the same shader)
 	std::sort(rendererStorage->modelRenderQueue.begin(), rendererStorage->modelRenderQueue.end(), [](Model* first, const Model* second)-> bool {
-		if(second->getMaterial() == nullptr || second->getMesh() == nullptr) { return false; }
-		if(first->getMaterial() == nullptr || first->getMesh() == nullptr) { return true; }
+		if(second->getMaterial() == nullptr || second->getMesh() == nullptr) {
+			return false;
+		}
+		if(first->getMaterial() == nullptr || first->getMesh() == nullptr) {
+			return true;
+		}
 		//if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
 		//	return false;
 		//if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
 		//	return true;
-		if(first->getMaterial()->getShader() != nullptr && second->getMaterial()->getShader() != nullptr) { return first->getMaterial()->getShader()->getRendererID() < second->getMaterial()->getShader()->getRendererID(); }
-		if(first->getMaterial()->getShader() != second->getMaterial()->getShader()) { return first->getMaterial()->getShader() < second->getMaterial()->getShader(); }
+		if(first->getMaterial()->getShader() != nullptr && second->getMaterial()->getShader() != nullptr) {
+			return first->getMaterial()->getShader()->getRendererID() < second->getMaterial()->getShader()->getRendererID();
+		}
+		if(first->getMaterial()->getShader() != second->getMaterial()->getShader()) {
+			return first->getMaterial()->getShader() < second->getMaterial()->getShader();
+		}
 
 		return first->getMaterial() < second->getMaterial();
 	});
@@ -433,7 +469,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					CAPP_PRINT_ERROR("Failed to draw model: missing material!");
 					continue;
 				}
-				
+
 				const auto mesh = model->getMesh();
 
 				auto shader = rendererStorage->gBufferPass;
@@ -446,12 +482,16 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				model->getMaterial()->apply();
 
 				mesh->getVAO()->bind();
-				if(mesh->getVAO()->getIndexBuffer() != nullptr) { RenderCommand::drawIndexed(model->getMesh()->getVAO()); }
-				else { RenderCommand::drawArray(model->getMesh()->getVAO()); }
+				if(mesh->getVAO()->getIndexBuffer() != nullptr) {
+					RenderCommand::drawIndexed(model->getMesh()->getVAO());
+				}
+				else {
+					RenderCommand::drawArray(model->getMesh()->getVAO());
+				}
 
 				rendererStorage->modelRenderQueue.pop_front();
 			}
-			
+
 			#if 0
 			if(Hitbox::shouldDraw()) {
 				RenderCommand::disableCulling();
@@ -495,7 +535,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			rendererStorage->deferredLightingPass->setUniform<Int>("uGBuffer.albedo",    2);
 			rendererStorage->deferredLightingPass->setUniform<Int>("uGBuffer.specRough", 3);
 			rendererStorage->deferredLightingPass->setUniform<Int>("uGBuffer.emission",  4);
-			
+
 			rendererStorage->deferredLightingPass->setUniform<Vec3>("uCameraPosition", rendererStorage->perspectiveCamera.getPosition());
 
 			rendererStorage->deferredLightingPass->setUniform<Int>("uNumPointLights", static_cast<int>(rendererStorage->activeLights.pointLights.size()));
@@ -553,47 +593,49 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::setDepthTestFunction(DepthTestFunction::LessThan);
 	}
 	#endif
-	
+
 	// TODO: HITBOX RENDERING
 	// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
 
-	//RenderCommand::disableDepthTesting();
-	//const auto window = Application::getInstance()->getWindow();
+	#if 0
+	RenderCommand::disableDepthTesting();
+	const auto window = Application::getInstance()->getWindow();
 
-	//// Post processing passes
-	//Framebuffer* lastPass = rendererStorage->deferredComposite;
-	//for(auto pass : postProcessing) {
-	//	pass.buffer->validateFramebuffer();
-	//	pass.buffer->bind();
+	// Post processing passes
+	Framebuffer* lastPass = rendererStorage->deferredComposite;
+	for(auto pass : postProcessing) {
+		pass.buffer->validateFramebuffer();
+		pass.buffer->bind();
 
-	//	RenderCommand::setViewport(0, 0, pass.buffer->getWidth(), pass.buffer->getHeight());
+		RenderCommand::setViewport(0, 0, pass.buffer->getWidth(), pass.buffer->getHeight());
 
-	//	pass.shader->bind();
-	//	lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
-	//	pass.shader->setUniform<Int>("uImage", 0);
-	//	pass.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
+		pass.shader->bind();
+		lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+		pass.shader->setUniform<Int>("uImage", 0);
+		pass.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
 
-	//	rendererStorage->fullscreenQuad->getVAO()->bind();
-	//	RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
+		rendererStorage->fullscreenQuad->getVAO()->bind();
+		RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
 
-	//	pass.buffer->unbind();
-	//	lastPass = pass.buffer;
-	//}
+		pass.buffer->unbind();
+		lastPass = pass.buffer;
+	}
 
-	//RenderCommand::setBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha);
+	RenderCommand::setBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha);
 
-	//RenderCommand::setViewport(0, 0, lastPass->getWidth(), lastPass->getHeight());
-	//rendererStorage->framebufferShader->bind();
-	//lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
-	//rendererStorage->fullscreenQuad->getVAO()->bind();
-	//RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
+	RenderCommand::setViewport(0, 0, lastPass->getWidth(), lastPass->getHeight());
+	rendererStorage->framebufferShader->bind();
+	lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+	rendererStorage->fullscreenQuad->getVAO()->bind();
+	RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
 
-	//rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
-	//Framebuffer::blitBufferData(
-	//	{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
-	//	{ 0, 0, window->getWidth(), window->getHeight() },
-	//	ClearFlags::Depth, MagFilter::Nearest);
-	//rendererStorage->gBuffer->unbind();
+	rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
+	Framebuffer::blitBufferData(
+		{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
+		{ 0, 0, window->getWidth(), window->getHeight() },
+		ClearFlags::Depth, MagFilter::Nearest);
+	rendererStorage->gBuffer->unbind();
+	#endif
 
 	for(unsigned i = 0; i < 24; ++i) {
 		Texture1D::unbind(i);

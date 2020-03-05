@@ -5,7 +5,7 @@ using namespace Capp;
 
 bool Event::isHandled() const { return _isHandled; }
 
-#if CAPP_DEBUG
+#if CAPP_DEBUG || CAPP_RELEASE
 std::string Event::toString() const { return getName(); }
 #endif
 

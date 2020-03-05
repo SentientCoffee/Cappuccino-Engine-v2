@@ -4,8 +4,9 @@ echo Deleting files...
 echo.
 
 for /d /r . %%d in (.vs) do @if exist "%%d" rd /s /q "%%d"
-for /d /r . %%d in (Build) do @if exist "%%d" rd /s /q "%%d"
+for /d /r . %%d in (Cappuccino\Build) do @if exist "%%d" rd /s /q "%%d"
 for /d /r . %%d in (Externals\Build) do @if exist "%%d" rd /s /q "%%d"
+for /d /r . %%d in (Sandbox\Build) do @if exist "%%d" rd /s /q "%%d"
 
 del /s /q *.vcxproj
 del /s /q *.vcxproj.filters

@@ -22,7 +22,7 @@ KeyTypedEvent::KeyTypedEvent(const int keyCode) :
 int KeyTypedEvent::getKeyCode() const { return _keyCode; }
 bool KeyTypedEvent::compareKey(const KeyCode keyCode) const { return _keyCode == static_cast<int>(keyCode); }
 
-#if CAPP_DEBUG
+#if CAPP_DEBUG || CAPP_RELEASE
 
 std::string KeyPressedEvent::toString() const {
 	return std::string("KeyPressed: " + std::to_string(_keyCode) + " (" + std::to_string(_repeatCount) + " repeat(s))");

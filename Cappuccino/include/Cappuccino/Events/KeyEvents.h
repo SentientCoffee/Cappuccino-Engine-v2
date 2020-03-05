@@ -17,7 +17,7 @@ namespace Capp {
 
 		bool compareKey(KeyCode keyCode) const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 		
@@ -37,7 +37,7 @@ namespace Capp {
 		int getKeyCode() const;
 		bool compareKey(KeyCode keyCode) const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 
@@ -57,7 +57,7 @@ namespace Capp {
 		int getKeyCode() const;
 		bool compareKey(KeyCode keyCode) const;
 
-		#if CAPP_DEBUG
+		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
 		#endif
 

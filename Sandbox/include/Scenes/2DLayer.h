@@ -19,6 +19,7 @@ public:
 
 private:
 
+	Capp::Quad bg;
 	Capp::Text* controls = nullptr;
 	Capp::Text* escape = nullptr;
 	Capp::Text* flashlight = nullptr;

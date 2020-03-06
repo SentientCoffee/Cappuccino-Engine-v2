@@ -48,7 +48,11 @@ private:
 	Capp::PostProcessingPass inversion = { nullptr, nullptr };
 	Capp::PostProcessingPass colourGrading = { nullptr, nullptr };
 
+	bool isGammaCorrected = false;
+	float gamma = 2.2f;
+	
 	bool isGray = false;
 	bool isInverted = false;
+	
 	int lutSetting = 0;
 };

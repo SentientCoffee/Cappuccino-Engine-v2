@@ -44,7 +44,7 @@ project "Sandbox"
 		
 		prebuildcommands {
 			-- Update any default assets
-			"robocopy \"%{wks.location}\\Cappuccino\\Assets\" \"%{prj.location}\\Assets\\Cappuccino\" /mir /xo /ns /np /ndl /njh /njs",
+			"robocopy \"%{wks.location}\\Cappuccino\\Assets\" \"%{prj.location}\\Assets\\Cappuccino\" /mir /ns /np /ndl /njh /njs",
 
 			"exit 0"
 		}

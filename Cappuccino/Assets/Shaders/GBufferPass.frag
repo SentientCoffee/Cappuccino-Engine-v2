@@ -34,6 +34,7 @@ struct Material {
 };
 
 uniform Material uMaterial;
+uniform float uGamma = 2.2;
 
 // -----------------------------------------------
 // ----- MAIN ------------------------------------
@@ -42,8 +43,8 @@ uniform Material uMaterial;
 void main() {
 	outPosition     = vec4(inFrag.worldPosition, 1.0);
 	outNormal       = vec4((normalize(inFrag.normal) * 0.5 + vec3(0.5)), 1.0);
-	outAlbedo       = texture(uMaterial.diffuse, inFrag.uv);
-	outEmission     = texture(uMaterial.emission, inFrag.uv);
+	outAlbedo       = pow(texture(uMaterial.diffuse, inFrag.uv), vec4(uGamma));
+	outEmission     = pow(texture(uMaterial.emission, inFrag.uv), vec4(uGamma));
 	outSpecRough.r  = texture(uMaterial.specular, inFrag.uv).r;
 	outSpecRough.g  = uMaterial.roughness;
 	outSpecRough.ba = vec2(1.0);

@@ -49,21 +49,21 @@ void Layer3D::onPush() {
 	grayscale.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
 	grayscale.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 	grayscale.shader = Capp::ShaderLibrary::loadShader("Grayscale");
-	grayscale.shader->attach("Assets/Cappuccino/Shaders/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+	grayscale.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
 	grayscale.shader->attach("Assets/Shaders/PostProcessing/GrayscaleShader.frag", Capp::ShaderStage::Fragment);
 	grayscale.shader->compile();
 
 	inversion.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
 	inversion.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 	inversion.shader = Capp::ShaderLibrary::loadShader("Inversion");
-	inversion.shader->attach("Assets/Cappuccino/Shaders/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+	inversion.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
 	inversion.shader->attach("Assets/Shaders/PostProcessing/InversionShader.frag", Capp::ShaderStage::Fragment);
 	inversion.shader->compile();
 
 	colourGrading.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
 	colourGrading.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 	colourGrading.shader = Capp::ShaderLibrary::loadShader("Colour Grading");
-	colourGrading.shader->attach("Assets/Cappuccino/Shaders/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+	colourGrading.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
 	colourGrading.shader->attach("Assets/Shaders/PostProcessing/LUTColorGradingShader.frag", Capp::ShaderStage::Fragment);
 	colourGrading.shader->compile();
 }
@@ -181,6 +181,12 @@ void Layer3D::update() {
 		postPasses.push_back(colourGrading);
 	}
 
+	if(isGammaCorrected) {
+		Capp::Renderer::setGamma(gamma);
+	}
+	else {
+		Capp::Renderer::setGamma(2.2f);
+	}
 	
 	Capp::Renderer::start(cameraController.getCamera(), lights, skybox);
 	{
@@ -194,34 +200,45 @@ void Layer3D::update() {
 }
 
 void Layer3D::drawImgui() {
-	const auto colourGrading = Capp::ShaderLibrary::getShader("Colour Grading");
 
-	// 3D Layer
-	ImGui::Begin(getName().c_str());
+	// --------------------------------------------------------------
+	// ----- 3D layer settings --------------------------------------
+	// --------------------------------------------------------------
+
+	ImGui::Begin("3D Layer Settings");
 	{
 		ImGui::Checkbox("Grayscale", &isGray);
 		ImGui::SameLine(); ImGui::Checkbox("Inversion", &isInverted);
 		ImGui::NewLine();
-		if(ImGui::Button("Reload LUTColorGrading shader")) {
-			colourGrading->reload();
+
+		ImGui::Checkbox("Gamma correction", &isGammaCorrected);
+		if(isGammaCorrected) {
+			ImGui::DragFloat("Gamma", &gamma, 0.1f, 0.01f, 10.0f);
 		}
+		ImGui::NewLine();
 	}
 	ImGui::End();
 	
-	// Lights
-	ImGui::Begin("Lights");
+	// --------------------------------------------------------------
+	// ----- Colour grading settings --------------------------------
+	// --------------------------------------------------------------
+	
+	ImGui::Begin("Colour grading");
 	{
 		ImGui::BeginGroup();
 		{
-			ImGui::RadioButton("Colour grading: none", &lutSetting, 0);
-			ImGui::RadioButton("Colour grading: cool", &lutSetting, 1);
-			ImGui::RadioButton("Colour grading: warm", &lutSetting, 2);
-			ImGui::RadioButton("Colour grading: custom", &lutSetting, 3);
+			ImGui::RadioButton("None", &lutSetting, 0);
+			ImGui::RadioButton("Cool", &lutSetting, 1);
+			ImGui::RadioButton("Warm", &lutSetting, 2);
+			ImGui::RadioButton("Bleach", &lutSetting, 3);
 		}
 		ImGui::EndGroup();
 	}
 	ImGui::End();
 
+	// --------------------------------------------------------------
+	// ----- Light settings -----------------------------------------
+	// --------------------------------------------------------------
 
 	// Directional light
 	ImGui::Begin("Directional Light");

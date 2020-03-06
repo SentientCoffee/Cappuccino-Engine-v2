@@ -34,12 +34,14 @@ namespace Capp {
 		static void shutdown();
 
 		static void onWindowResized(unsigned width, unsigned height);
-		
+
+		// Pre and post rendering
 		static void start();
 		static void start(const PerspectiveCamera& camera, const Lights& lights, const Skybox& skybox = std::nullopt);
 		
 		static void finish(const PostPasses& postProcessing = {});
 
+		// Rendering commands
 		static void addToQueue(VertexArray* vertexArray, Shader* shader = nullptr);
 		static void addToQueue(VertexArray* vertexArray, Material* material);
 		
@@ -52,6 +54,9 @@ namespace Capp {
 		static void addToQueue(const RigidBody& rigidBody);
 
 		static void addToQueue(GameObject* gameObject);
+
+		// Gamma correction
+		static void setGamma(float gamma);
 		
 	};
 	

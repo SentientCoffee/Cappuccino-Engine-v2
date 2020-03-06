@@ -36,8 +36,12 @@ struct RendererStorage {
 	Framebuffer* deferredComposite = nullptr;
 	Framebuffer* gBuffer           = nullptr;
 
+	PostProcessingPass gammaCorrection = { nullptr, nullptr };
+
 	std::deque<Model*> modelRenderQueue;
 	std::deque<Hitbox*> hitboxRenderQueue;
+
+	float gamma = 2.2f;
 };
 
 static RendererStorage* rendererStorage;
@@ -208,6 +212,21 @@ void Renderer::init() {
 		rendererStorage->deferredComposite->addAttachment(AttachmentTarget::DepthStencil, depthStencil);
 	}
 
+	// --------------------------------------------------
+	// ----- Gamma correction post process pass ---------
+	// --------------------------------------------------
+	
+	{
+		rendererStorage->gammaCorrection.buffer = new Framebuffer(window->getWidth(), window->getHeight());
+		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGB8 };
+		rendererStorage->gammaCorrection.buffer->addAttachment(AttachmentTarget::Colour0, mainColour);
+		
+		rendererStorage->gammaCorrection.shader = new Shader("Gamma Correction");
+		rendererStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", ShaderStage::Vertex);
+		rendererStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/GammaCorrectionShader.frag", ShaderStage::Fragment);
+		rendererStorage->gammaCorrection.shader->compile();
+	}
+	
 }
 
 void Renderer::shutdown() {
@@ -311,6 +330,10 @@ void Renderer::addToQueue(GameObject* gameObject) {
 	if(gameObject->isVisible()) {
 		addToQueue(gameObject->getRigidBody());
 	}
+}
+
+void Renderer::setGamma(const float gamma) {
+	rendererStorage->gamma = gamma;
 }
 
 void Renderer::finish(const PostPasses& postProcessing) {
@@ -482,7 +505,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				shader->bind();
 				shader->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
 				shader->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
-				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
+				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(transpose(inverse(model->getTransform().getWorldTransform()))));
+				shader->setUniform<Float>("uGamma", rendererStorage->gamma);
 				model->getMaterial()->apply();
 
 				mesh->getVAO()->bind();
@@ -495,30 +519,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				rendererStorage->modelRenderQueue.pop_front();
 			}
-
-			#if 0
-			if(Hitbox::shouldDraw()) {
-				RenderCommand::disableCulling();
-				RenderCommand::setDrawMode(DrawMode::Line);
-
-				while(!rendererStorage->hitboxRenderQueue.empty()) {
-					auto hitbox = rendererStorage->hitboxRenderQueue.front();
-
-					rendererStorage->hitboxShader->bind();
-					rendererStorage->hitboxShader->setUniform<Vec4>("uHitboxColour", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-					rendererStorage->hitboxShader->setUniform<Mat4>("uTransform", hitbox->getTransform().getWorldTransform());
-					rendererStorage->hitboxShader->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
-
-					hitbox->getVAO()->bind();
-					RenderCommand::drawIndexed(hitbox->getVAO());
-
-					rendererStorage->hitboxRenderQueue.pop_front();
-				}
-
-				RenderCommand::setDrawMode(DrawMode::Fill);
-				RenderCommand::enableCulling();
-			}
-			#endif
 		}
 		rendererStorage->gBuffer->unbind();
 		RenderCommand::disableDepthTesting();
@@ -599,6 +599,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 		rendererStorage->activeSkybox->bind(0);
 		rendererStorage->skyboxShader->setUniform<Int>("uSkybox", 0);
+		rendererStorage->skyboxShader->setUniform<Float>("uGamma", rendererStorage->gamma);
 
 		rendererStorage->skyboxMesh->getVAO()->bind();
 		RenderCommand::drawIndexed(rendererStorage->skyboxMesh->getVAO());
@@ -611,10 +612,54 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 
 	// TODO: HITBOX RENDERING
+	#if 0
+	if(Hitbox::shouldDraw()) {
+		RenderCommand::disableCulling();
+		RenderCommand::setDrawMode(DrawMode::Line);
+
+		while(!rendererStorage->hitboxRenderQueue.empty()) {
+			auto hitbox = rendererStorage->hitboxRenderQueue.front();
+
+			rendererStorage->hitboxShader->bind();
+			rendererStorage->hitboxShader->setUniform<Vec4>("uHitboxColour", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+			rendererStorage->hitboxShader->setUniform<Mat4>("uTransform", hitbox->getTransform().getWorldTransform());
+			rendererStorage->hitboxShader->setUniform<Mat4>("uViewProjection", rendererStorage->perspectiveCamera.getViewProjection());
+
+			hitbox->getVAO()->bind();
+			RenderCommand::drawIndexed(hitbox->getVAO());
+
+			rendererStorage->hitboxRenderQueue.pop_front();
+		}
+
+		RenderCommand::setDrawMode(DrawMode::Fill);
+		RenderCommand::enableCulling();
+	}
+	#endif
+	
 	// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
 
 	// Post processing passes
 	Framebuffer* lastPass = rendererStorage->deferredComposite;
+
+	// Gamma correction
+	rendererStorage->gammaCorrection.buffer->validateFramebuffer();
+	rendererStorage->gammaCorrection.buffer->bind();
+
+	RenderCommand::setViewport(0, 0, rendererStorage->gammaCorrection.buffer->getWidth(), rendererStorage->gammaCorrection.buffer->getHeight());
+
+	rendererStorage->gammaCorrection.shader->bind();
+	lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+	rendererStorage->gammaCorrection.shader->setUniform<Int>("uImage", 0);
+	rendererStorage->gammaCorrection.shader->setUniform<Float>("uGamma", rendererStorage->gamma);
+	rendererStorage->gammaCorrection.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
+
+	rendererStorage->fullscreenQuad->getVAO()->bind();
+	RenderCommand::drawIndexed(rendererStorage->fullscreenQuad->getVAO());
+
+	rendererStorage->gammaCorrection.buffer->unbind();
+	lastPass = rendererStorage->gammaCorrection.buffer;
+
+	// Other passes
 	for(auto pass : postProcessing) {
 		pass.buffer->validateFramebuffer();
 		pass.buffer->bind();

@@ -312,7 +312,7 @@ void Renderer::addToQueue(Mesh* mesh, Shader* shader) {
 }
 
 void Renderer::addToQueue(Mesh* mesh, Material* material) {
-	rStorage->modelRenderQueue.emplace_back(mesh, material);
+	rStorage->modelRenderQueue.push_back(new Model(mesh, material));
 }
 
 void Renderer::addToQueue(Model* model) {
@@ -356,11 +356,15 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		if(first->getMaterial() == nullptr || first->getMesh() == nullptr) {
 			return true;
 		}
+		
 		// TODO: BLENDING
-		//if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
-		//	return false;
-		//if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
-		//	return true;
+		#if 0
+		if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
+			return false;
+		if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
+			return true;
+		#endif
+		
 		if(first->getMaterial()->getShader() != nullptr && second->getMaterial()->getShader() != nullptr) {
 			return first->getMaterial()->getShader()->getRendererID() < second->getMaterial()->getShader()->getRendererID();
 		}
@@ -405,17 +409,14 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 		while(!allLights.empty()) {
 			const auto light = allLights.front();
+
+			// 
 			light->getShadowBuffer()->bind();
 			RenderCommand::setViewport(0, 0, light->getShadowBuffer()->getWidth(), light->getShadowBuffer()->getHeight());
 			RenderCommand::clearScreen(ClearFlags::Depth);
 			{
 				for(auto model : rStorage->modelRenderQueue) {
-					if(model->getMesh() == nullptr) {
-						CAPP_PRINT_ERROR("Failed to draw model: missing mesh!");
-						continue;
-					}
-					if(model->getMaterial() == nullptr) {
-						CAPP_PRINT_ERROR("Failed to draw model: missing material!");
+					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
 						continue;
 					}
 
@@ -469,8 +470,9 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				model->getMaterial()->setShader(shader);
 
 				shader->bind();
-				shader->setUniform<Mat4>("uViewProjection", rStorage->perspectiveCamera.getViewProjection());
 				shader->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
+				shader->setUniform<Mat4>("uView", rStorage->perspectiveCamera.getViewMatrix());
+				shader->setUniform<Mat4>("uProjection", rStorage->perspectiveCamera.getProjectionMatrix());
 				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
 				shader->setUniform<Float>("uGamma", rStorage->gamma);
 				model->getMaterial()->apply();
@@ -491,51 +493,60 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::disableDepthTesting();
 		RenderCommand::disableCulling();
 		
-		// Lighting pass
+		// Lighting and shadow pass
 		rStorage->deferredComposite->bind();
 		RenderCommand::setViewport(0, 0, rStorage->deferredComposite->getWidth(), rStorage->deferredComposite->getHeight());
 		RenderCommand::clearScreen();
 		{
+			auto shader = rStorage->deferredLightingPass;
+			
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour1)->bind(1);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour2)->bind(2);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour3)->bind(3);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour4)->bind(4);
-			rStorage->deferredLightingPass->bind();
+			shader->bind();
 
-			rStorage->deferredLightingPass->setUniform<Int>("uGBuffer.position",  0);
-			rStorage->deferredLightingPass->setUniform<Int>("uGBuffer.normal",    1);
-			rStorage->deferredLightingPass->setUniform<Int>("uGBuffer.albedo",    2);
-			rStorage->deferredLightingPass->setUniform<Int>("uGBuffer.specRough", 3);
-			rStorage->deferredLightingPass->setUniform<Int>("uGBuffer.emission",  4);
+			shader->setUniform<Int>("uGBuffer.position",  0);
+			shader->setUniform<Int>("uGBuffer.normal",    1);
+			shader->setUniform<Int>("uGBuffer.albedo",    2);
+			shader->setUniform<Int>("uGBuffer.specRough", 3);
+			shader->setUniform<Int>("uGBuffer.emission",  4);
 
-			rStorage->deferredLightingPass->setUniform<Vec3>("uCameraPosition", rStorage->perspectiveCamera.getPosition());
+			shader->setUniform<Int>("uNumPointLights", static_cast<int>(rStorage->activeLights.pointLights.size()));
+			shader->setUniform<Int>("uNumDirectionalLights", static_cast<int>(rStorage->activeLights.directionalLights.size()));
+			shader->setUniform<Int>("uNumSpotlights", static_cast<int>(rStorage->activeLights.spotlights.size()));
 
-			rStorage->deferredLightingPass->setUniform<Int>("uNumPointLights", static_cast<int>(rStorage->activeLights.pointLights.size()));
-			rStorage->deferredLightingPass->setUniform<Int>("uNumDirectionalLights", static_cast<int>(rStorage->activeLights.directionalLights.size()));
-			rStorage->deferredLightingPass->setUniform<Int>("uNumSpotlights", static_cast<int>(rStorage->activeLights.spotlights.size()));
-
-			rStorage->deferredLightingPass->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
-			rStorage->deferredLightingPass->setUniform<Float>("uAmbientPower", 0.3f);
+			shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
+			shader->setUniform<Float>("uAmbientPower", 0.3f);
 
 			for(unsigned i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
-				rStorage->deferredLightingPass->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", rStorage->activeLights.directionalLights[i]->getDirection());
-				rStorage->deferredLightingPass->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour", rStorage->activeLights.directionalLights[i]->getColour());
+				const auto light = rStorage->activeLights.directionalLights[i];
+				
+				shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", light->getDirection());
+				shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour",    light->getColour());
+				shader->setUniform<Mat4>("uDirectionalLights[" + std::to_string(i) + "].view",      light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
 			}
 
 			for(unsigned i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
-				rStorage->deferredLightingPass->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].position", rStorage->activeLights.pointLights[i]->getPosition());
-				rStorage->deferredLightingPass->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].colour", rStorage->activeLights.pointLights[i]->getColour());
-				rStorage->deferredLightingPass->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation", rStorage->activeLights.pointLights[i]->getAttenuation());
+				const auto light = rStorage->activeLights.pointLights[i];
+				
+				shader->setUniform<Vec3> ("uPointLights[" + std::to_string(i) + "].position",     light->getPosition());
+				shader->setUniform<Vec3> ("uPointLights[" + std::to_string(i) + "].colour",       light->getColour());
+				shader->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation",  light->getAttenuation());
+				shader->setUniform<Mat4> ("uPointLights[" + std::to_string(i) + "].view",         light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
 			}
 
 			for(unsigned i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
-				rStorage->deferredLightingPass->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].position", rStorage->activeLights.spotlights[i]->getPosition());
-				rStorage->deferredLightingPass->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].direction", rStorage->activeLights.spotlights[i]->getDirection());
-				rStorage->deferredLightingPass->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].colour", rStorage->activeLights.spotlights[i]->getColour());
-				rStorage->deferredLightingPass->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].attenuation", rStorage->activeLights.spotlights[i]->getAttenuation());
-				rStorage->deferredLightingPass->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(rStorage->activeLights.spotlights[i]->getInnerCutoffAngle())));
-				rStorage->deferredLightingPass->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(rStorage->activeLights.spotlights[i]->getOuterCutoffAngle())));
+				const auto light = rStorage->activeLights.spotlights[i];
+				
+				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].position",         light->getPosition());
+				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].direction",        light->getDirection());
+				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].colour",           light->getColour());
+				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].attenuation",      light->getAttenuation());
+				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(light->getInnerCutoffAngle())));
+				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(light->getOuterCutoffAngle())));
+				shader->setUniform<Mat4> ("uSpotlights[" + std::to_string(i) + "].view",             light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
 			}
 
 			rStorage->fullscreenQuad->getVAO()->bind();

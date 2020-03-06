@@ -11,7 +11,7 @@ using namespace Capp;
 
 
 Light::Light(const glm::vec3& colour) :
-	_colour(colour)
+	_shadowProjectionMatrix(glm::mat4(1.0f)), _colour(colour)
 {
 	_shadowBuffer = new Framebuffer(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
 	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth32F,{ WrapMode::ClampToBorder, MinFilter::Nearest } };
@@ -23,6 +23,9 @@ Light::~Light() {
 }
 
 Framebuffer* Light::getShadowBuffer() const { return _shadowBuffer; }
+void Light::setShadowResolution(const glm::ivec2& resolution) const { _shadowBuffer->resize(resolution.x, resolution.y); }
+void Light::setShadowResolution(const unsigned x, const unsigned y) const { _shadowBuffer->resize(x, y); }
+void Light::setShadowResolution(const unsigned resolution) const { _shadowBuffer->resize(resolution, resolution); }
 
 void Light::setProjection(const glm::mat4& projection) { _shadowProjectionMatrix = projection; }
 const glm::mat4& Light::getProjectionMatrix() const { return _shadowProjectionMatrix; }

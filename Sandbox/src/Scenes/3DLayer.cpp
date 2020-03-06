@@ -1,71 +1,96 @@
 #include "Scenes/3DLayer.h"
 
-#include <Cappuccino/Rendering/Shaders/Shader.h>
-//#include <Cappuccino/Resource/ResourceLoader.h>
-
 void Layer3D::onPush() {
 
-	captain1 = new Captain;
-	captain1->setPosition(6.0f, 0.0f, 0.0f).setRotation(0.0, 90.0f, 0.0f);
 
-	captain2 = new Captain;
-	captain2->setPosition(-6.0f, 0.0f, 0.0f).setRotation(0.0, -90.0f, 0.0f);
-	
-	f16 = new F16;
-	
-	sentry1 = new SentryBot;
-	sentry1->setPosition(0.0f, 0.0f, 6.0f).setRotation(0.0f, 180.0f, 0.0f);
 
-	sentry2 = new SentryBot;
-	sentry2->setPosition(0.0f, 0.0f, -6.0f);
+	
+	// -----------------------------------------------------------------
+	// ----- Game objects ----------------------------------------------
+	// ------------------- ---------------------------------------------
+	
+	{
+		captain1 = new Captain;
+		captain1->setPosition(6.0f, 0.0f, 0.0f).setRotation(0.0, 90.0f, 0.0f);
+
+		captain2 = new Captain;
+		captain2->setPosition(-6.0f, 0.0f, 0.0f).setRotation(0.0, -90.0f, 0.0f);
+	
+		f16 = new F16;
+	
+		sentry1 = new SentryBot;
+		sentry1->setPosition(0.0f, 0.0f, 6.0f).setRotation(0.0f, 180.0f, 0.0f);
+
+		sentry2 = new SentryBot;
+		sentry2->setPosition(0.0f, 0.0f, -6.0f);
 	
 
-	pointLight = new Capp::PointLight({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
-	dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 1.0f }, { 0.1f, 0.4f, 0.15f });
+		pointLight = new Capp::PointLight({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
+		dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 1.0f }, { 0.1f, 0.4f, 0.15f });
 
-	spotlight = new Capp::Spotlight;
-	spotlight->setColour(0.3f, 0.2f, 0.7f).setAttenuation(1.0f / 20.0f).setInnerCutoffAngle(5.0f).setOuterCutoffAngle(22.5f);
+		spotlight = new Capp::Spotlight;
+		spotlight->setColour(0.3f, 0.2f, 0.7f).setAttenuation(1.0f / 20.0f).setInnerCutoffAngle(5.0f).setOuterCutoffAngle(22.5f);
 	
-	//Capp::Hitbox::setShouldDraw(true);
+		//Capp::Hitbox::setShouldDraw(true);
+	}
 
-	const std::vector<std::string> filepaths = {
-		"Assets/Textures/Skybox/corona/corona_lf.png",
-		"Assets/Textures/Skybox/corona/corona_rt.png",
-		"Assets/Textures/Skybox/corona/corona_up.png",
-		"Assets/Textures/Skybox/corona/corona_dn.png",
-		"Assets/Textures/Skybox/corona/corona_ft.png",
-		"Assets/Textures/Skybox/corona/corona_bk.png"
-	};
+	// -----------------------------------------------------------------
+	// ----- Skybox ----------------------------------------------------
+	// ------------------- ---------------------------------------------
+	
+	{
+		const std::vector<std::string> filepaths = {
+			"Assets/Textures/Skybox/corona/corona_lf.png",
+			"Assets/Textures/Skybox/corona/corona_rt.png",
+			"Assets/Textures/Skybox/corona/corona_up.png",
+			"Assets/Textures/Skybox/corona/corona_dn.png",
+			"Assets/Textures/Skybox/corona/corona_ft.png",
+			"Assets/Textures/Skybox/corona/corona_bk.png"
+		};
 
-	skybox = new Capp::TextureCubemap(filepaths);
+		skybox = new Capp::TextureCubemap(filepaths);
+	}
+
+
+	// -----------------------------------------------------------------
+	// ----- LUTs ------------------------------------------------------
+	// ------------------- ---------------------------------------------
 	
-	coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-	warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-	customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+	{
+		coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
+		warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
+		customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+	}
 	
+	// -----------------------------------------------------------------
+	// ----- Post-processing passes ------------------------------------
+	// ------------------- ---------------------------------------------
+
 	const auto window = Capp::Application::getInstance()->getWindow();
 	const Capp::Attachment mainColour = { Capp::AttachmentType::Texture, Capp::InternalFormat::RGB8 };
+	
+	{
+		grayscale.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		grayscale.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
+		grayscale.shader = Capp::ShaderLibrary::loadShader("Grayscale");
+		grayscale.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+		grayscale.shader->attach("Assets/Shaders/PostProcessing/GrayscaleShader.frag", Capp::ShaderStage::Fragment);
+		grayscale.shader->compile();
 
-	grayscale.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
-	grayscale.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
-	grayscale.shader = Capp::ShaderLibrary::loadShader("Grayscale");
-	grayscale.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
-	grayscale.shader->attach("Assets/Shaders/PostProcessing/GrayscaleShader.frag", Capp::ShaderStage::Fragment);
-	grayscale.shader->compile();
+		inversion.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		inversion.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
+		inversion.shader = Capp::ShaderLibrary::loadShader("Inversion");
+		inversion.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+		inversion.shader->attach("Assets/Shaders/PostProcessing/InversionShader.frag", Capp::ShaderStage::Fragment);
+		inversion.shader->compile();
 
-	inversion.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
-	inversion.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
-	inversion.shader = Capp::ShaderLibrary::loadShader("Inversion");
-	inversion.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
-	inversion.shader->attach("Assets/Shaders/PostProcessing/InversionShader.frag", Capp::ShaderStage::Fragment);
-	inversion.shader->compile();
-
-	colourGrading.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
-	colourGrading.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
-	colourGrading.shader = Capp::ShaderLibrary::loadShader("Colour Grading");
-	colourGrading.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
-	colourGrading.shader->attach("Assets/Shaders/PostProcessing/LUTColorGradingShader.frag", Capp::ShaderStage::Fragment);
-	colourGrading.shader->compile();
+		colourGrading.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		colourGrading.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
+		colourGrading.shader = Capp::ShaderLibrary::loadShader("Colour Grading");
+		colourGrading.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
+		colourGrading.shader->attach("Assets/Shaders/PostProcessing/LUTColorGradingShader.frag", Capp::ShaderStage::Fragment);
+		colourGrading.shader->compile();
+	}
 }
 
 void Layer3D::onPop() {

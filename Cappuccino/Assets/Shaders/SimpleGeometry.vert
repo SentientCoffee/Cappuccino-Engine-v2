@@ -11,15 +11,16 @@ layout(location = 0) out DATA {
 } outVert;
 
 uniform mat4 uTransform;
-uniform mat4 uViewProjection;
+uniform mat4 uView;
+uniform mat4 uProjection;
 uniform mat3 uNormalMatrix;
 
 void main() {
-	vec4 position = uTransform * vec4(inPosition, 1.0);
+	vec4 position = uView * uTransform * vec4(inPosition, 1.0);
 	
 	outVert.worldPosition = position.xyz;
 	outVert.uv = inUV;
 	outVert.normal = uNormalMatrix * inNormal;
 
-	gl_Position = uViewProjection * position;
+	gl_Position = uProjection * position;
 }

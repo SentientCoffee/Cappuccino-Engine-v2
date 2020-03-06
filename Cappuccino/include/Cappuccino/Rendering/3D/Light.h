@@ -14,8 +14,13 @@ namespace Capp {
 		virtual ~Light();
 
 		Framebuffer* getShadowBuffer() const;
+		void setShadowResolution(const glm::ivec2& resolution) const;
+		void setShadowResolution(unsigned x, unsigned y) const;
+		void setShadowResolution(unsigned resolution) const;
+		
 		void setProjection(const glm::mat4& projection);
 		const glm::mat4& getProjectionMatrix() const;
+
 		const Transform& getTransform() const;
 
 	protected:

@@ -322,6 +322,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		if(first->getMaterial() == nullptr || first->getMesh() == nullptr) {
 			return true;
 		}
+		// TODO: BLENDING
 		//if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
 		//	return false;
 		//if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
@@ -575,11 +576,13 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	}
 
 	rendererStorage->gBuffer->bind(FramebufferBinding::ReadOnly);
+	rendererStorage->deferredComposite->bind(FramebufferBinding::DrawOnly);
 	Framebuffer::blitBufferData(
 		{ 0, 0, rendererStorage->gBuffer->getWidth(), rendererStorage->gBuffer->getHeight() },
-		{ 0, 0, window->getWidth(), window->getHeight() },
+		{ 0, 0, rendererStorage->deferredComposite->getWidth(), rendererStorage->deferredComposite->getHeight() },
 		ClearFlags::Depth, MagFilter::Nearest);
 	rendererStorage->gBuffer->unbind();
+	rendererStorage->deferredComposite->unbind();
 
 	rendererStorage->deferredComposite->bind();
 	// TODO: SKYBOX

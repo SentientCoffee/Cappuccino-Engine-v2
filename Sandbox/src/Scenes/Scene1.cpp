@@ -5,7 +5,7 @@
 
 void TestScene::init() {
 	pushLayer(new Layer3D);
-	//pushLayer(new Layer2D);
+	pushLayer(new Layer2D);
 }
 void TestScene::exit() {}
 

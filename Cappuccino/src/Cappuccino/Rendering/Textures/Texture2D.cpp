@@ -64,12 +64,12 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 		case InternalFormat::Stencil4:
 		case InternalFormat::Stencil8:
 		case InternalFormat::Stencil16:
+			_formats.pixelType = PixelType::UnsignedInt;
 			_formats.pixelFormat = PixelFormat::Stencil;
 			break;
-
-		case InternalFormat::Depth32F_Stencil8:
-			_formats.pixelType = PixelType::Float;
+		
 		case InternalFormat::Depth24_Stencil8:
+			_formats.pixelType = PixelType::UInt24_UInt8;
 			_formats.pixelFormat = PixelFormat::DepthStencil;
 			break;
 

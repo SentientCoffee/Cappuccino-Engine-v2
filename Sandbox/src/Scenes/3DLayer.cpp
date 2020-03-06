@@ -80,7 +80,7 @@ void Layer3D::onPop() {
 }
 
 void Layer3D::update() {
-	//cameraController.update();
+	cameraController.update();
 
 	Capp::Lights lights = { { dirLight }, { pointLight } };
 	

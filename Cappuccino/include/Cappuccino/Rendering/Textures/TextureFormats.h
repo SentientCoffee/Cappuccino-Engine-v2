@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 
 namespace Capp {
 
@@ -35,7 +36,6 @@ namespace Capp {
 		Stencil16           = 0x8D49,		// GL_STENCIL_INDEX16
 		
 		Depth24_Stencil8    = 0x88F0,		// GL_DEPTH24_STENCIL8
-		Depth32F_Stencil8   = 0x8CAD		// GL_DEPTH32F_STENCIL8
 	};
 
 	enum class PixelFormat : unsigned int {
@@ -62,7 +62,8 @@ namespace Capp {
 		UnsignedShort        = 0x1403,		// GL_UNSIGNED_SHORT
 		Int                  = 0x1404,		// GL_INT
 		UnsignedInt          = 0x1405,		// GL_UNSIGNED_INT
-		Float                = 0x1406		// GL_FLOAT
+		UInt24_UInt8         = 0x84FA,		// GL_UNSIGNED_INT_24_8
+		Float                = 0x1406,		// GL_FLOAT
 	};
 	
 	struct TextureFormats {

@@ -21,33 +21,6 @@ namespace Capp {
 		DepthStencil        = 0x821A		// GL_DEPTH_STENCIL_ATTACHMENT
 	};
 
-	//enum class AttachmentFormat : unsigned int {
-	//	// From glad.h
-	//	Red8                = 0x8229,		// GL_R8
-	//	Red16               = 0x822A,		// GL_R16
-	//	Red16F              = 0x822D,		// GL_R16F
-	//	
-	//	RG8                 = 0x822B,		// GL_RG8
-	//	RG16                = 0x822C,		// GL_RG16
-	//	RG16F               = 0x822F,		// GL_RG16F
-	//	
-	//	RGB8                = 0x8051,		// GL_RGB8
-	//	RGB16               = 0x8054,		// GL_RGB16
-	//	RGB16F              = 0x881B,		// GL_RGB16F
-	//	
-	//	RGBA8               = 0x8058,		// GL_RGBA8
-	//	RGBA16              = 0x805B,		// GL_RGBA16
-	//	RGBA16F             = 0x881A,		// GL_RGBA16F
-	//	
-	//	Depth16             = 0x81A5,		// GL_DEPTH_COMPONENT16
-	//	Depth24             = 0x81A6,		// GL_DEPTH_COMPONENT24
-	//	Depth32             = 0x81A7,		// GL_DEPTH_COMPONENT32
-	//	Stencil4            = 0x8D47,		// GL_STENCIL_INDEX4
-	//	Stencil8            = 0x8D48,		// GL_STENCIL_INDEX8
-	//	Stencil16           = 0x8D49,		// GL_STENCIL_INDEX16
-	//	Depth24Stencil8     = 0x88F0		// GL_DEPTH24_STENCIL8
-	//};
-
 	enum class AttachmentType : unsigned int {
 		Texture = 0,
 		RenderBuffer

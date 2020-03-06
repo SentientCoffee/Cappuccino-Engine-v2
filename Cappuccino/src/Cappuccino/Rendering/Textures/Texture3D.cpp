@@ -6,12 +6,12 @@
 using namespace Capp;
 
 Texture3D::Texture3D(const std::string& filepath) :
-	_texturePath(filepath), _parameters({}) {
+	_texturePath(filepath) {
 	// TODO: ADD FILEPATH CREATION OF 3D TEXTURES
 }
 
 Texture3D::Texture3D(const unsigned width, const unsigned height, const unsigned depth, void* data) :
-	_width(width), _height(height), _depth(depth), _data(data), _parameters({}) {
+	_width(width), _height(height), _depth(depth), _data(data) {
 
 	_formats.internalFormat = InternalFormat::RGB8;
 	_formats.pixelFormat = PixelFormat::RGB;
@@ -45,6 +45,8 @@ void Texture3D::setParameters(const TextureParams& params) {
 	glTextureParameteri(_id, GL_TEXTURE_WRAP_R, static_cast<GLenum>(_parameters.wrapR));
 	glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(_parameters.minFilter));
 	glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(_parameters.magFilter));
+	glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, static_cast<float>(_parameters.anisotropyLevel));
+	glTextureParameterfv(_id, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(_parameters.borderColour));
 }
 
 void Texture3D::createTexture() {

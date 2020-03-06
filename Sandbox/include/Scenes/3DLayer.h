@@ -2,6 +2,7 @@
 #include <Cappuccino.h>
 
 #include "Objects/CameraController.h"
+#include "Objects/Captain.h"
 #include "Objects/F16.h"
 #include "Objects/SentryBot.h"
 
@@ -26,10 +27,12 @@ private:
 
 	CameraController cameraController;
 	bool flashlight = true;
-	
+
+	Captain* captain1 = nullptr;
+	Captain* captain2 = nullptr;
+	F16* f16 = nullptr;
 	SentryBot* sentry1 = nullptr;
 	SentryBot* sentry2 = nullptr;
-	F16* f16 = nullptr;
 	
 	Capp::PointLight* pointLight = nullptr;
 	Capp::DirectionalLight* dirLight = nullptr;

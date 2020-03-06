@@ -97,7 +97,7 @@ void main() {
 	
 	mat.diffuse   = texture(uGBuffer.albedo,    inFrag.uv).rgb;
 	mat.emission  = texture(uGBuffer.emission,  inFrag.uv).rgb;
-	mat.specular  = texture(uGBuffer.specRough, inFrag.uv).rgb;
+	mat.specular  = texture(uGBuffer.specRough, inFrag.uv).rrr;
 	mat.roughness = texture(uGBuffer.specRough, inFrag.uv).g;
 
 	vec3 viewDirection = normalize(uCameraPosition - worldPosition);

@@ -34,7 +34,7 @@ namespace Capp {
 		bool hasCharacter(unsigned char ch) const;
 
 
-		std::string _name = "";
+		std::string _name;
 		std::map<unsigned char, Glyph> _glyphs;
 		
 	};

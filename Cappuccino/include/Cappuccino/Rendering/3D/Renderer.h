@@ -5,11 +5,10 @@
 #include "Cappuccino/Objects/Rigidbody.h"
 
 #include "Cappuccino/Rendering/Camera.h"
-#include "Cappuccino/Rendering/VertexArray.h"
+#include "Cappuccino/Rendering/Mesh.h"
 
 #include "Cappuccino/Rendering/3D/Light.h"
 #include "Cappuccino/Rendering/3D/Material.h"
-#include "Cappuccino/Rendering/3D/Mesh.h"
 #include "Cappuccino/Rendering/3D/Model.h"
 
 #include "Cappuccino/Rendering/Buffers/Framebuffer.h"

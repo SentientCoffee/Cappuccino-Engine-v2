@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/Mesh.h"
 #include "Cappuccino/Rendering/3D/Material.h"
 #include "Cappuccino/Objects/Transform.h"
 

@@ -36,6 +36,7 @@ project "Cappuccino"
 	files {
 		"include/**.h",
 		"include/**.hpp",
+		"include/**.inl",
 		"src/**.cpp"
 	}
 	

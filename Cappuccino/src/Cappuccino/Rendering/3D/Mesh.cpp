@@ -1,5 +1,5 @@
 #include "CappPCH.h"
-#include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/Mesh.h"
 #include "Cappuccino/Resource/ResourceLoader.h"
 
 using namespace Capp;

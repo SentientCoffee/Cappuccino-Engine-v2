@@ -4,6 +4,14 @@
 //#include <Cappuccino/Resource/ResourceLoader.h>
 
 void Layer3D::onPush() {
+
+	captain1 = new Captain;
+	captain1->setPosition(6.0f, 0.0f, 0.0f).setRotation(0.0, 90.0f, 0.0f);
+
+	captain2 = new Captain;
+	captain2->setPosition(-6.0f, 0.0f, 0.0f).setRotation(0.0, -90.0f, 0.0f);
+	
+	f16 = new F16;
 	
 	sentry1 = new SentryBot;
 	sentry1->setPosition(0.0f, 0.0f, 6.0f).setRotation(0.0f, 180.0f, 0.0f);
@@ -11,7 +19,6 @@ void Layer3D::onPush() {
 	sentry2 = new SentryBot;
 	sentry2->setPosition(0.0f, 0.0f, -6.0f);
 	
-	f16 = new F16;
 
 	pointLight = new Capp::PointLight({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
 	dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 1.0f }, { 0.1f, 0.4f, 0.15f });
@@ -32,11 +39,8 @@ void Layer3D::onPush() {
 
 	skybox = new Capp::TextureCubemap(filepaths);
 	
-	DEBUG_PRINT("Loading Cool-512.cube...");
 	coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-	DEBUG_PRINT("Loading Warm-512.cube...");
 	warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-	DEBUG_PRINT("Loading Bleach-512.cube...");
 	customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
 	
 	const auto window = Capp::Application::getInstance()->getWindow();
@@ -65,9 +69,11 @@ void Layer3D::onPush() {
 }
 
 void Layer3D::onPop() {
+	delete captain1;
+	delete captain2;
+	delete f16;
 	delete sentry1;
 	delete sentry2;
-	delete f16;
 	
 	delete dirLight;
 	delete pointLight;
@@ -178,9 +184,11 @@ void Layer3D::update() {
 	
 	Capp::Renderer::start(cameraController.getCamera(), lights, skybox);
 	{
+		Capp::Renderer::addToQueue(captain1);
+		Capp::Renderer::addToQueue(captain2);
+		Capp::Renderer::addToQueue(f16);
 		Capp::Renderer::addToQueue(sentry1);
 		Capp::Renderer::addToQueue(sentry2);
-		Capp::Renderer::addToQueue(f16);
 	}
 	Capp::Renderer::finish(postPasses);
 }
@@ -264,7 +272,6 @@ void Layer3D::drawImgui() {
 	}
 	ImGui::End();
 }
-
 
 void Layer3D::onEvent(Capp::Event& e) {
 	Capp::EventDispatcher d(e);

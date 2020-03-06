@@ -1,4 +1,5 @@
 print("Starting premake build...")
+print("")
 
 print("Building solution CappuccinoEngine...")
 workspace "CappuccinoEngine"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/Mesh.h"
 
 #include <string>
 #include <unordered_map>

@@ -180,11 +180,11 @@ void Renderer::init() {
 	{
 		rendererStorage->gBuffer = new Framebuffer(window->getWidth(), window->getHeight());
 		rendererStorage->gBuffer->setName("GBuffer");
-		const Attachment position     = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x } };
-		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x } };
-		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x } };
-		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x } };
-		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x } };
+		const Attachment position     = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
 		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
 
 		rendererStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, position);
@@ -217,6 +217,7 @@ void Renderer::shutdown() {
 void Renderer::onWindowResized(const unsigned width, const unsigned height) {
 	rendererStorage->defaultCamera.setProjection(60.0f, width, height);
 	rendererStorage->deferredComposite->resize(width, height);
+	rendererStorage->gBuffer->resize(width, height);
 }
 
 void Renderer::start() {

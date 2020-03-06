@@ -8,8 +8,7 @@
 
 using namespace Capp;
 
-TextureCubemap::TextureCubemap(const std::vector<std::string>& filepaths) :
-	_parameters({}) {
+TextureCubemap::TextureCubemap(const std::vector<std::string>& filepaths) {
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
 	setCubemapTextures(filepaths);
 }

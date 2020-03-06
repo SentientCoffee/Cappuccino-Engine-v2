@@ -52,8 +52,7 @@ namespace Capp {
 		glm::vec4 borderColour = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		TextureParams() = default;
-		TextureParams(WrapMode wrapMode, MinFilter minFilter, MagFilter magFilter, Anisotropy anisotropyLevel = Anisotropy::Aniso1x, const glm::vec4& borderColour = { 0.0f, 0.0f, 0.0f, 1.0f });
-		TextureParams(WrapMode wrapS, WrapMode wrapT, WrapMode wrapR, MinFilter minFilter, MagFilter magFilter, Anisotropy anisotropyLevel = Anisotropy::Aniso1x, const glm::vec4& borderColour = { 0.0f, 0.0f, 0.0f, 1.0f });
+		TextureParams(WrapMode wrapMode, MinFilter minFilter = MinFilter::Linear, MagFilter magFilter = MagFilter::Nearest, Anisotropy anisotropyLevel = Anisotropy::Aniso1x, const glm::vec4& borderColour = { 0.0f, 0.0f, 0.0f, 1.0f });
 	};
 	
 }

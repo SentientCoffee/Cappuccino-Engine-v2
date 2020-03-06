@@ -12,13 +12,8 @@ TextureParams::TextureParams(const WrapMode wrapMode, const MinFilter minFilter,
 	minFilter(minFilter), magFilter(magFilter),
 	anisotropyLevel(anisotropyLevel), borderColour(borderColour) {}
 
-TextureParams::TextureParams(const WrapMode wrapS, const WrapMode wrapT, const WrapMode wrapR, const MinFilter minFilter, const MagFilter magFilter, const Anisotropy anisotropyLevel, const glm::vec4& borderColour) :
-	wrapS(wrapS), wrapT(wrapT), wrapR(wrapR),
-	minFilter(minFilter), magFilter(magFilter),
-	anisotropyLevel(anisotropyLevel), borderColour(borderColour) {}
-
 Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const InternalFormat format, const Mipmaps enableMipmaps) :
-	_width(width), _height(height), _formats({}), _parameters({})
+	_width(width), _height(height), _formats({})
 {
 	switch(format) {
 		case InternalFormat::Red16F:
@@ -105,7 +100,7 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, const Internal
 	Texture2D(width, height, nullptr, format, enableMipmaps) {}
 
 Texture2D::Texture2D(const std::string& filepath, const Mipmaps enableMipmaps) :
-	_formats({}), _parameters({})
+	_formats({})
 {
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);

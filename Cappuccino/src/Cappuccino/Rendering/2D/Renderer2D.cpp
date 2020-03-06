@@ -5,7 +5,7 @@
 #include "Cappuccino/Objects/Transform.h"
 
 #include "Cappuccino/Rendering/RenderCommand.h"
-#include "Cappuccino/Rendering/3D/Mesh.h"
+#include "Cappuccino/Rendering/Mesh.h"
 #include "Cappuccino/Rendering/Buffers/Framebuffer.h"
 #include "Cappuccino/Rendering/Shaders/Shader.h"
 #include "Cappuccino/Rendering/Textures/TextureDefaults.h"
@@ -23,8 +23,8 @@ struct Renderer2DStorage {
 	Shader* mainBufferShader = nullptr;
 	Mesh* fullscreenQuad = nullptr;
 	
-	std::vector<Quad> quadsToRender;
-	std::vector<Text*> textToRender;
+	std::deque<Quad> quadQueue;
+	std::deque<Text*> textQueue;
 };
 
 static Renderer2DStorage* renderer2DStorage;
@@ -127,20 +127,15 @@ void Renderer2D::start(const OrthographicCamera& camera) {
 
 	renderer2DStorage->textShader->bind();
 	renderer2DStorage->textShader->setUniform<Mat4>("uProjection", camera.getProjectionMatrix());
-
-	renderer2DStorage->quadsToRender.clear();
-	renderer2DStorage->quadsToRender.reserve(200);
-	renderer2DStorage->textToRender.clear();
-	renderer2DStorage->textToRender.reserve(200);
 }
 
 void Renderer2D::drawQuad(const Quad& quad) {
 	CAPP_ASSERT(quad.texture != nullptr, "No texture in textured quad!");
-	renderer2DStorage->quadsToRender.push_back(quad);
+	renderer2DStorage->quadQueue.push_back(quad);
 }
 
 void Renderer2D::drawText(Text* text) {
-	renderer2DStorage->textToRender.push_back(text);
+	renderer2DStorage->textQueue.push_back(text);
 }
 
 void Renderer2D::finish() {
@@ -156,11 +151,12 @@ void Renderer2D::finish() {
 	renderer2DStorage->quadShader->bind();
 	Transform transform;
 
-	std::sort(renderer2DStorage->quadsToRender.begin(), renderer2DStorage->quadsToRender.end(), [](const Quad& first, const Quad& second)->bool {
+	std::sort(renderer2DStorage->quadQueue.begin(), renderer2DStorage->quadQueue.end(), [](const Quad& first, const Quad& second)->bool {
 		return first.zIndex < second.zIndex;
 	});
 	
-	for(auto quad : renderer2DStorage->quadsToRender) {
+	while(!renderer2DStorage->quadQueue.empty()) {
+		auto quad = renderer2DStorage->quadQueue.front();
 		CAPP_ASSERT(quad.texture != nullptr, "No texture in textured quad!");
 		quad.texture->bind(0);
 
@@ -172,10 +168,13 @@ void Renderer2D::finish() {
 
 		renderer2DStorage->quadMesh->getVAO()->bind();
 		RenderCommand::drawIndexed(renderer2DStorage->quadMesh->getVAO());
+
+		renderer2DStorage->quadQueue.pop_front();
 	}
 
 	renderer2DStorage->textShader->bind();
-	for(auto text : renderer2DStorage->textToRender) {
+	while(!renderer2DStorage->textQueue.empty()) {
+		auto text = renderer2DStorage->textQueue.front();
 		renderer2DStorage->textShader->setUniform<Vec4>("uTextColour", text->getTextColour());
 
 		auto tempPos = text->getTransform().getPosition();
@@ -194,20 +193,22 @@ void Renderer2D::finish() {
 				x,     y - h,   0.0f, 0.0f,
 			};
 
-			std::vector<unsigned> indices = {
+			/*std::vector<unsigned> indices = {
 				0, 1, 2,
 				0, 2, 3
-			};
+			};*/
 
 			glyph.texture->bind(0);
 			text->getVAO()->bind();
 			text->getVAO()->getVertexBuffers().at(0)->setBufferData(vertices);
-			text->getVAO()->getIndexBuffer()->setBufferData(indices);
+			//text->getVAO()->getIndexBuffer()->setBufferData(indices);
 
 			RenderCommand::drawIndexed(text->getVAO());
 			// Advance cursors for next glyph (note that advance is number of 1/64 pixels)
 			tempPos.x += static_cast<float>(glyph.advance >> 6)* text->getTransform().getScale().x;  // Bit shift by 6 to get value in pixels (2^6 = 64)
 		}
+
+		renderer2DStorage->textQueue.pop_front();
 	}
 
 	renderer2DStorage->mainBuffer->unbind();

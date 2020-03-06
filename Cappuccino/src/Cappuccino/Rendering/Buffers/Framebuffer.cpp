@@ -70,7 +70,6 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 	}
 
 	_attachments[target] = a;
-	validateFramebuffer();
 }
 
 Texture2D* Framebuffer::getAttachment(const AttachmentTarget target) {
@@ -88,6 +87,7 @@ Texture2D* Framebuffer::getAttachment(const AttachmentTarget target) {
 }
 
 void Framebuffer::bind(const FramebufferBinding binding) {
+	validateFramebuffer();
 	_binding = binding;
 	glBindFramebuffer(static_cast<GLenum>(binding), _id);
 }
@@ -140,7 +140,7 @@ bool Framebuffer::validateFramebuffer() {
 			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate. Check layer targets.", _name);
 			break;
 		default:
-			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate for unknown reason!", _name);
+			CAPP_ASSERT(result == GL_FRAMEBUFFER_COMPLETE,"Framebuffer \"{0}\" failed to validate for unknown reason!\n(Common error: check your attachment dimensions?)", _name);
 			break;
 	}
 

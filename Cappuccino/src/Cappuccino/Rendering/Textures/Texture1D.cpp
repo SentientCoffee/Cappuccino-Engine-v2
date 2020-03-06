@@ -5,8 +5,8 @@
 #include <stb/stb_image.h>
 
 Capp::Texture1D::Texture1D(const std::string& filepath) :
-	_texturePath(filepath), _parameters({}) {
-
+	_texturePath(filepath)
+{
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);
 	_data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
@@ -43,7 +43,7 @@ Capp::Texture1D::Texture1D(const std::string& filepath) :
 }
 
 Capp::Texture1D::Texture1D(const unsigned size, void* data) :
-	_size(size), _data(data), _parameters({}) {
+	_size(size), _data(data) {
 
 	_formats.internalFormat = InternalFormat::Red8;
 	_formats.pixelFormat = PixelFormat::Red;
@@ -71,6 +71,8 @@ void Capp::Texture1D::setParameters(const TextureParams& params) {
 	glTextureParameteri(_id, GL_TEXTURE_WRAP_S, static_cast<GLenum>(_parameters.wrapS));
 	glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(_parameters.minFilter));
 	glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(_parameters.magFilter));
+	glTextureParameterf(_id, GL_TEXTURE_MAX_ANISOTROPY, static_cast<float>(_parameters.anisotropyLevel));
+	glTextureParameterfv(_id, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(_parameters.borderColour));
 }
 
 void Capp::Texture1D::createTexture() {

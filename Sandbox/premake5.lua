@@ -1,4 +1,5 @@
 print("Building project \"Sandbox\"...")
+print("")
 project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
@@ -27,6 +28,7 @@ project "Sandbox"
 	files {
 		"include/**.h",
 		"include/**.hpp",
+		"include/**.inl",
 		"src/**.cpp"
 	}
 

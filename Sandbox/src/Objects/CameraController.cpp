@@ -7,8 +7,6 @@ CameraController::CameraController(const unsigned width, const unsigned height) 
 	_camera(60.0f, width, height) {
 	_camera.setPosition(7.5f, 4.5f, 2.5f);
 	_camera.lookAt(0.0f, 0.0f, 0.0f);
-
-	//Capp::Application::getInstance()->getWindow()->disableMouseCursor();
 }
 
 const Capp::PerspectiveCamera& CameraController::getCamera() const { return _camera; }
@@ -43,7 +41,6 @@ void CameraController::update() {
 	if(_mouseHidden) {
 		const glm::vec2 mousePos = Capp::Input::getMousePosition();
 		const glm::vec2 offset = { mousePos.x - _lastPos.x, _lastPos.y - mousePos.y }; // y is reversed since y-coordinates range from bottom to top
-		_lastPos = mousePos;
 	
 		_yaw += offset.x * _mouseSensitivity * Capp::Time::getDeltaTime();
 		_pitch += offset.y * _mouseSensitivity * Capp::Time::getDeltaTime();
@@ -54,8 +51,9 @@ void CameraController::update() {
 		rotation.y = sin(glm::radians(_pitch));
 		rotation.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
 		_camera.lookAt(_camera.getPosition() + glm::normalize(rotation));
+		
+		_lastPos = mousePos;
 	}
-	
 }
 
 void CameraController::onEvent(Capp::Event& e) {
@@ -83,8 +81,7 @@ bool CameraController::onKeyPressed(Capp::KeyPressedEvent& e) {
 	}
 	else {
 		Capp::Application::getInstance()->getWindow()->disableMouseCursor();
-		const glm::vec2 mousePos = Capp::Input::getMousePosition();
-		_lastPos = mousePos;
+		_lastPos = Capp::Input::getMousePosition();
 	}
 	
 	return false;

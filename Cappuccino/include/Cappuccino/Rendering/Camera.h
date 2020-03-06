@@ -24,10 +24,10 @@ namespace Capp {
 			mutable glm::mat4 _viewMatrix = glm::mat4(1.0f);
 			struct {
 				float
-						_leftX,  _upX,    _backX,  _m03,
-						_leftY,  _upY,    _backY,  _m13,
-						_leftZ,  _upZ,    _backZ,  _m23,
-						_transX, _transY, _transZ, _m33;
+					_leftX,  _upX,    _backX,  _m03,
+					_leftY,  _upY,    _backY,  _m13,
+					_leftZ,  _upZ,    _backZ,  _m23,
+					_transX, _transY, _transZ, _m33;
 			};
 		};
 		glm::mat4 _viewProjection = glm::mat4(1.0f);

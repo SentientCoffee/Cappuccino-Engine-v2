@@ -92,6 +92,10 @@ void RenderCommand::disableCulling() {
 	glDisable(GL_CULL_FACE);
 }
 
+void RenderCommand::setCullingMode(CullMode mode) {
+	glCullFace(static_cast<GLenum>(mode));
+}
+
 // ----------------------------------------------------------------
 // ----- Polygon mode ---------------------------------------------
 // ----------------------------------------------------------------

@@ -1,12 +1,36 @@
 #pragma once
 
 #include "Cappuccino/Objects/Transform.h"
+#include "Cappuccino/Rendering/Buffers/Framebuffer.h"
 
 #include <glm/glm.hpp>
 
+
 namespace Capp {
 
-	class DirectionalLight {
+	class Light {
+	public:
+
+		virtual ~Light();
+
+		Framebuffer* getShadowBuffer() const;
+		void setProjection(const glm::mat4& projection);
+		const glm::mat4& getProjectionMatrix() const;
+		const Transform& getTransform() const;
+
+	protected:
+		
+		Light(const glm::vec3& colour);
+
+		Framebuffer* _shadowBuffer;
+		glm::mat4 _shadowProjectionMatrix;
+		
+		Transform _transform;
+		glm::vec3 _colour;
+		
+	};
+	
+	class DirectionalLight : public Light {
 	public:
 
 		DirectionalLight(const glm::vec3& direction = glm::vec3(0.0f), const glm::vec3& colour = glm::vec3(1.0f));
@@ -19,15 +43,10 @@ namespace Capp {
 		const glm::vec3& getColour() const;
 		DirectionalLight& setColour(const glm::vec3& colour);
 		DirectionalLight& setColour(float r, float g, float b);
-
-	private:
-
-		Transform _transform;
-		glm::vec3 _colour;
 		
 	};
 	
-	class PointLight {
+	class PointLight : public Light {
 	public:
 
 		PointLight(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& colour = glm::vec3(1.0f), float attenuation = 0.5f);
@@ -46,13 +65,11 @@ namespace Capp {
 		
 	private:
 
-		Transform _transform;
-		glm::vec3 _colour;
 		float _attenuation;
 		
 	};
 
-	class Spotlight {
+	class Spotlight : public Light {
 	public:
 		
 		Spotlight(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& direction = glm::vec3(0.0f), const glm::vec3& colour = glm::vec3(1.0f), float attenuation = 0.3f, float innerCutoffAngle = 12.5f, float outerCutoffAngle = 17.5f);
@@ -81,8 +98,6 @@ namespace Capp {
 
 	private:
 
-		Transform _transform;
-		glm::vec3 _colour;
 		float _attenuation;
 		float _innerCutoffAngle;
 		float _outerCutoffAngle;

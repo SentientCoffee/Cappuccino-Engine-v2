@@ -30,9 +30,11 @@ namespace Capp {
 	class Renderer {
 	public:
 
+		// Init and shutdown
 		static void init();
 		static void shutdown();
 
+		// Window resized function (for framebuffers)
 		static void onWindowResized(unsigned width, unsigned height);
 
 		// Pre and post rendering

@@ -26,6 +26,7 @@ namespace Capp {
 
 		static void enableCulling();
 		static void disableCulling();
+		static void setCullingMode(CullMode mode);
 
 		static void setDrawMode(DrawMode mode);
 

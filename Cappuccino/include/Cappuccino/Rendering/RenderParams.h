@@ -12,6 +12,12 @@ namespace Capp {
 		NoStencil           = Colour | Depth,				// GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
 		All                 = Colour | Depth | Stencil		// GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT
 	};
+
+	enum class CullMode : unsigned int {
+		FrontFace           = 0x0404,		// GL_FRONT
+		BackFace            = 0x0405,		// GL_BACK
+		Both                = 0x0408		// GL_FRONT_AND_BACK
+	};
 	
 	enum class DrawMode : unsigned int {
 		// From glad.h

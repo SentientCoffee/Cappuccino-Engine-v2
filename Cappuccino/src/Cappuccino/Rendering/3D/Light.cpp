@@ -1,15 +1,43 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Light.h"
 
+#define SHADOW_RESOLUTION 1024
+
 using namespace Capp;
+
+// --------------------------------------------------------------------------
+// ----- Light --------------------------------------------------------------
+// --------------------------------------------------------------------------
+
+
+Light::Light(const glm::vec3& colour) :
+	_colour(colour)
+{
+	_shadowBuffer = new Framebuffer(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
+	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth32F,{ WrapMode::ClampToBorder, MinFilter::Nearest } };
+	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
+}
+
+Light::~Light() {
+	delete _shadowBuffer;
+}
+
+Framebuffer* Light::getShadowBuffer() const { return _shadowBuffer; }
+
+void Light::setProjection(const glm::mat4& projection) { _shadowProjectionMatrix = projection; }
+const glm::mat4& Light::getProjectionMatrix() const { return _shadowProjectionMatrix; }
+const Transform& Light::getTransform() const { return _transform; }
+
 
 // --------------------------------------------------------------------------
 // ----- Directional light --------------------------------------------------
 // --------------------------------------------------------------------------
 
 DirectionalLight::DirectionalLight(const glm::vec3& direction, const glm::vec3& colour) :
-	_colour(colour) {
+	Light(colour)
+{
 	_transform.setRotation(direction);
+	_shadowBuffer->setName("Shadow Buffer (Directional light)");
 }
 
 const glm::vec3& DirectionalLight::getDirection() const { return _transform.getRotation(); }
@@ -31,8 +59,10 @@ DirectionalLight& DirectionalLight::setColour(const float r, const float g, cons
 // --------------------------------------------------------------------------
 
 PointLight::PointLight(const glm::vec3& position, const glm::vec3& colour, const float attenuation) :
-	_colour(colour), _attenuation(attenuation) {
+	Light(colour), _attenuation(attenuation)
+{
 	_transform.setPosition(position);
+	_shadowBuffer->setName("Shadow Buffer (Point light)");
 }
 
 const glm::vec3& PointLight::getPosition() const { return _transform.getPosition(); }
@@ -60,8 +90,10 @@ PointLight& PointLight::setAttenuation(const float attenuation) {
 // --------------------------------------------------------------------------
 
 Spotlight::Spotlight(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& colour, const float attenuation, const float innerCutoffAngle, const float outerCutoffAngle) :
-	_colour(colour), _attenuation(attenuation), _innerCutoffAngle(innerCutoffAngle), _outerCutoffAngle(outerCutoffAngle) {
+	Light(colour), _attenuation(attenuation), _innerCutoffAngle(innerCutoffAngle), _outerCutoffAngle(outerCutoffAngle)
+{
 	_transform.setPosition(position).setRotation(direction);
+	_shadowBuffer->setName("Shadow Buffer (Spotlight)");
 }
 
 const glm::vec3& Spotlight::getPosition() const { return _transform.getPosition(); }

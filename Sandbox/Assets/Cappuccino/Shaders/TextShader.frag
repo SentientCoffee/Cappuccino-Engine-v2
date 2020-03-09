@@ -10,5 +10,4 @@ uniform vec4 uTextColour;
 void main() {
 	vec4 sampled = vec4(1.0, 1.0, 1.0, texture(uTextureSlot, inUV).r);
 	outColour = uTextColour * sampled;
-	//outColour = vec4(inUV, 1.0, 1.0);
 }

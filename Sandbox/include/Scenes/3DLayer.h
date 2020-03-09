@@ -28,7 +28,7 @@ private:
 	CameraController cameraController;
 	bool flashlight = true;
 
-	Capp::Model* plane = nullptr;
+	Capp::Model* floorPlane = nullptr;
 	
 	Captain* captain1 = nullptr;
 	Captain* captain2 = nullptr;

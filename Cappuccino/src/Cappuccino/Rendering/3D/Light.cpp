@@ -1,7 +1,7 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Light.h"
 
-#define SHADOW_RESOLUTION 1024
+#define SHADOW_RESOLUTION 1024u
 
 using namespace Capp;
 
@@ -11,15 +11,20 @@ using namespace Capp;
 
 
 Light::Light(const glm::vec3& colour) :
-	_shadowProjectionMatrix(glm::mat4(1.0f)), _colour(colour)
+	_colour(colour)
 {
 	_shadowBuffer = new Framebuffer(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
-	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth32F,{ WrapMode::ClampToBorder, MinFilter::Nearest } };
+	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth16,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
 	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 
 Light::~Light() {
 	delete _shadowBuffer;
+}
+
+void Light::viewMatrixCalc() {
+	_shadowViewMatrix = glm::inverse(_transform.getLocalTransform());
+	_shadowViewProjection = _shadowProjectionMatrix * _shadowViewMatrix;
 }
 
 Framebuffer* Light::getShadowBuffer() const { return _shadowBuffer; }
@@ -29,8 +34,9 @@ void Light::setShadowResolution(const unsigned resolution) const { _shadowBuffer
 
 void Light::setProjection(const glm::mat4& projection) { _shadowProjectionMatrix = projection; }
 const glm::mat4& Light::getProjectionMatrix() const { return _shadowProjectionMatrix; }
+const glm::mat4& Light::getViewMatrix() const { return _shadowViewMatrix; }
+const glm::mat4& Light::getViewProjection() const { return _shadowViewProjection; }
 const Transform& Light::getTransform() const { return _transform; }
-
 
 // --------------------------------------------------------------------------
 // ----- Directional light --------------------------------------------------
@@ -39,12 +45,17 @@ const Transform& Light::getTransform() const { return _transform; }
 DirectionalLight::DirectionalLight(const glm::vec3& direction, const glm::vec3& colour) :
 	Light(colour)
 {
-	_transform.setRotation(direction);
+	const float maxBound = 10.0f;
+	setProjection(glm::ortho(-maxBound, maxBound, -maxBound, maxBound, -10.0f, 100.0f));
+	setDirection(direction);
 	_shadowBuffer->setName("Shadow Buffer (Directional light)");
 }
 
 const glm::vec3& DirectionalLight::getDirection() const { return _transform.getRotation(); }
 DirectionalLight& DirectionalLight::setDirection(const glm::vec3& direction) {
+	_transform.setPosition(-glm::normalize(direction) * 10.0f);
+	_shadowViewMatrix = glm::lookAt(_transform.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	_shadowViewProjection = _shadowProjectionMatrix * _shadowViewMatrix;
 	_transform.setRotation(direction);
 	return *this;
 }
@@ -64,13 +75,17 @@ DirectionalLight& DirectionalLight::setColour(const float r, const float g, cons
 PointLight::PointLight(const glm::vec3& position, const glm::vec3& colour, const float attenuation) :
 	Light(colour), _attenuation(attenuation)
 {
+	const float aspect = static_cast<float>(_shadowBuffer->getWidth()) / static_cast<float>(_shadowBuffer->getHeight());
+	setProjection(glm::perspective(60.0f, aspect, 0.1f, 100.0f));
 	_transform.setPosition(position);
+	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Point light)");
 }
 
 const glm::vec3& PointLight::getPosition() const { return _transform.getPosition(); }
 PointLight& PointLight::setPosition(const glm::vec3& position) {
 	_transform.setPosition(position);
+	viewMatrixCalc();
 	return *this;
 }
 PointLight& PointLight::setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
@@ -95,13 +110,17 @@ PointLight& PointLight::setAttenuation(const float attenuation) {
 Spotlight::Spotlight(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& colour, const float attenuation, const float innerCutoffAngle, const float outerCutoffAngle) :
 	Light(colour), _attenuation(attenuation), _innerCutoffAngle(innerCutoffAngle), _outerCutoffAngle(outerCutoffAngle)
 {
+	const float aspect = static_cast<float>(_shadowBuffer->getWidth()) / static_cast<float>(_shadowBuffer->getHeight());
+	setProjection(glm::perspective(60.0f, aspect, 0.1f, 100.0f));
 	_transform.setPosition(position).setRotation(direction);
+	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Spotlight)");
 }
 
 const glm::vec3& Spotlight::getPosition() const { return _transform.getPosition(); }
 Spotlight& Spotlight::setPosition(const glm::vec3& position) {
 	_transform.setPosition(position);
+	viewMatrixCalc();
 	return *this;
 }
 Spotlight& Spotlight::setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
@@ -109,6 +128,7 @@ Spotlight& Spotlight::setPosition(const float x, const float y, const float z) {
 const glm::vec3& Spotlight::getDirection() const { return _transform.getRotation(); }
 Spotlight& Spotlight::setDirection(const glm::vec3& direction) {
 	_transform.setRotation(direction);
+	viewMatrixCalc();
 	return *this;
 }
 Spotlight& Spotlight::setDirection(const float x, const float y, const float z) { return setDirection({ x, y, z }); }

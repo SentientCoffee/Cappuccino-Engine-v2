@@ -5,6 +5,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../Camera.h"
+
 
 namespace Capp {
 
@@ -20,15 +22,21 @@ namespace Capp {
 		
 		void setProjection(const glm::mat4& projection);
 		const glm::mat4& getProjectionMatrix() const;
+		const glm::mat4& getViewMatrix() const;
+		const glm::mat4& getViewProjection() const;
 
 		const Transform& getTransform() const;
-
+		
 	protected:
 		
 		Light(const glm::vec3& colour);
 
+		void viewMatrixCalc();
+
 		Framebuffer* _shadowBuffer;
-		glm::mat4 _shadowProjectionMatrix;
+		glm::mat4 _shadowProjectionMatrix = glm::mat4(1.0f);
+		glm::mat4 _shadowViewMatrix = glm::mat4(1.0f);
+		glm::mat4 _shadowViewProjection = glm::mat4(1.0f);
 		
 		Transform _transform;
 		glm::vec3 _colour;
@@ -69,8 +77,9 @@ namespace Capp {
 		PointLight& setAttenuation(float attenuation);
 		
 	private:
-
+		
 		float _attenuation;
+		
 		
 	};
 
@@ -102,7 +111,7 @@ namespace Capp {
 		Spotlight& setOuterCutoffAngle(float angle);
 
 	private:
-
+		
 		float _attenuation;
 		float _innerCutoffAngle;
 		float _outerCutoffAngle;
@@ -114,8 +123,8 @@ namespace Capp {
 		using DirectionalLights = std::vector<DirectionalLight*>;
 		using Spotlights = std::vector<Spotlight*>;
 
-		DirectionalLights directionalLights = {};
-		PointLights pointLights = {};
-		Spotlights spotlights = {};
+		DirectionalLights directionalLights;
+		PointLights pointLights;
+		Spotlights spotlights;
 	};
 }

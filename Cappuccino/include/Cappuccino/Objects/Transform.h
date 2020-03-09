@@ -27,7 +27,7 @@ namespace Capp {
 		Transform& setScale(float scale);
 
 		const glm::mat4& getParentTransform() const;
-		void setParentTransform(const glm::mat4& parent);
+		void setParentTransform(const glm::mat4& parent) const;
 		
 	private:
 
@@ -36,12 +36,11 @@ namespace Capp {
 		mutable bool _transformChanged = false;
 		mutable glm::mat4 _localTransform = glm::mat4(1.0f);
 		mutable glm::mat4 _worldTransform = glm::mat4(1.0f);
+		mutable glm::mat4 _parentTransform = glm::mat4(1.0f);
 		
 		glm::vec3 _position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 _rotation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 _scale    = { 1.0f, 1.0f, 1.0f };
-
-		glm::mat4 _parentTransform = glm::mat4(1.0f);
 	};
 	
 }

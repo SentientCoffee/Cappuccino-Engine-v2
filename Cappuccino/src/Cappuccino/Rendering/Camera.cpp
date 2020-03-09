@@ -15,6 +15,12 @@ const glm::mat4& Camera::getProjectionMatrix() const { return _projectionMatrix;
 const glm::mat4& Camera::getViewMatrix() const { return _viewMatrix; }
 const glm::mat4& Camera::getViewProjection() const { return _viewProjection; }
 
+void Camera::viewMatrixCalc() {
+	_viewMatrix = glm::inverse(_transform.getLocalTransform());
+	_viewProjection = _projectionMatrix * _viewMatrix;
+}
+
+
 // -------------------------------------------------------------
 // ----- Orthographic Camera -----------------------------------
 // -------------------------------------------------------------
@@ -48,12 +54,6 @@ OrthographicCamera& OrthographicCamera::setRotation(const float rotation) {
 	viewMatrixCalc();
 	return *this;
 }
-
-void OrthographicCamera::viewMatrixCalc() {
-	_viewMatrix = glm::inverse(_transform.getLocalTransform());
-	_viewProjection = _projectionMatrix * _viewMatrix;
-}
-
 
 // -------------------------------------------------------------
 // ----- Perspective Camera ------------------------------------
@@ -105,8 +105,3 @@ PerspectiveCamera& PerspectiveCamera::setRotation(const glm::vec3& rotation) {
 	return *this;
 }
 PerspectiveCamera& PerspectiveCamera::setRotation(const float x, const float y, const float z) { return setRotation({ x, y, z }); }
-
-void PerspectiveCamera::viewMatrixCalc() {
-	_viewMatrix = glm::inverse(_transform.getLocalTransform());
-	_viewProjection = _projectionMatrix * _viewMatrix;
-}

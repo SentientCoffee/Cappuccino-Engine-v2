@@ -17,7 +17,7 @@ namespace Capp {
 
 	protected:
 
-		virtual void viewMatrixCalc() = 0;
+		virtual void viewMatrixCalc();
 		
 		glm::mat4 _projectionMatrix = glm::mat4(1.0f);
 		union {
@@ -31,6 +31,8 @@ namespace Capp {
 			};
 		};
 		glm::mat4 _viewProjection = glm::mat4(1.0f);
+
+		Transform _transform;
 
 	};
 
@@ -55,9 +57,6 @@ namespace Capp {
 
 	private:
 
-		void viewMatrixCalc() override;
-
-		Transform _transform;
 		bool _isRotatable = false;
 		
 	};
@@ -87,12 +86,6 @@ namespace Capp {
 		const glm::vec3& getRotation() const;
 		PerspectiveCamera& setRotation(const glm::vec3& rotation);
 		PerspectiveCamera& setRotation(float x, float y, float z);
-		
-	private:
-
-		void viewMatrixCalc() override;
-		
-		Transform _transform;
 		
 	};
 }

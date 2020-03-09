@@ -171,6 +171,7 @@ void Renderer2D::finish() {
 	RenderCommand::setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
 	RenderCommand::clearScreen();
 	RenderCommand::enableDepthTesting();
+	RenderCommand::enableBlending();
 	RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
 	
 	r2DStorage->quadShader->bind();

@@ -19,19 +19,19 @@ namespace Capp {
 		void setMaterial(Material* material);
 
 		const glm::vec3& getPosition() const;
-		Transform& setPosition(const glm::vec3& position);
-		Transform& setPosition(float x, float y, float z);
+		Model& setPosition(const glm::vec3& position);
+		Model& setPosition(float x, float y, float z);
 
 		const glm::vec3& getRotation() const;
-		Transform& setRotation(const glm::vec3& eulerRotation);
-		Transform& setRotation(float x, float y, float z);
+		Model& setRotation(const glm::vec3& eulerRotation);
+		Model& setRotation(float x, float y, float z);
 
 		const glm::vec3& getScale() const;
-		Transform& setScale(const glm::vec3& scale);
-		Transform& setScale(float x, float y, float z);
-		Transform& setScale(float scale);
+		Model& setScale(const glm::vec3& scale);
+		Model& setScale(float x, float y, float z);
+		Model& setScale(float scale);
 
-		Transform& getTransform();
+		const Transform& getTransform() const;
 		
 	private:
 

@@ -2,13 +2,28 @@
 
 void Layer3D::onPush() {
 
+	// -----------------------------------------------------------------
+	// ----- Floor plane -----------------------------------------------
+	// -----------------------------------------------------------------
 
+	{
+		const auto planeMesh = Capp::MeshLibrary::loadMesh("Floor plane", "Assets/Cappuccino/Meshes/Cube.obj");
 
+		unsigned blackTexture = 0x00000000;
+		unsigned whiteTexture = 0xFFFFFFFF;
+		auto planeMaterial = new Capp::Material;
+		planeMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &whiteTexture));
+		planeMaterial->setValue("specular", new Capp::Texture2D(1, 1, &blackTexture));
+		planeMaterial->setValue("emission", new Capp::Texture2D(1, 1, &blackTexture));
+
+		floorPlane = new Capp::Model(planeMesh, planeMaterial);
+		floorPlane->setPosition(0.0f, -1.0f, 0.0f).setScale(20.0f, 0.1f, 20.0f);
+	}
 	
 	// -----------------------------------------------------------------
 	// ----- Game objects ----------------------------------------------
-	// ------------------- ---------------------------------------------
-	
+	// -----------------------------------------------------------------
+
 	{
 		captain1 = new Captain;
 		captain1->setPosition(6.0f, 0.0f, 0.0f).setRotation(0.0, 90.0f, 0.0f);
@@ -26,7 +41,7 @@ void Layer3D::onPush() {
 	
 
 		pointLight = new Capp::PointLight({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
-		dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 1.0f }, { 0.1f, 0.4f, 0.15f });
+		dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 0.0f }, { 0.1f, 0.4f, 0.15f });
 
 		spotlight = new Capp::Spotlight;
 		spotlight->setColour(0.3f, 0.2f, 0.7f).setAttenuation(1.0f / 20.0f).setInnerCutoffAngle(5.0f).setOuterCutoffAngle(22.5f);
@@ -36,7 +51,7 @@ void Layer3D::onPush() {
 
 	// -----------------------------------------------------------------
 	// ----- Skybox ----------------------------------------------------
-	// ------------------- ---------------------------------------------
+	// -----------------------------------------------------------------
 	
 	{
 		const std::vector<std::string> filepaths = {
@@ -54,17 +69,17 @@ void Layer3D::onPush() {
 
 	// -----------------------------------------------------------------
 	// ----- LUTs ------------------------------------------------------
-	// ------------------- ---------------------------------------------
+	// -----------------------------------------------------------------
 	
 	{
-		coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-		warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-		customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+		//coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
+		//warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
+		//customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
 	}
 	
 	// -----------------------------------------------------------------
 	// ----- Post-processing passes ------------------------------------
-	// ------------------- ---------------------------------------------
+	// -----------------------------------------------------------------
 
 	const auto window = Capp::Application::getInstance()->getWindow();
 	const Capp::Attachment mainColour = { Capp::AttachmentType::Texture, Capp::InternalFormat::RGB8 };
@@ -94,6 +109,8 @@ void Layer3D::onPush() {
 }
 
 void Layer3D::onPop() {
+	delete floorPlane;
+	
 	delete captain1;
 	delete captain2;
 	delete f16;
@@ -215,6 +232,7 @@ void Layer3D::update() {
 	
 	Capp::Renderer::start(cameraController.getCamera(), lights, skybox);
 	{
+		Capp::Renderer::addToQueue(floorPlane);
 		Capp::Renderer::addToQueue(captain1);
 		Capp::Renderer::addToQueue(captain2);
 		Capp::Renderer::addToQueue(f16);
@@ -234,13 +252,16 @@ void Layer3D::drawImgui() {
 	{
 		ImGui::Checkbox("Grayscale", &isGray);
 		ImGui::SameLine(); ImGui::Checkbox("Inversion", &isInverted);
-		ImGui::NewLine();
-
 		ImGui::Checkbox("Gamma correction", &isGammaCorrected);
 		if(isGammaCorrected) {
 			ImGui::DragFloat("Gamma", &gamma, 0.1f, 0.01f, 10.0f);
 		}
 		ImGui::NewLine();
+
+		auto deferredLighting = Capp::ShaderLibrary::getShader("Deferred Lighting Default");
+		if(ImGui::Button("Reload deferred lighting shader")) {
+			deferredLighting->reload();
+		}
 	}
 	ImGui::End();
 	

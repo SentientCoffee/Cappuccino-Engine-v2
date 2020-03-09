@@ -6,6 +6,7 @@
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/Textures/Texture1D.h"
 #include "Cappuccino/Rendering/Textures/Texture3D.h"
+#include "Cappuccino/Resource/ShaderLibrary.h"
 
 using namespace Capp;
 
@@ -96,7 +97,7 @@ void Renderer::init() {
 		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/GBufferPass.frag", ShaderStage::Fragment);
 		rStorage->gBufferPass->compile();
 
-		rStorage->deferredLightingPass = new Shader("Deferred Lighting Default");
+		rStorage->deferredLightingPass = ShaderLibrary::loadShader("Deferred Lighting Default");
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.frag", ShaderStage::Fragment);
 		rStorage->deferredLightingPass->compile();
@@ -190,12 +191,12 @@ void Renderer::init() {
 	{
 		rStorage->gBuffer = new Framebuffer(window->getWidth(), window->getHeight());
 		rStorage->gBuffer->setName("GBuffer");
-		const Attachment position     = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::Repeat, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
+		const Attachment position     = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment depthStencil = { AttachmentType::Texture, InternalFormat::Depth24_Stencil8 };
 
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, position);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour1, normal);
@@ -379,38 +380,30 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	RenderCommand::setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
 	RenderCommand::enableDepthTesting();
 	RenderCommand::enableCulling();
-	RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
+	RenderCommand::disableBlending();
 
 	// --------------------------------------------------
 	// ----- Shadow mapping -----------------------------
 	// --------------------------------------------------
 	
+	std::deque<Light*> allLights;
 	{
-		RenderCommand::setCullingMode(CullMode::FrontFace);
-		std::deque<Light*> allLights;
+		//RenderCommand::setCullingMode(CullMode::FrontFace);
 		
 		for(auto light : rStorage->activeLights.directionalLights) {
-			const float maxBound = 10.0f;
-			light->setProjection(glm::ortho(-maxBound, maxBound, -maxBound, maxBound, -10.0f, 100.0f));
 			allLights.push_back(light);
 		}
 
 		for(auto light : rStorage->activeLights.pointLights) {
-			const auto aspect = static_cast<float>(light->getShadowBuffer()->getWidth()) / static_cast<float>(light->getShadowBuffer()->getHeight());
-			light->setProjection(glm::perspective(60.0f, aspect, 0.1f, 100.0f));
 			allLights.push_back(light);
 		}
 		
 		for(auto light : rStorage->activeLights.spotlights) {
-			const auto aspect = static_cast<float>(light->getShadowBuffer()->getWidth()) / static_cast<float>(light->getShadowBuffer()->getHeight());
-			light->setProjection(glm::perspective(light->getOuterCutoffAngle(), aspect, 0.1f, 100.0f));
 			allLights.push_back(light);
 		}
 
-		while(!allLights.empty()) {
-			const auto light = allLights.front();
-
-			// 
+		for(auto light : allLights) {
+			// Shadow map
 			light->getShadowBuffer()->bind();
 			RenderCommand::setViewport(0, 0, light->getShadowBuffer()->getWidth(), light->getShadowBuffer()->getHeight());
 			RenderCommand::clearScreen(ClearFlags::Depth);
@@ -423,7 +416,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					const auto mesh = model->getMesh();
 
 					rStorage->shadowPass->bind();
-					rStorage->shadowPass->setUniform<Mat4>("uViewProjection", glm::inverse(light->getTransform().getWorldTransform()) * light->getProjectionMatrix());
+					rStorage->shadowPass->setUniform<Mat4>("uViewProjection", light->getViewProjection());
 					rStorage->shadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
 
 					mesh->getVAO()->bind();
@@ -439,7 +432,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			allLights.pop_front();
 		}
 
-		RenderCommand::setCullingMode(CullMode::BackFace);
+		//RenderCommand::setCullingMode(CullMode::BackFace);
 	}
 
 	// --------------------------------------------------
@@ -473,7 +466,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				shader->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
 				shader->setUniform<Mat4>("uView", rStorage->perspectiveCamera.getViewMatrix());
 				shader->setUniform<Mat4>("uProjection", rStorage->perspectiveCamera.getProjectionMatrix());
-				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(model->getTransform().getWorldTransform()))));
+				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(rStorage->perspectiveCamera.getViewMatrix() * model->getTransform().getWorldTransform()))));
 				shader->setUniform<Float>("uGamma", rStorage->gamma);
 				model->getMaterial()->apply();
 
@@ -492,12 +485,17 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 		RenderCommand::disableDepthTesting();
 		RenderCommand::disableCulling();
-		
+
 		// Lighting and shadow pass
+		RenderCommand::enableBlending();
+		RenderCommand::setBlendFunction(SourceFactor::One, DestinationFactor::One);
+		
 		rStorage->deferredComposite->bind();
 		RenderCommand::setViewport(0, 0, rStorage->deferredComposite->getWidth(), rStorage->deferredComposite->getHeight());
 		RenderCommand::clearScreen();
 		{
+			rStorage->fullscreenQuad->getVAO()->bind();
+			
 			auto shader = rStorage->deferredLightingPass;
 			
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
@@ -505,54 +503,82 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour2)->bind(2);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour3)->bind(3);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour4)->bind(4);
-			shader->bind();
+			//rStorage->gBuffer->getAttachment(AttachmentTarget::DepthStencil)->bind(5);
 
+			shader->bind();
 			shader->setUniform<Int>("uGBuffer.position",  0);
 			shader->setUniform<Int>("uGBuffer.normal",    1);
 			shader->setUniform<Int>("uGBuffer.albedo",    2);
 			shader->setUniform<Int>("uGBuffer.specRough", 3);
 			shader->setUniform<Int>("uGBuffer.emission",  4);
+			//shader->setUniform<Int>("uCameraDepth",       5);
 
-			shader->setUniform<Int>("uNumPointLights", static_cast<int>(rStorage->activeLights.pointLights.size()));
-			shader->setUniform<Int>("uNumDirectionalLights", static_cast<int>(rStorage->activeLights.directionalLights.size()));
-			shader->setUniform<Int>("uNumSpotlights", static_cast<int>(rStorage->activeLights.spotlights.size()));
+			//shader->setUniform<Mat4>("uProjectionInverse", glm::inverse(rStorage->perspectiveCamera.getProjectionMatrix()));
 
 			shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 			shader->setUniform<Float>("uAmbientPower", 0.3f);
 
 			for(unsigned i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
 				const auto light = rStorage->activeLights.directionalLights[i];
+				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+
+				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
+
+				shader->setUniform<Bool> ("uIsDirectional", true);
+				shader->setUniform<Bool> ("uIsPoint",       false);
+				shader->setUniform<Bool> ("uIsSpotlight",   false);
 				
-				shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", light->getDirection());
-				shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour",    light->getColour());
-				shader->setUniform<Mat4>("uDirectionalLights[" + std::to_string(i) + "].view",      light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
+				shader->setUniform<Vec3>("uDirectionalLight.direction", glm::mat3(rStorage->perspectiveCamera.getViewMatrix()) * light->getDirection());
+				shader->setUniform<Vec3>("uDirectionalLight.colour",    light->getColour());
+				shader->setUniform<Mat4>("uDirectionalLight.viewSpace", lightViewSpace);
+				shader->setUniform<Int> ("uShadowMap",                  6);
+				
+				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 			}
 
 			for(unsigned i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
 				const auto light = rStorage->activeLights.pointLights[i];
+				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+
+				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
+
+				shader->setUniform<Bool> ("uIsDirectional", false);
+				shader->setUniform<Bool> ("uIsPoint",       true);
+				shader->setUniform<Bool> ("uIsSpotlight",   false);
 				
-				shader->setUniform<Vec3> ("uPointLights[" + std::to_string(i) + "].position",     light->getPosition());
-				shader->setUniform<Vec3> ("uPointLights[" + std::to_string(i) + "].colour",       light->getColour());
-				shader->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation",  light->getAttenuation());
-				shader->setUniform<Mat4> ("uPointLights[" + std::to_string(i) + "].view",         light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
+				shader->setUniform<Vec3> ("uPointLight.position",     light->getPosition());
+				shader->setUniform<Vec3> ("uPointLight.colour",       light->getColour());
+				shader->setUniform<Float>("uPointLight.attenuation",  light->getAttenuation());
+				shader->setUniform<Mat4> ("uPointLight.viewSpace",    lightViewSpace);
+				shader->setUniform<Int>  ("uShadowMap",               6);
+				
+				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 			}
 
 			for(unsigned i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
 				const auto light = rStorage->activeLights.spotlights[i];
-				
-				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].position",         light->getPosition());
-				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].direction",        light->getDirection());
-				shader->setUniform<Vec3> ("uSpotlights[" + std::to_string(i) + "].colour",           light->getColour());
-				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].attenuation",      light->getAttenuation());
-				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].innerCutoffAngle", glm::cos(glm::radians(light->getInnerCutoffAngle())));
-				shader->setUniform<Float>("uSpotlights[" + std::to_string(i) + "].outerCutoffAngle", glm::cos(glm::radians(light->getOuterCutoffAngle())));
-				shader->setUniform<Mat4> ("uSpotlights[" + std::to_string(i) + "].view",             light->getProjectionMatrix() * glm::inverse(light->getTransform().getWorldTransform()));
-			}
+				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
 
-			rStorage->fullscreenQuad->getVAO()->bind();
-			RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
+
+				shader->setUniform<Bool> ("uIsDirectional", false);
+				shader->setUniform<Bool> ("uIsPoint",       false);
+				shader->setUniform<Bool> ("uIsSpotlight",   true);
+				
+				shader->setUniform<Vec3> ("uSpotlight.position",         light->getPosition());
+				shader->setUniform<Vec3> ("uSpotlight.direction",        glm::mat3(rStorage->perspectiveCamera.getViewMatrix()) * light->getDirection());
+				shader->setUniform<Vec3> ("uSpotlight.colour",           light->getColour());
+				shader->setUniform<Float>("uSpotlight.attenuation",      light->getAttenuation());
+				shader->setUniform<Float>("uSpotlight.innerCutoffAngle", glm::cos(glm::radians(light->getInnerCutoffAngle())));
+				shader->setUniform<Float>("uSpotlight.outerCutoffAngle", glm::cos(glm::radians(light->getOuterCutoffAngle())));
+				shader->setUniform<Mat4> ("uSpotlight.viewSpace",        lightViewSpace);
+				shader->setUniform<Int>  ("uShadowMap",                  6);
+				
+				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+			}
 		}
 		rStorage->deferredComposite->unbind();
+		RenderCommand::disableBlending();
 
 		// Copy depth info to deferred composite buffer to be able to render skybox
 		{
@@ -622,6 +648,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		#endif
 
 		// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
+		RenderCommand::enableBlending();
+		RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
 		#if 0
 		// Forward rendering
 		{

@@ -49,7 +49,7 @@ Transform& Transform::setScale(const float scale) {
 }
 
 const glm::mat4& Transform::getParentTransform() const { return _parentTransform; }
-void Transform::setParentTransform(const glm::mat4& parent) {
+void Transform::setParentTransform(const glm::mat4& parent) const {
 	_transformChanged = true;
 	_parentTransform = parent;
 }
@@ -60,8 +60,8 @@ void Transform::calculateTransform() const {
 	}
 
 	_localTransform = glm::translate(glm::mat4(1.0f), _position) *
-			glm::mat4_cast(glm::quat(glm::radians(_rotation))) *
-			glm::scale(glm::mat4(1.0f), _scale);
+		glm::mat4_cast(glm::quat(glm::radians(_rotation))) *
+		glm::scale(glm::mat4(1.0f), _scale);
 
 	_worldTransform = _parentTransform * _localTransform;
 

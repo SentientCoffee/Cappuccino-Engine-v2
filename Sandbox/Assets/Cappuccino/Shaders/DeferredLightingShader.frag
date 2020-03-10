@@ -68,13 +68,6 @@ struct GBuffer {
 uniform vec3 uAmbientColour;
 uniform float uAmbientPower;
 
-// uniform int uNumDirectionalLights;
-// uniform int uNumPointLights;
-// uniform int uNumSpotlights;
-// uniform DirectionalLight uDirectionalLights[MAX_DIR_LIGHTS];
-// uniform PointLight uPointLights[MAX_POINT_LIGHTS];
-// uniform Spotlight uSpotlights[MAX_SPOTLIGHTS];
-
 uniform bool uIsDirectional;
 uniform DirectionalLight uDirectionalLight;
 
@@ -84,17 +77,18 @@ uniform PointLight uPointLight;
 uniform bool uIsSpotlight;
 uniform Spotlight uSpotlight;
 
-uniform mat4 uLightViewSpace;
-uniform sampler2D uShadowMap;
-uniform float uShadowBias = 0.01;
+uniform float uShadowBias = 0.001;
 
 uniform GBuffer uGBuffer;
+uniform sampler2D uShadowMap;
+uniform mat4 uLightViewSpace;
 
 // -----------------------------------------------
 // ----- Functions -------------------------------
 // -----------------------------------------------
 
 float calculateShadowPCF(vec3 viewPosition, float bias);
+float calculateProjShadowPCF(vec4 viewPosition, float bias);
 vec3 calculateDirectionalLight(DirectionalLight light, Material material, vec4 viewPosition, vec3 normal, vec3 viewDirection);
 vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition, vec3 normal, vec3 viewDirection);
 vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, vec3 normal, vec3 viewDirection);
@@ -106,7 +100,7 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, v
 void main() {
 	// Get world position from clip space
 	vec4 viewPosition = vec4(texture(uGBuffer.position, inFrag.uv).rgb, 1.0);
-	if(length(viewPosition.xyz) == 0.0) {
+	if(length(viewPosition) == 0.0) {
 		discard;
 	}
 
@@ -119,27 +113,15 @@ void main() {
 
 	vec3 viewDirection = normalize(-viewPosition.xyz);
 	vec3 result = uAmbientColour * uAmbientPower * material.diffuse;
-
-	// for(int i = 0; i < uNumDirectionalLights; ++i) {
-	// 	if(i >= MAX_DIR_LIGHTS) break;
-	// 	result += calculateDirectionalLight(uDirectionalLights[i], material, viewPosition, normal, viewDirection);
-	// }
+	
 	if(uIsDirectional) {
 		result += calculateDirectionalLight(uDirectionalLight, material, viewPosition, normal, viewDirection);
 	}
 
-	// for(int i = 0; i < uNumPointLights; ++i) {
-	// 	if(i >= MAX_POINT_LIGHTS) break;
-	// 	result += calculatePointLight(uPointLights[i], material, viewPosition, normal, viewDirection);
-	// }
 	if(uIsPoint) {
 		result += calculatePointLight(uPointLight, material, viewPosition, normal, viewDirection);
 	}
 
-	// for(int i = 0; i < uNumSpotlights; ++i) {
-	// 	if(i >= MAX_SPOTLIGHTS) break;
-	// 	result += calculateSpotlight(uSpotlights[i], material, viewPosition, normal, viewDirection);
-	// }
 	if(uIsSpotlight) {
 		result += calculateSpotlight(uSpotlight, material, viewPosition, normal, viewDirection);
 	}
@@ -167,8 +149,24 @@ float calculateShadowPCF(vec3 shadowPosition, float bias) {
 	return result;
 }
 
+float calculateProjShadowPCF(vec4 shadowPosition, float bias) {
+	float result = 0.0;
+	vec2 texelSize = 1.0 / textureSize(uShadowMap, 0);
+
+	for(int x = -1; x <= 1; ++x) { 
+		for(int y = -1; y <= 1; ++y) {
+			float pcfDepth = texture(uShadowMap, ((shadowPosition.xy + vec2(x, y)) / shadowPosition.w) * texelSize).r;
+			result += ((shadowPosition.z - bias) / shadowPosition.w) > pcfDepth ? 1.0 : 0.0;
+		}
+	}
+
+	result /= 9.0; // Average our sum
+	return result;
+}
+
 vec3 calculateDirectionalLight(DirectionalLight light, Material material, vec4 viewPosition, vec3 normal, vec3 viewDirection) {
 	vec3 lightDirection = normalize(-light.direction);
+	lightDirection = normalize(lightDirection);
 
 	// Diffuse component
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
@@ -185,12 +183,15 @@ vec3 calculateDirectionalLight(DirectionalLight light, Material material, vec4 v
 	vec3 rim = light.colour * rimPower * material.diffuse;
 
 	// Shadow component
-	vec4 shadowPosition = light.viewSpace * viewPosition;
-	shadowPosition /= shadowPosition.w;
+	vec4 shadowPosition = uLightViewSpace * viewPosition;
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
 	float shadow = calculateShadowPCF(shadowPosition.xyz, bias);
+
+	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
+		shadow = 0.0;
+	}
 
 	return (1.0 - shadow) * (diffuse + specular + rim);
 }
@@ -218,12 +219,16 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
 
 	// Shadow component
-	vec4 shadowPosition = light.viewSpace * viewPosition;
+	vec4 shadowPosition = uLightViewSpace * viewPosition;
 	shadowPosition /= shadowPosition.w;
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
 	float shadow = calculateShadowPCF(shadowPosition.xyz, bias);
+
+	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
+		shadow = 0.0;
+	}
 
 	return (1.0 - shadow) * attenuation * (diffuse + specular + rim);
 }
@@ -256,12 +261,16 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, v
 	float intensity = clamp((theta - light.outerCutoffAngle) / epsilon, 0.0, 1.0);
 
 	// Shadow component
-	vec4 shadowPosition = light.viewSpace * viewPosition;
+	vec4 shadowPosition = uLightViewSpace * viewPosition;
 	shadowPosition /= shadowPosition.w;
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
-	float shadow = calculateShadowPCF(shadowPosition.xyz, bias);
+	float shadow = calculateProjShadowPCF(shadowPosition, bias);
 
-	return (1.0 - shadow) * intensity * attenuation * (diffuse + specular + rim);
+	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
+		shadow = 0.0;
+	}
+
+	return /*(1.0 - shadow) */ intensity * attenuation * (diffuse + specular + rim);
 }

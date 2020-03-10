@@ -35,7 +35,7 @@ namespace Capp {
 		Stencil8            = 0x8D48,		// GL_STENCIL_INDEX8
 		Stencil16           = 0x8D49,		// GL_STENCIL_INDEX16
 		
-		Depth24_Stencil8    = 0x88F0,		// GL_DEPTH24_STENCIL8
+		Depth24Stencil8     = 0x88F0,		// GL_DEPTH24_STENCIL8
 	};
 
 	enum class PixelFormat : unsigned int {

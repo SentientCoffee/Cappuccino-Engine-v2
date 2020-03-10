@@ -26,6 +26,10 @@ struct RendererStorage {
 	Shader* gBufferPass          = nullptr;
 	Shader* deferredLightingPass = nullptr;
 
+	Shader* dDirectionalLightPass = nullptr;
+	Shader* dPointLightPass = nullptr;
+	Shader* dSpotlightPass = nullptr;
+
 	Lights defaultLights;
 	Lights activeLights;
 
@@ -101,6 +105,21 @@ void Renderer::init() {
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.frag", ShaderStage::Fragment);
 		rStorage->deferredLightingPass->compile();
+
+		rStorage->dDirectionalLightPass = ShaderLibrary::loadShader("Deferred Directional Lighting Default");
+		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingDirectional.frag", ShaderStage::Fragment);
+		rStorage->dDirectionalLightPass->compile();
+
+		rStorage->dPointLightPass = ShaderLibrary::loadShader("Deferred Point Lighting Default");
+		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingPointLight.frag", ShaderStage::Fragment);
+		rStorage->dPointLightPass->compile();
+
+		rStorage->dSpotlightPass = ShaderLibrary::loadShader("Deferred Spotlighting Default");
+		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingSpotlight.frag", ShaderStage::Fragment);
+		rStorage->dSpotlightPass->compile();
 	}
 
 	// --------------------------------------------------
@@ -196,7 +215,7 @@ void Renderer::init() {
 		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
 		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
 		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment depthStencil = { AttachmentType::Texture, InternalFormat::Depth24_Stencil8 };
+		const Attachment depthStencil = { AttachmentType::Texture, InternalFormat::Depth24Stencil8 };
 
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, position);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour1, normal);
@@ -214,7 +233,7 @@ void Renderer::init() {
 		rStorage->deferredComposite = new Framebuffer(window->getWidth(), window->getHeight());
 		rStorage->deferredComposite->setName("Deferred Composite Framebuffer");
 		const Attachment mainColour   = { AttachmentType::Texture, InternalFormat::RGBA8 };
-		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
+		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24Stencil8 };
 		rStorage->deferredComposite->addAttachment(AttachmentTarget::Colour0, mainColour);
 		rStorage->deferredComposite->addAttachment(AttachmentTarget::DepthStencil, depthStencil);
 	}
@@ -388,7 +407,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	
 	std::deque<Light*> allLights;
 	{
-		//RenderCommand::setCullingMode(CullMode::FrontFace);
+		RenderCommand::setCullingMode(CullMode::FrontFace);
 		
 		for(auto light : rStorage->activeLights.directionalLights) {
 			allLights.push_back(light);
@@ -432,7 +451,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			allLights.pop_front();
 		}
 
-		//RenderCommand::setCullingMode(CullMode::BackFace);
+		RenderCommand::setCullingMode(CullMode::BackFace);
 	}
 
 	// --------------------------------------------------
@@ -494,87 +513,103 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::setViewport(0, 0, rStorage->deferredComposite->getWidth(), rStorage->deferredComposite->getHeight());
 		RenderCommand::clearScreen();
 		{
-			rStorage->fullscreenQuad->getVAO()->bind();
-			
-			auto shader = rStorage->deferredLightingPass;
-			
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour1)->bind(1);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour2)->bind(2);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour3)->bind(3);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour4)->bind(4);
 			//rStorage->gBuffer->getAttachment(AttachmentTarget::DepthStencil)->bind(5);
+			rStorage->fullscreenQuad->getVAO()->bind();
 
-			shader->bind();
-			shader->setUniform<Int>("uGBuffer.position",  0);
-			shader->setUniform<Int>("uGBuffer.normal",    1);
-			shader->setUniform<Int>("uGBuffer.albedo",    2);
-			shader->setUniform<Int>("uGBuffer.specRough", 3);
-			shader->setUniform<Int>("uGBuffer.emission",  4);
-			//shader->setUniform<Int>("uCameraDepth",       5);
+			// Directional lights
+			auto shader = rStorage->dDirectionalLightPass;
+			{
+				shader->bind();
+				shader->setUniform<Int>("uGBuffer.position", 0);
+				shader->setUniform<Int>("uGBuffer.normal", 1);
+				shader->setUniform<Int>("uGBuffer.albedo", 2);
+				shader->setUniform<Int>("uGBuffer.specRough", 3);
+				shader->setUniform<Int>("uGBuffer.emission", 4);
 
-			//shader->setUniform<Mat4>("uProjectionInverse", glm::inverse(rStorage->perspectiveCamera.getProjectionMatrix()));
-
-			shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
-			shader->setUniform<Float>("uAmbientPower", 0.3f);
-
-			for(unsigned i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
-				const auto light = rStorage->activeLights.directionalLights[i];
-				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
-
-				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
-
-				shader->setUniform<Bool> ("uIsDirectional", true);
-				shader->setUniform<Bool> ("uIsPoint",       false);
-				shader->setUniform<Bool> ("uIsSpotlight",   false);
+				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
+				shader->setUniform<Float>("uAmbientPower", 0.3f);
+			
+				for(auto dLight : rStorage->activeLights.directionalLights) {
+					dLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
 				
-				shader->setUniform<Vec3>("uDirectionalLight.direction", glm::mat3(rStorage->perspectiveCamera.getViewMatrix()) * light->getDirection());
-				shader->setUniform<Vec3>("uDirectionalLight.colour",    light->getColour());
-				shader->setUniform<Mat4>("uDirectionalLight.viewSpace", lightViewSpace);
-				shader->setUniform<Int> ("uShadowMap",                  6);
 				
-				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(dLight->getViewMatrix());
+				
+					shader->setUniform<Vec3>("uDirectionalLight.direction", glm::mat3(lightViewToCameraView) * glm::vec3(0.0f, 0.0f, -1.0f));
+					shader->setUniform<Vec3>("uDirectionalLight.colour", dLight->getColour());
+					shader->setUniform<Mat4>("uLightViewSpace", dLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
+					shader->setUniform<Int>("uShadowMap", 6);
+					shader->setUniform<Float>("uShadowBias", 0.001f);
+				
+					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+				}
 			}
 
-			for(unsigned i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
-				const auto light = rStorage->activeLights.pointLights[i];
-				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
 
-				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
+			// Point lights
+			shader = rStorage->dPointLightPass;
+			{
+				shader->bind();
+				shader->setUniform<Int>("uGBuffer.position", 0);
+				shader->setUniform<Int>("uGBuffer.normal", 1);
+				shader->setUniform<Int>("uGBuffer.albedo", 2);
+				shader->setUniform<Int>("uGBuffer.specRough", 3);
+				shader->setUniform<Int>("uGBuffer.emission", 4);
 
-				shader->setUniform<Bool> ("uIsDirectional", false);
-				shader->setUniform<Bool> ("uIsPoint",       true);
-				shader->setUniform<Bool> ("uIsSpotlight",   false);
+				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
+				shader->setUniform<Float>("uAmbientPower", 0.3f);
+				shader->setUniform<Float>("uShadowBias", 0.001f);
+
+				for(auto pLight : rStorage->activeLights.pointLights) {
+					pLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+
+					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(pLight->getViewMatrix());
 				
-				shader->setUniform<Vec3> ("uPointLight.position",     light->getPosition());
-				shader->setUniform<Vec3> ("uPointLight.colour",       light->getColour());
-				shader->setUniform<Float>("uPointLight.attenuation",  light->getAttenuation());
-				shader->setUniform<Mat4> ("uPointLight.viewSpace",    lightViewSpace);
-				shader->setUniform<Int>  ("uShadowMap",               6);
+					shader->setUniform<Vec3>("uPointLight.position", glm::vec3(lightViewToCameraView * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+					shader->setUniform<Vec3>("uPointLight.colour", pLight->getColour());
+					shader->setUniform<Float>("uPointLight.attenuation", pLight->getAttenuation());
+					shader->setUniform<Mat4>("uLightViewSpace", pLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
+					shader->setUniform<Int>("uShadowMap", 6);
 				
-				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+				}
 			}
 
-			for(unsigned i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
-				const auto light = rStorage->activeLights.spotlights[i];
-				light->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+			// Spotlights
+			shader = rStorage->dSpotlightPass;
+			{
+				shader->bind();
+				shader->setUniform<Int>("uGBuffer.position", 0);
+				shader->setUniform<Int>("uGBuffer.normal", 1);
+				shader->setUniform<Int>("uGBuffer.albedo", 2);
+				shader->setUniform<Int>("uGBuffer.specRough", 3);
+				shader->setUniform<Int>("uGBuffer.emission", 4);
 
-				glm::mat4 lightViewSpace = light->getProjectionMatrix() * light->getViewMatrix() * glm::inverse(rStorage->perspectiveCamera.getViewMatrix());
+				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
+				shader->setUniform<Float>("uAmbientPower", 0.3f);
+				shader->setUniform<Float>("uShadowBias", 0.001f);
 
-				shader->setUniform<Bool> ("uIsDirectional", false);
-				shader->setUniform<Bool> ("uIsPoint",       false);
-				shader->setUniform<Bool> ("uIsSpotlight",   true);
+				for(auto sLight : rStorage->activeLights.spotlights) {
+					sLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+
+					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(sLight->getViewMatrix());
+
+					shader->setUniform<Vec3>("uSpotlight.position", glm::vec3(lightViewToCameraView * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+					shader->setUniform<Vec3>("uSpotlight.direction", glm::mat3(lightViewToCameraView) * glm::vec3(0.0f, 0.0f, -1.0f));
+					shader->setUniform<Vec3>("uSpotlight.colour", sLight->getColour());
+					shader->setUniform<Float>("uSpotlight.attenuation", sLight->getAttenuation());
+					shader->setUniform<Float>("uSpotlight.innerCutoffAngle", glm::cos(glm::radians(sLight->getInnerCutoffAngle())));
+					shader->setUniform<Float>("uSpotlight.outerCutoffAngle", glm::cos(glm::radians(sLight->getOuterCutoffAngle())));
+					shader->setUniform<Mat4>("uLightViewSpace", sLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
+					shader->setUniform<Int>("uShadowMap", 6);
 				
-				shader->setUniform<Vec3> ("uSpotlight.position",         light->getPosition());
-				shader->setUniform<Vec3> ("uSpotlight.direction",        glm::mat3(rStorage->perspectiveCamera.getViewMatrix()) * light->getDirection());
-				shader->setUniform<Vec3> ("uSpotlight.colour",           light->getColour());
-				shader->setUniform<Float>("uSpotlight.attenuation",      light->getAttenuation());
-				shader->setUniform<Float>("uSpotlight.innerCutoffAngle", glm::cos(glm::radians(light->getInnerCutoffAngle())));
-				shader->setUniform<Float>("uSpotlight.outerCutoffAngle", glm::cos(glm::radians(light->getOuterCutoffAngle())));
-				shader->setUniform<Mat4> ("uSpotlight.viewSpace",        lightViewSpace);
-				shader->setUniform<Int>  ("uShadowMap",                  6);
-				
-				RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
+				}
 			}
 		}
 		rStorage->deferredComposite->unbind();

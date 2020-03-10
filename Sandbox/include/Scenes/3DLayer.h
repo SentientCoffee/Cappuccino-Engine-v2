@@ -29,6 +29,8 @@ private:
 	bool flashlight = true;
 
 	Capp::Model* floorPlane = nullptr;
+	Capp::Model* pointLightCube = nullptr;
+	Capp::Model* spotlightCube = nullptr;
 	
 	Captain* captain1 = nullptr;
 	Captain* captain2 = nullptr;

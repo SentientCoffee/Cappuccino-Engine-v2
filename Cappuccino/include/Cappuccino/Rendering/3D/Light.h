@@ -25,9 +25,9 @@ namespace Capp {
 		const glm::mat4& getViewMatrix() const;
 		const glm::mat4& getViewProjection() const;
 
-		const Transform& getTransform() const;
-		
 	protected:
+		
+		const Transform& getTransform() const;
 		
 		Light(const glm::vec3& colour);
 

@@ -1,7 +1,7 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/3D/Light.h"
 
-#define SHADOW_RESOLUTION 1024u
+#define SHADOW_RESOLUTION 4096u
 
 using namespace Capp;
 
@@ -54,7 +54,16 @@ DirectionalLight::DirectionalLight(const glm::vec3& direction, const glm::vec3& 
 const glm::vec3& DirectionalLight::getDirection() const { return _transform.getRotation(); }
 DirectionalLight& DirectionalLight::setDirection(const glm::vec3& direction) {
 	_transform.setPosition(-glm::normalize(direction) * 10.0f);
-	_shadowViewMatrix = glm::lookAt(_transform.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 upVec;
+	
+	if(glm::normalize(direction) == glm::vec3(0.0f, 1.0f, 0.0f) || glm::normalize(direction) == glm::vec3(0.0f, -1.0f, 0.0f)) {
+		upVec = glm::vec3(0.0f, 0.0f, 1.0f);
+	}
+	else {
+		upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+	}
+	
+	_shadowViewMatrix = glm::lookAt(_transform.getPosition(), glm::vec3(0.0f), upVec);
 	_shadowViewProjection = _shadowProjectionMatrix * _shadowViewMatrix;
 	_transform.setRotation(direction);
 	return *this;
@@ -76,7 +85,7 @@ PointLight::PointLight(const glm::vec3& position, const glm::vec3& colour, const
 	Light(colour), _attenuation(attenuation)
 {
 	const float aspect = static_cast<float>(_shadowBuffer->getWidth()) / static_cast<float>(_shadowBuffer->getHeight());
-	setProjection(glm::perspective(60.0f, aspect, 0.1f, 100.0f));
+	setProjection(glm::perspective(glm::radians(90.0f), aspect, 0.1f, 100.0f));
 	_transform.setPosition(position);
 	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Point light)");
@@ -111,7 +120,7 @@ Spotlight::Spotlight(const glm::vec3& position, const glm::vec3& direction, cons
 	Light(colour), _attenuation(attenuation), _innerCutoffAngle(innerCutoffAngle), _outerCutoffAngle(outerCutoffAngle)
 {
 	const float aspect = static_cast<float>(_shadowBuffer->getWidth()) / static_cast<float>(_shadowBuffer->getHeight());
-	setProjection(glm::perspective(60.0f, aspect, 0.1f, 100.0f));
+	setProjection(glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f));
 	_transform.setPosition(position).setRotation(direction);
 	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Spotlight)");
@@ -148,12 +157,12 @@ Spotlight& Spotlight::setAttenuation(const float attenuation) {
 
 float Spotlight::getInnerCutoffAngle() const { return _innerCutoffAngle; }
 Spotlight& Spotlight::setInnerCutoffAngle(const float angle) {
-	_innerCutoffAngle = angle;
+	_innerCutoffAngle = glm::min(angle, _outerCutoffAngle);
 	return *this;
 }
 
 float Spotlight::getOuterCutoffAngle() const { return _outerCutoffAngle; }
 Spotlight& Spotlight::setOuterCutoffAngle(const float angle) {
-	_outerCutoffAngle = angle;
+	_outerCutoffAngle = glm::max(angle, _innerCutoffAngle);
 	return *this;
 }

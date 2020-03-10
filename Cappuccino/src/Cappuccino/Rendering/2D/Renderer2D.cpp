@@ -124,7 +124,7 @@ void Renderer2D::init() {
 		r2DStorage->mainBuffer = new Framebuffer(window->getWidth(), window->getHeight());
 		r2DStorage->mainBuffer->setName("Main 2D Framebuffer");
 		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGBA8 };
-		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24_Stencil8 };
+		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24Stencil8 };
 		r2DStorage->mainBuffer->addAttachment(AttachmentTarget::Colour0, mainColour);
 		r2DStorage->mainBuffer->addAttachment(AttachmentTarget::DepthStencil, depthStencil);
 	}

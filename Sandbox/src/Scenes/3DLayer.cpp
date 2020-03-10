@@ -3,21 +3,26 @@
 void Layer3D::onPush() {
 
 	// -----------------------------------------------------------------
-	// ----- Floor plane -----------------------------------------------
+	// ----- Cubes -----------------------------------------------------
 	// -----------------------------------------------------------------
 
 	{
-		const auto planeMesh = Capp::MeshLibrary::loadMesh("Floor plane", "Assets/Cappuccino/Meshes/Cube.obj");
-
 		unsigned blackTexture = 0x00000000;
 		unsigned whiteTexture = 0xFFFFFFFF;
-		auto planeMaterial = new Capp::Material;
-		planeMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &whiteTexture));
-		planeMaterial->setValue("specular", new Capp::Texture2D(1, 1, &blackTexture));
-		planeMaterial->setValue("emission", new Capp::Texture2D(1, 1, &blackTexture));
+		auto whiteMaterial = new Capp::Material;
+		whiteMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &whiteTexture));
+		whiteMaterial->setValue("specular", new Capp::Texture2D(1, 1, &blackTexture));
+		whiteMaterial->setValue("emission", new Capp::Texture2D(1, 1, &blackTexture));
 
-		floorPlane = new Capp::Model(planeMesh, planeMaterial);
-		floorPlane->setPosition(0.0f, -1.0f, 0.0f).setScale(20.0f, 0.1f, 20.0f);
+		const auto cubeMesh = Capp::MeshLibrary::loadMesh("Floor plane", "Assets/Cappuccino/Meshes/Cube.obj");
+
+		floorPlane = new Capp::Model(cubeMesh, whiteMaterial);
+		floorPlane->setPosition(0.0f, -1.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
+
+		pointLightCube = new Capp::Model(cubeMesh, whiteMaterial);
+		pointLightCube->setScale(0.5f);
+		spotlightCube = new Capp::Model(cubeMesh, whiteMaterial);
+		spotlightCube->setScale(0.5f);
 	}
 	
 	// -----------------------------------------------------------------
@@ -44,6 +49,7 @@ void Layer3D::onPush() {
 		dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 0.0f }, { 0.1f, 0.4f, 0.15f });
 
 		spotlight = new Capp::Spotlight;
+		spotlight->setPosition(glm::vec3(0.0f, 4.0f, 0.0f)).setDirection(glm::vec3(-90.0f, 0.0f, 0.0f));
 		spotlight->setColour(0.3f, 0.2f, 0.7f).setAttenuation(1.0f / 20.0f).setInnerCutoffAngle(5.0f).setOuterCutoffAngle(22.5f);
 	
 		//Capp::Hitbox::setShouldDraw(true);
@@ -131,9 +137,11 @@ void Layer3D::update() {
 	cameraController.update();
 
 	Capp::Lights lights = { { dirLight }, { pointLight } };
+	pointLightCube->setPosition(pointLight->getPosition());
 	
 	if(flashlight) {
-		spotlight->setPosition(cameraController.getCamera().getPosition()).setDirection(cameraController.getCamera().getForward());
+		//spotlight->setPosition(cameraController.getCamera().getPosition() - glm::vec3(1.0f, 0.0f, 0.0f)).setDirection(cameraController.getCamera().getForward());
+		spotlightCube->setPosition(spotlight->getPosition() + glm::vec3(0.0f, 1.0f, 0.0f));
 		lights.spotlights.push_back(spotlight);
 	}
 
@@ -238,6 +246,11 @@ void Layer3D::update() {
 		Capp::Renderer::addToQueue(f16);
 		Capp::Renderer::addToQueue(sentry1);
 		Capp::Renderer::addToQueue(sentry2);
+
+		Capp::Renderer::addToQueue(pointLightCube);
+		if(flashlight) {
+			//Capp::Renderer::addToQueue(spotlightCube);
+		}
 	}
 	Capp::Renderer::finish(postPasses);
 }
@@ -258,9 +271,18 @@ void Layer3D::drawImgui() {
 		}
 		ImGui::NewLine();
 
-		auto deferredLighting = Capp::ShaderLibrary::getShader("Deferred Lighting Default");
-		if(ImGui::Button("Reload deferred lighting shader")) {
-			deferredLighting->reload();
+		auto dLighting = Capp::ShaderLibrary::getShader("Deferred Directional Lighting Default");
+		auto pLighting = Capp::ShaderLibrary::getShader("Deferred Point Lighting Default");
+		auto sLighting = Capp::ShaderLibrary::getShader("Deferred Spotlighting Default");
+		
+		if(ImGui::Button("Reload directional lighting shader")) {
+			dLighting->reload();
+		}
+		if(ImGui::Button("Reload point lighting shader")) {
+			pLighting->reload();
+		}
+		if(ImGui::Button("Reload spotlighting shader")) {
+			sLighting->reload();
 		}
 	}
 	ImGui::End();

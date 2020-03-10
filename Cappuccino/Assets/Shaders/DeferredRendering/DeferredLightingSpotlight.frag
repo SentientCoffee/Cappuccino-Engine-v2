@@ -15,20 +15,10 @@ layout(location = 0) in DATA {
 layout(location = 0) out vec4 outColour;
 
 // -----------------------------------------------
-// ----- Light structs ---------------------------
+// ----- Structs ---------------------------------
 // -----------------------------------------------
 
-struct DirectionalLight {
-	vec3 direction;
-	vec3 colour;
-};
-
-struct PointLight {
-	vec3 position;
-	vec3 colour;
-	float attenuation;
-};
-
+// Spotlight values
 struct Spotlight {
 	vec3 position;
 	vec3 direction;
@@ -37,10 +27,6 @@ struct Spotlight {
 	float innerCutoffAngle;
 	float outerCutoffAngle;
 };
-
-// -----------------------------------------------
-// ----- Structs ---------------------------------
-// -----------------------------------------------
 
 // Pseudo material (for lighting)
 struct Material {
@@ -54,7 +40,7 @@ struct Material {
 
 // GBuffer texture inputs
 struct GBuffer {
-	sampler2D position;
+	sampler2D viewPosition;
 	sampler2D normal;
 	sampler2D albedo;
 	sampler2D specRough;
@@ -68,28 +54,20 @@ struct GBuffer {
 uniform vec3 uAmbientColour;
 uniform float uAmbientPower;
 
-uniform bool uIsDirectional;
-uniform DirectionalLight uDirectionalLight;
-
-uniform bool uIsPoint;
-uniform PointLight uPointLight;
-
-uniform bool uIsSpotlight;
 uniform Spotlight uSpotlight;
+uniform mat4 uLightViewSpace;
 
+uniform sampler2D uShadowMap;
 uniform float uShadowBias = 0.001;
 
 uniform GBuffer uGBuffer;
-uniform sampler2D uShadowMap;
-uniform mat4 uLightViewSpace;
 
 // -----------------------------------------------
 // ----- Functions -------------------------------
 // -----------------------------------------------
 
-float calculateShadowPCF(vec3 viewPosition, float bias);
 float calculateProjShadowPCF(vec4 viewPosition, float bias);
-vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition, vec3 normal);
+vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, vec3 normal);
 
 // -----------------------------------------------
 // ----- MAIN ------------------------------------
@@ -97,7 +75,7 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 
 void main() {
 	// Get world position from clip space
-	vec4 viewPosition = vec4(texture(uGBuffer.position, inFrag.uv).rgb, 1.0);
+	vec4 viewPosition = vec4(texture(uGBuffer.viewPosition, inFrag.uv).rgb, 1.0);
 	if(length(viewPosition) == 0.0) {
 		discard;
 	}
@@ -110,7 +88,7 @@ void main() {
 	material.roughness = texture(uGBuffer.specRough, inFrag.uv).g;
 
 	vec3 result = uAmbientColour * uAmbientPower * material.diffuse;
-	result += calculatePointLight(uPointLight, material, viewPosition, normal);
+	result += calculateSpotlight(uSpotlight, material, viewPosition, normal);
 	result += material.emission;
 
 	outColour = vec4(result, 1.0);
@@ -119,21 +97,6 @@ void main() {
 // -----------------------------------------------
 // ----- Function defintions ---------------------
 // -----------------------------------------------
-
-float calculateShadowPCF(vec3 shadowPosition, float bias) {
-	float result = 0.0;
-	vec2 texelSize = 1.0 / textureSize(uShadowMap, 0);
-
-	for(int x = -1; x <= 1; ++x) { 
-		for(int y = -1; y <= 1; ++y) {
-			float pcfDepth = texture(uShadowMap, shadowPosition.xy + vec2(x, y) * texelSize).r;
-			result += shadowPosition.z - bias > pcfDepth ? 1.0 : 0.0;
-		}
-	}
-
-	result /= 9.0; // Average our sum
-	return result;
-}
 
 float calculateProjShadowPCF(vec4 shadowPosition, float bias) {
 	float result = 0.0;
@@ -150,11 +113,11 @@ float calculateProjShadowPCF(vec4 shadowPosition, float bias) {
 	return result;
 }
 
-vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition, vec3 normal) {
+vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, vec3 normal) {
 	vec3 viewDirection = normalize(-viewPosition.xyz);
 	vec3 lightToPositionDifference = light.position - viewPosition.xyz;
 	vec3 lightDirection = normalize(lightToPositionDifference);
-	
+
 	// Diffuse component
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = light.colour * diffusePower * material.diffuse;
@@ -169,9 +132,14 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 	rimPower = smoothstep(0.6, 1.0, rimPower);
 	vec3 rim = light.colour * rimPower * material.diffuse;
 
-	// Attenuation component
+	// Attenuation
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
+
+	// Intensity component
+	float theta = dot(lightDirection, normalize(-light.direction));
+	float epsilon = light.innerCutoffAngle - light.outerCutoffAngle;
+	float intensity = clamp((theta - light.outerCutoffAngle) / epsilon, 0.0, 1.0);
 
 	// Shadow component
 	vec4 shadowPosition = uLightViewSpace * viewPosition;
@@ -179,11 +147,13 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
-	float shadow = calculateShadowPCF(shadowPosition.xyz, bias);
+	float shadowDepth = texture(uShadowMap, shadowPosition.xy / shadowPosition.w).r;
+	float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
+	//float shadow = calculateProjShadowPCF(shadowPosition, bias);
 
 	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
 		shadow = 0.0;
 	}
 
-	return (1.0 - shadow) * attenuation * (diffuse + specular + rim);
+	return (1.0 - shadow) * intensity * attenuation * (diffuse + specular + rim);
 }

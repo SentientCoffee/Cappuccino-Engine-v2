@@ -1,9 +1,5 @@
 #version 460
 
-#define MAX_DIR_LIGHTS 10
-#define MAX_POINT_LIGHTS 50
-#define MAX_SPOTLIGHTS 50
-
 // -----------------------------------------------
 // ----- Input/output values ---------------------
 // -----------------------------------------------
@@ -18,14 +14,11 @@ layout(location = 0) out vec4 outColour;
 // ----- Structs ---------------------------------
 // -----------------------------------------------
 
-// Spotlight values
-struct Spotlight {
+// Point light values
+struct PointLight {
 	vec3 position;
-	vec3 direction;
 	vec3 colour;
 	float attenuation;
-	float innerCutoffAngle;
-	float outerCutoffAngle;
 };
 
 // Pseudo material (for lighting)
@@ -54,10 +47,10 @@ struct GBuffer {
 uniform vec3 uAmbientColour;
 uniform float uAmbientPower;
 
-uniform Spotlight uSpotlight;
+uniform PointLight uPointLight;
 uniform mat4 uLightViewSpace;
 
-uniform sampler2D uShadowMap;
+uniform samplerCube uShadowMap;
 uniform float uShadowBias = 0.001;
 
 uniform GBuffer uGBuffer;
@@ -67,7 +60,7 @@ uniform GBuffer uGBuffer;
 // -----------------------------------------------
 
 float calculateProjShadowPCF(vec4 viewPosition, float bias);
-vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, vec3 normal);
+vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition, vec3 normal);
 
 // -----------------------------------------------
 // ----- MAIN ------------------------------------
@@ -88,7 +81,7 @@ void main() {
 	material.roughness = texture(uGBuffer.specRough, inFrag.uv).g;
 
 	vec3 result = uAmbientColour * uAmbientPower * material.diffuse;
-	result += calculateSpotlight(uSpotlight, material, viewPosition, normal);
+	result += calculatePointLight(uPointLight, material, viewPosition, normal);
 	result += material.emission;
 
 	outColour = vec4(result, 1.0);
@@ -104,8 +97,8 @@ float calculateProjShadowPCF(vec4 shadowPosition, float bias) {
 
 	for(int x = -1; x <= 1; ++x) { 
 		for(int y = -1; y <= 1; ++y) {
-			float pcfDepth = texture(uShadowMap, ((shadowPosition.xy + vec2(x, y)) / shadowPosition.w) * texelSize).r;
-			result += ((shadowPosition.z - bias) / shadowPosition.w) > pcfDepth ? 1.0 : 0.0;
+			//float pcfDepth = texture(uShadowMap, ((shadowPosition.xy + vec2(x, y)) / shadowPosition.w) * texelSize).r;
+			//result += ((shadowPosition.z - bias) / shadowPosition.w) > pcfDepth ? 1.0 : 0.0;
 		}
 	}
 
@@ -113,11 +106,11 @@ float calculateProjShadowPCF(vec4 shadowPosition, float bias) {
 	return result;
 }
 
-vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, vec3 normal) {
+vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition, vec3 normal) {
 	vec3 viewDirection = normalize(-viewPosition.xyz);
 	vec3 lightToPositionDifference = light.position - viewPosition.xyz;
 	vec3 lightDirection = normalize(lightToPositionDifference);
-
+	
 	// Diffuse component
 	float diffusePower = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = light.colour * diffusePower * material.diffuse;
@@ -132,14 +125,9 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, v
 	rimPower = smoothstep(0.6, 1.0, rimPower);
 	vec3 rim = light.colour * rimPower * material.diffuse;
 
-	// Attenuation
+	// Attenuation component
 	float dist = length(lightToPositionDifference);
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
-
-	// Intensity component
-	float theta = dot(lightDirection, normalize(-light.direction));
-	float epsilon = light.innerCutoffAngle - light.outerCutoffAngle;
-	float intensity = clamp((theta - light.outerCutoffAngle) / epsilon, 0.0, 1.0);
 
 	// Shadow component
 	vec4 shadowPosition = uLightViewSpace * viewPosition;
@@ -147,13 +135,14 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, v
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
-	float shadowDepth = texture(uShadowMap, shadowPosition.xy / shadowPosition.w).r;
-	float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
+	float shadow = 0.0;
+	//float shadowDepth = texture(uShadowMap, shadowPosition.xy / shadowPosition.w).r;
+	//float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
 	//float shadow = calculateProjShadowPCF(shadowPosition, bias);
 
 	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
 		shadow = 0.0;
 	}
 
-	return (1.0 - shadow) * intensity * attenuation * (diffuse + specular + rim);
+	return (1.0 - shadow) * attenuation * (diffuse + specular + rim);
 }

@@ -9,14 +9,12 @@
 namespace Capp {
 
 	enum class CubemapFace : unsigned int {
-		// DO NOT USE OPENGL MACROS.
-		// This implementation use glTextureSubImage3D, which needs 0-based indices.
-		PositiveX = 0,		// GL_TEXTURE_CUBE_MAP_POSITIVE_X
-		NegativeX = 1,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_X
-		PositiveY = 2,		// GL_TEXTURE_CUBE_MAP_POSITIVE_Y
-		NegativeY = 3,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
-		PositiveZ = 4,		// GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-		NegativeZ = 5,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+		PositiveX = 0x8515,		// GL_TEXTURE_CUBE_MAP_POSITIVE_X
+		NegativeX = 0x8516,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_X
+		PositiveY = 0x8517,		// GL_TEXTURE_CUBE_MAP_POSITIVE_Y
+		NegativeY = 0x8518,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
+		PositiveZ = 0x8519,		// GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+		NegativeZ = 0x851A,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 	};
 	
 	class TextureCubemap {
@@ -26,12 +24,14 @@ namespace Capp {
 		
 	public:
 
+		TextureCubemap(unsigned faceSize, InternalFormat format = InternalFormat::RGB8);
 		TextureCubemap(const StringVector& filepaths);
 		TextureCubemap(const StringInitList& filepaths);
 		
 		~TextureCubemap();
 
 		void bind(unsigned slot) const;
+		unsigned getRendererID() const;
 		static void unbind(unsigned slot);
 
 		void setCubemapTextures(const StringVector& filepaths);

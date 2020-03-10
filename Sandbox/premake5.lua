@@ -55,6 +55,7 @@ project "Sandbox"
 			
 			-- Copy assets directory next to executable
 			"robocopy \"%{prj.location}\\Assets\" \"%{cfg.targetdir}\\Assets\" /e /xo /xx /ns /np /ndl /njh /njs",
+			"robocopy \"%{prj.location}\\Assets\\Cappuccino\" \"%{cfg.targetdir}\\Assets\\Cappuccino\" /mir /ns /np /ndl /njh /njs",
 			
 			"exit 0"
 		}

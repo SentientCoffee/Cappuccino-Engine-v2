@@ -14,8 +14,6 @@ Light::Light(const glm::vec3& colour) :
 	_colour(colour)
 {
 	_shadowBuffer = new Framebuffer(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
-	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth16,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
-	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 
 Light::~Light() {
@@ -28,8 +26,6 @@ void Light::viewMatrixCalc() {
 }
 
 Framebuffer* Light::getShadowBuffer() const { return _shadowBuffer; }
-void Light::setShadowResolution(const glm::ivec2& resolution) const { _shadowBuffer->resize(resolution.x, resolution.y); }
-void Light::setShadowResolution(const unsigned x, const unsigned y) const { _shadowBuffer->resize(x, y); }
 void Light::setShadowResolution(const unsigned resolution) const { _shadowBuffer->resize(resolution, resolution); }
 
 void Light::setProjection(const glm::mat4& projection) { _shadowProjectionMatrix = projection; }
@@ -49,6 +45,8 @@ DirectionalLight::DirectionalLight(const glm::vec3& direction, const glm::vec3& 
 	setProjection(glm::ortho(-maxBound, maxBound, -maxBound, maxBound, -10.0f, 100.0f));
 	setDirection(direction);
 	_shadowBuffer->setName("Shadow Buffer (Directional light)");
+	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth16,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
+	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 
 const glm::vec3& DirectionalLight::getDirection() const { return _transform.getRotation(); }
@@ -89,6 +87,8 @@ PointLight::PointLight(const glm::vec3& position, const glm::vec3& colour, const
 	_transform.setPosition(position);
 	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Point light)");
+	const Attachment depth = { AttachmentType::Cubemap, InternalFormat::Depth32F,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
+	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 
 const glm::vec3& PointLight::getPosition() const { return _transform.getPosition(); }
@@ -124,6 +124,8 @@ Spotlight::Spotlight(const glm::vec3& position, const glm::vec3& direction, cons
 	_transform.setPosition(position).setRotation(direction);
 	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Spotlight)");
+	const Attachment depth = { AttachmentType::Texture, InternalFormat::Depth16,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
+	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 
 const glm::vec3& Spotlight::getPosition() const { return _transform.getPosition(); }

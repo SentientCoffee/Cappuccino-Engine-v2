@@ -8,6 +8,79 @@
 
 using namespace Capp;
 
+TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat format) :
+	_size(faceSize)
+{
+	switch(format) {
+		case InternalFormat::Red16F:
+		case InternalFormat::Red32F:
+			_formats.pixelType = PixelType::Float;
+		case InternalFormat::Red8:
+		case InternalFormat::Red16:
+			_formats.pixelFormat = PixelFormat::Red;
+			break;
+
+		case InternalFormat::RG16F:
+		case InternalFormat::RG32F:
+			_formats.pixelType = PixelType::Float;
+		case InternalFormat::RG8:
+		case InternalFormat::RG16:
+			_formats.pixelFormat = PixelFormat::RG;
+			break;
+
+		case InternalFormat::RGB16F:
+		case InternalFormat::RGB32F:
+			_formats.pixelType = PixelType::Float;
+		case InternalFormat::RGB8:
+		case InternalFormat::RGB16:
+			_formats.pixelFormat = PixelFormat::RGB;
+			break;
+
+		case InternalFormat::RGBA16F:
+		case InternalFormat::RGBA32F:
+			_formats.pixelType = PixelType::Float;
+		case InternalFormat::RGBA8:
+		case InternalFormat::RGBA16:
+			_formats.pixelFormat = PixelFormat::RGBA;
+			break;
+
+		case InternalFormat::Depth32F:
+			_formats.pixelType = PixelType::Float;
+		case InternalFormat::Depth16:
+		case InternalFormat::Depth24:
+		case InternalFormat::Depth32:
+			_formats.pixelFormat = PixelFormat::Depth;
+			break;
+
+		case InternalFormat::Stencil4:
+		case InternalFormat::Stencil8:
+		case InternalFormat::Stencil16:
+			_formats.pixelType = PixelType::UnsignedInt;
+			_formats.pixelFormat = PixelFormat::Stencil;
+			break;
+
+		case InternalFormat::Depth24Stencil8:
+			_formats.pixelType = PixelType::UInt24_UInt8;
+			_formats.pixelFormat = PixelFormat::DepthStencil;
+			break;
+
+		default:
+			_formats.pixelFormat = PixelFormat::None;
+			break;
+	}
+
+	_formats.internalFormat = format;
+	
+	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
+	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
+
+	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
+	glTextureStorage2D(_id, 1, static_cast<GLenum>(_formats.internalFormat), _size, _size);
+	
+	const TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
+	setParameters(params);
+}
+
 TextureCubemap::TextureCubemap(const std::vector<std::string>& filepaths) {
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
 	setCubemapTextures(filepaths);
@@ -20,6 +93,8 @@ TextureCubemap::~TextureCubemap() {
 	glDeleteTextures(1, &_id);
 }
 
+unsigned TextureCubemap::getRendererID() const { return _id; }
+
 void TextureCubemap::bind(const unsigned slot) const { glBindTextureUnit(slot, _id); }
 void TextureCubemap::unbind(const unsigned slot) { glBindTextureUnit(slot, 0); }
 
@@ -29,7 +104,6 @@ void TextureCubemap::setCubemapTextures(const std::initializer_list<std::string>
 
 void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepaths) {
 	CAPP_ASSERT(filepaths.size() <= 6, "Cubemap cannot load in more than 6 faces!");
-	_formats.internalFormat = InternalFormat::RGB8;
 
 	stbi_set_flip_vertically_on_load(false);
 	for(unsigned i = 0; i < filepaths.size(); ++i) {
@@ -66,27 +140,32 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 		}
 
 		switch(channels) {
-			case 1: 
+			case 1:
+				_formats.internalFormat = InternalFormat::Red8;
 				_formats.pixelFormat = PixelFormat::Red;
 				break;
+			case 2:
+				_formats.internalFormat = InternalFormat::RG8;
+				break;
 			case 3:
+				_formats.internalFormat = InternalFormat::RGB8;
 				_formats.pixelFormat = PixelFormat::RGB;
 				break;
 			case 4:
+				_formats.internalFormat = InternalFormat::RGBA8;
 				_formats.pixelFormat = PixelFormat::RGBA;
 				break;
 			default:
+				_formats.internalFormat = InternalFormat::None;
 				_formats.pixelFormat = PixelFormat::None;
 				break;
 		}
 
-		CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported image format!");
+		CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
+		CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
 
-		glTextureSubImage3D(_id, 0, 0, 0,
-			static_cast<unsigned>(CubemapFace::PositiveX) + i,
-			_size, _size, 1,
-			static_cast<GLenum>(_formats.pixelFormat),
-			static_cast<GLenum>(_formats.pixelType), data);
+		glTexSubImage2D(static_cast<unsigned>(CubemapFace::PositiveX) + i, 0, 0, 0, _size, _size,
+			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), data);
 
 		stbi_image_free(data);
 	}
@@ -94,11 +173,8 @@ void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepath
 	for(unsigned i = 5; i >= filepaths.size(); --i) {
 		_formats.pixelFormat = PixelFormat::RGBA;
 
-		glTextureSubImage3D(_id, 0,
-			0, 0, static_cast<int>(CubemapFace::PositiveX) + i,
-			1, 1, 1,
-			static_cast<GLenum>(_formats.pixelFormat),
-			static_cast<GLenum>(_formats.pixelType), &whiteTexture);
+		glTexSubImage2D(static_cast<unsigned>(CubemapFace::PositiveX) + i, 0, 0, 0, 1, 1,
+			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), &whiteTexture);
 	}
 }
 

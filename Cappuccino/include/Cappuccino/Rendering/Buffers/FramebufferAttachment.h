@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cappuccino/Rendering/Textures/Texture2D.h"
+#include "Cappuccino/Rendering/Textures/TextureCubemap.h"
 
 namespace Capp {
 	
@@ -23,6 +24,7 @@ namespace Capp {
 
 	enum class AttachmentType : unsigned int {
 		Texture = 0,
+		Cubemap,
 		RenderBuffer
 	};
 
@@ -38,6 +40,7 @@ namespace Capp {
 		};
 		
 		Texture2D* texture = nullptr;
+		TextureCubemap* cubemap = nullptr;
 
 		Attachment() = default;
 		Attachment(const AttachmentType type, const InternalFormat format) :

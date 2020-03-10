@@ -22,7 +22,8 @@ struct RendererStorage {
 	Shader* hitboxShader         = nullptr;
 	Shader* skyboxShader         = nullptr;
 	Shader* framebufferShader    = nullptr;
-	Shader* shadowPass           = nullptr;
+	Shader* dsShadowPass         = nullptr;
+	Shader* pShadowPass          = nullptr;
 	Shader* gBufferPass          = nullptr;
 	Shader* deferredLightingPass = nullptr;
 
@@ -72,9 +73,9 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		rStorage->blinnPhongShader = new Shader("Blinn Phong Default");
-		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/SimpleGeometry.vert", ShaderStage::Vertex);
-		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/BlinnPhongShader.frag", ShaderStage::Fragment);
+		rStorage->blinnPhongShader = new Shader("Forward Rendering Default");
+		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/ForwardRendering/SimpleGeometry.vert", ShaderStage::Vertex);
+		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/ForwardRendering/BlinnPhongShader.frag", ShaderStage::Fragment);
 		rStorage->blinnPhongShader->compile();
 
 		rStorage->hitboxShader = new Shader("Hitbox Default");
@@ -83,8 +84,8 @@ void Renderer::init() {
 		rStorage->hitboxShader->compile();
 
 		rStorage->skyboxShader = new Shader("Skybox Default");
-		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/CubemapShader.vert", ShaderStage::Vertex);
-		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/CubemapShader.frag", ShaderStage::Fragment);
+		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/SkyboxShader.vert", ShaderStage::Vertex);
+		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/SkyboxShader.frag", ShaderStage::Fragment);
 		rStorage->skyboxShader->compile();
 
 		rStorage->framebufferShader = new Shader("Framebuffer Default");
@@ -92,33 +93,39 @@ void Renderer::init() {
 		rStorage->framebufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.frag", ShaderStage::Fragment);
 		rStorage->framebufferShader->compile();
 
-		rStorage->shadowPass = new Shader("Shadow Mapping Default");
-		rStorage->shadowPass->attach("Assets/Cappuccino/Shaders/SimpleShadow.vert", ShaderStage::Vertex);
-		rStorage->shadowPass->compile();
+		rStorage->dsShadowPass = new Shader("Shadow Mapping Directional/Spot");
+		rStorage->dsShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/SimpleShadow.vert", ShaderStage::Vertex);
+		rStorage->dsShadowPass->compile();
+
+		rStorage->pShadowPass = new Shader("Shadow Mapping Point");
+		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.vert", ShaderStage::Vertex);
+		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.geom", ShaderStage::Geometry);
+		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.frag", ShaderStage::Fragment);
+		rStorage->pShadowPass->compile();
 		
 		rStorage->gBufferPass = new Shader("Deferred GBuffer Default");
-		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/SimpleGeometry.vert", ShaderStage::Vertex);
-		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/GBufferPass.frag", ShaderStage::Fragment);
+		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/SimpleGeometry.vert", ShaderStage::Vertex);
+		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/GBufferPass.frag", ShaderStage::Fragment);
 		rStorage->gBufferPass->compile();
-
+		
 		rStorage->deferredLightingPass = ShaderLibrary::loadShader("Deferred Lighting Default");
-		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
-		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.frag", ShaderStage::Fragment);
+		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.frag", ShaderStage::Fragment);
 		rStorage->deferredLightingPass->compile();
 
 		rStorage->dDirectionalLightPass = ShaderLibrary::loadShader("Deferred Directional Lighting Default");
-		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
-		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingDirectional.frag", ShaderStage::Fragment);
+		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingDirectional.frag", ShaderStage::Fragment);
 		rStorage->dDirectionalLightPass->compile();
 
 		rStorage->dPointLightPass = ShaderLibrary::loadShader("Deferred Point Lighting Default");
-		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
-		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingPointLight.frag", ShaderStage::Fragment);
+		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingPointLight.frag", ShaderStage::Fragment);
 		rStorage->dPointLightPass->compile();
 
 		rStorage->dSpotlightPass = ShaderLibrary::loadShader("Deferred Spotlighting Default");
-		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingShader.vert", ShaderStage::Vertex);
-		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredLightingSpotlight.frag", ShaderStage::Fragment);
+		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
+		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingSpotlight.frag", ShaderStage::Fragment);
 		rStorage->dSpotlightPass->compile();
 	}
 
@@ -210,14 +217,14 @@ void Renderer::init() {
 	{
 		rStorage->gBuffer = new Framebuffer(window->getWidth(), window->getHeight());
 		rStorage->gBuffer->setName("GBuffer");
-		const Attachment position     = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment depthStencil = { AttachmentType::Texture, InternalFormat::Depth24Stencil8 };
+		const Attachment viewPosition  = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment normal        = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment albedo        = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment specRough     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment emission      = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment depthStencil  = { AttachmentType::Texture, InternalFormat::Depth24Stencil8 };
 
-		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, position);
+		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, viewPosition);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour1, normal);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour2, albedo);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour3, specRough);
@@ -405,15 +412,12 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// ----- Shadow mapping -----------------------------
 	// --------------------------------------------------
 	
-	std::deque<Light*> allLights;
 	{
+		std::deque<Light*> allLights;
 		RenderCommand::setCullingMode(CullMode::FrontFace);
-		
-		for(auto light : rStorage->activeLights.directionalLights) {
-			allLights.push_back(light);
-		}
 
-		for(auto light : rStorage->activeLights.pointLights) {
+		// Directional and spotlights (mono-directional shadow mapping)
+		for(auto light : rStorage->activeLights.directionalLights) {
 			allLights.push_back(light);
 		}
 		
@@ -421,12 +425,14 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			allLights.push_back(light);
 		}
 
-		for(auto light : allLights) {
+		while(!allLights.empty()) {
 			// Shadow map
+			const auto light = allLights.front();
 			light->getShadowBuffer()->bind();
 			RenderCommand::setViewport(0, 0, light->getShadowBuffer()->getWidth(), light->getShadowBuffer()->getHeight());
 			RenderCommand::clearScreen(ClearFlags::Depth);
 			{
+				rStorage->dsShadowPass->bind();
 				for(auto model : rStorage->modelRenderQueue) {
 					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
 						continue;
@@ -434,9 +440,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 					const auto mesh = model->getMesh();
 
-					rStorage->shadowPass->bind();
-					rStorage->shadowPass->setUniform<Mat4>("uViewProjection", light->getViewProjection());
-					rStorage->shadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
+					rStorage->dsShadowPass->setUniform<Mat4>("uViewProjection", light->getViewProjection());
+					rStorage->dsShadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
 
 					mesh->getVAO()->bind();
 					if(mesh->getVAO()->getIndexBuffer() != nullptr) {
@@ -449,6 +454,51 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			}
 			light->getShadowBuffer()->unbind();
 			allLights.pop_front();
+		}
+
+		// Point lights (omnidirectional shadow mapping)
+		for(auto pLight : rStorage->activeLights.pointLights) {
+			glm::mat4 proj = pLight->getProjectionMatrix();
+			glm::vec3 pos = pLight->getPosition();
+
+			std::vector<glm::mat4> shadowTransforms = {
+				proj * glm::lookAt(pos, pos + glm::vec3( 1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3(-1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  1.0f,  0.0f), { 0.0f,  0.0f,  1.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f, -1.0f,  0.0f), { 0.0f,  0.0f, -1.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f,  1.0f), { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f, -1.0f), { 0.0f, -1.0f,  0.0f })
+			};
+			
+			for(unsigned i = 0; i < shadowTransforms.size(); ++i) {
+				pLight->getShadowBuffer()->bind((CubemapFace)(static_cast<unsigned>(CubemapFace::PositiveX) + i));
+				RenderCommand::setViewport(0, 0, pLight->getShadowBuffer()->getWidth(), pLight->getShadowBuffer()->getHeight());
+				RenderCommand::clearScreen(ClearFlags::Depth);
+				{
+					rStorage->pShadowPass->bind();
+					rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
+					rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
+					rStorage->pShadowPass->setUniform<Mat4>("uLightViews[" + std::to_string(i) + "]", shadowTransforms[i]);
+					
+					for(auto model : rStorage->modelRenderQueue) {
+						if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
+							continue;
+						}
+
+						const auto mesh = model->getMesh();
+						rStorage->pShadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
+
+						mesh->getVAO()->bind();
+						if(mesh->getVAO()->getIndexBuffer() != nullptr) {
+							RenderCommand::drawIndexed(mesh->getVAO());
+						}
+						else {
+							RenderCommand::drawArray(mesh->getVAO());
+						}
+					}
+				}
+				pLight->getShadowBuffer()->unbind();
+			}
 		}
 
 		RenderCommand::setCullingMode(CullMode::BackFace);
@@ -465,7 +515,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::clearScreen();
 		{
 			while(!rStorage->modelRenderQueue.empty()) {
-				auto model = rStorage->modelRenderQueue.front();
+				const auto model = rStorage->modelRenderQueue.front();
 
 				if(model->getMesh() == nullptr) {
 					CAPP_PRINT_ERROR("Failed to draw model: missing mesh!");
@@ -518,7 +568,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour2)->bind(2);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour3)->bind(3);
 			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour4)->bind(4);
-			//rStorage->gBuffer->getAttachment(AttachmentTarget::DepthStencil)->bind(5);
 			rStorage->fullscreenQuad->getVAO()->bind();
 
 			// Directional lights
@@ -549,7 +598,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 				}
 			}
-
 
 			// Point lights
 			shader = rStorage->dPointLightPass;

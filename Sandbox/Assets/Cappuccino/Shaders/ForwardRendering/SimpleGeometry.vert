@@ -16,11 +16,11 @@ uniform mat4 uProjection;
 uniform mat3 uNormalMatrix;
 
 void main() {
-	vec4 position = uView * uTransform * vec4(inPosition, 1.0);
+	vec4 position = uTransform * vec4(inPosition, 1.0);
 	
 	outVert.worldPosition = position.xyz;
 	outVert.uv = inUV;
 	outVert.normal = uNormalMatrix * inNormal;
 
-	gl_Position = uProjection * position;
+	gl_Position = uProjection * uView * position;
 }

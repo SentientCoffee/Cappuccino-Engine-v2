@@ -40,7 +40,7 @@ struct Material {
 
 // GBuffer texture inputs
 struct GBuffer {
-	sampler2D viewPosition;
+	sampler2D position;
 	sampler2D normal;
 	sampler2D albedo;
 	sampler2D specRough;
@@ -75,7 +75,7 @@ vec3 calculateSpotlight(Spotlight light, Material material, vec4 viewPosition, v
 
 void main() {
 	// Get world position from clip space
-	vec4 viewPosition = vec4(texture(uGBuffer.viewPosition, inFrag.uv).rgb, 1.0);
+	vec4 viewPosition = vec4(texture(uGBuffer.position, inFrag.uv).rgb, 1.0);
 	if(length(viewPosition) == 0.0) {
 		discard;
 	}

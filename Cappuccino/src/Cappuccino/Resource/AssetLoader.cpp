@@ -1,5 +1,7 @@
 #include "CappPCH.h"
-#include "Cappuccino/Resource/ResourceLoader.h"
+#include "Cappuccino/Resource/AssetLoader.h"
+
+#include <stb/stb_image.h>
 
 using namespace Capp;
 
@@ -7,9 +9,9 @@ using namespace Capp;
 // ----- CUBE Loader ------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
-Texture3D* ResourceLoader::loadCUBEFile(const std::string& filepath) {
+Texture3D* AssetLoader::loadCUBEFile(const std::string& filepath) {
 	std::ifstream lutFile(filepath);
-	CAPP_ASSERT(lutFile.good(), "Could not open file!\n\tLUT filepath: {0}", filepath);
+	CAPP_ASSERT(lutFile.good(), "Failed to read LUT file!\n\tFilepath: {0}", filepath);
 
 	std::vector<glm::vec3> lutData;
 	unsigned lutSize = 0;
@@ -41,11 +43,11 @@ Texture3D* ResourceLoader::loadCUBEFile(const std::string& filepath) {
 		
 		glm::vec3 line;
 		const bool lutReadStatus = sscanf(lutLine.c_str(), "%f %f %f", &line.r, &line.g, &line.b);
-		CAPP_ASSERT(lutReadStatus, "Failed to read colour values!\n\tLUT file: {0}", filepath);
+		CAPP_ASSERT(lutReadStatus, "Failed to read LUT colour values!\n\tFilepath: {0}", filepath);
 		lutData.push_back(line);
 	}
 	
-	CAPP_ASSERT(lutData.size() == pow(lutSize, 3), "LUT size is incorrect.\n\tGiven LUT size: {0}\n\tExpected LUT size: {1}", lutData.size(), pow(lutSize, 3));
+	CAPP_ASSERT(lutData.size() == pow(lutSize, 3), "LUT size is incorrect!\n\tGiven LUT size: {0}\n\tExpected LUT size: {1}\n\tFilepath: {2}", lutData.size(), pow(lutSize, 3), filepath);
 	
 	return new Texture3D(lutSize, lutSize, lutSize, lutData.data());
 }
@@ -60,9 +62,9 @@ struct TriangleFace {
 	std::array<unsigned, 3> uvIndices   = { 0, 0, 0 };
 };
 
-std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::string& filepath) {
+AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 	std::ifstream file(filepath.data());
-	CAPP_ASSERT(file.good(), "Could not open file!\n\tOBJ filepath: {0}", filepath);
+	CAPP_ASSERT(file.good(), "Failed to read OBJ file!\n\tFilepath: {0}", filepath);
 
 	const int lineBufferSize = 256;
 	char lineContent[lineBufferSize];
@@ -81,7 +83,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::s
 				{
 					glm::vec3 temp;
 					const bool vertexReadStatus = sscanf(lineContent, "v %f %f %f", &temp.x, &temp.y, &temp.z);
-					CAPP_ASSERT(vertexReadStatus, "Failed to read vertex data of OBJ file: {0}", filepath);
+					CAPP_ASSERT(vertexReadStatus, "Failed to read vertex data!\n\tFilepath: {0}", filepath);
 					positions.push_back(temp);
 					break;
 				}
@@ -90,7 +92,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::s
 				{
 					glm::vec2 temp;
 					const bool uvReadStatus = sscanf(lineContent, "vt %f %f", &temp.x, &temp.y);
-					CAPP_ASSERT(uvReadStatus, "Failed to read UV data of OBJ file: {0}",  filepath);
+					CAPP_ASSERT(uvReadStatus, "Failed to read UV data!\n\tFilepath: {0}",  filepath);
 					uvCoords.push_back(temp);
 					break;
 				}
@@ -99,7 +101,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::s
 				{
 					glm::vec3 temp;
 					const bool normalReadStatus = sscanf(lineContent, "vn %f %f %f", &temp.x, &temp.y, &temp.z);
-					CAPP_ASSERT(normalReadStatus, "Failed to read normal data of mesh OBJ file: {0}", filepath);
+					CAPP_ASSERT(normalReadStatus, "Failed to read normal data!\n\tFilepath: {0}", filepath);
 					normals.push_back(temp);
 					break;
 				}
@@ -114,7 +116,7 @@ std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::s
 				&temp.vertIndices[1], &temp.uvIndices[1], &temp.normIndices[1],
 				&temp.vertIndices[2], &temp.uvIndices[2], &temp.normIndices[2]);
 
-			CAPP_ASSERT(indexReadStatus, "Failed to read index data of mesh OBJ file: {0}", filepath);
+			CAPP_ASSERT(indexReadStatus, "Failed to read index data!\n\tFilepath: {0}", filepath);
 			faces.push_back(temp);
 		}
 	}
@@ -168,13 +170,27 @@ std::tuple<VertexBuffer*, IndexBuffer*> ResourceLoader::loadOBJFile(const std::s
 // ----- Text File Loader -------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
-std::string ResourceLoader::loadTextFile(const std::string& filepath) {
+std::string AssetLoader::readTextFile(const std::string& filepath) {
 	std::ifstream file(filepath.data());
 	std::stringstream fileContent;
-	CAPP_ASSERT(fileContent.good(), "File could not be read!\n\tFile: {0}", filepath);
+	CAPP_ASSERT(fileContent.good(), "Failed to read text file!\n\tFilepath: {0}", filepath);
 
 	fileContent << file.rdbuf();
 	file.close();
 
 	return fileContent.str();
+}
+
+// ------------------------------------------------------------------------------------------
+// ----- Image File Loader ------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------
+
+AssetLoader::ImageData AssetLoader::loadImageFile(const std::string& filepath, const bool flipped, const int desiredChannels) {
+	stbi_set_flip_vertically_on_load(flipped);
+	int width, height, channels;
+	stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, desiredChannels);
+	
+	CAPP_ASSERT(data != nullptr && width > 0 && height > 0 && channels > 0, "Failed to load image file!\n\tFilepath: {0}", filepath);
+
+	return { data, static_cast<unsigned>(width), static_cast<unsigned>(height), static_cast<unsigned>(channels) };
 }

@@ -11,7 +11,8 @@ namespace Capp {
 	public:
 
 		Texture1D(const std::string& filepath);
-		Texture1D(unsigned size, void* data);
+		Texture1D(unsigned size, void* data, InternalFormat format = InternalFormat::RGB8);
+		Texture1D(unsigned size, InternalFormat format = InternalFormat::RGB8);
 		~Texture1D();
 
 		unsigned getRendererID() const;
@@ -24,13 +25,9 @@ namespace Capp {
 		void setParameters(const TextureParams& params);
 
 	private:
-
-		void createTexture();
-
+		
 		unsigned _id = 0;
 		unsigned _size = 0;
-
-		void* _data = nullptr;
 
 		std::string _texturePath;
 

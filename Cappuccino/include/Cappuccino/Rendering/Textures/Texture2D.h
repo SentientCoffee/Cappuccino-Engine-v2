@@ -10,7 +10,7 @@ namespace Capp {
 	class Texture2D {
 	public:
 
-		Texture2D(unsigned width, unsigned height, void* data = nullptr, InternalFormat format = InternalFormat::RGBA8, Mipmaps enableMipmaps = Mipmaps::On);
+		Texture2D(unsigned width, unsigned height, void* data, InternalFormat format = InternalFormat::RGBA8, Mipmaps enableMipmaps = Mipmaps::On);
 		Texture2D(unsigned width, unsigned height, InternalFormat format = InternalFormat::RGBA8, Mipmaps enableMipmaps = Mipmaps::On);
 		Texture2D(const std::string& filepath, Mipmaps enableMipmaps = Mipmaps::On);
 		~Texture2D();

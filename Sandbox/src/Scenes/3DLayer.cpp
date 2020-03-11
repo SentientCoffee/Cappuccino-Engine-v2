@@ -1,5 +1,7 @@
 #include "Scenes/3DLayer.h"
 
+#include <Cappuccino/Rendering/Textures/TextureCubemap.h>
+
 void Layer3D::onPush() {
 
 	// -----------------------------------------------------------------
@@ -60,7 +62,7 @@ void Layer3D::onPush() {
 	// -----------------------------------------------------------------
 	
 	{
-		const std::vector<std::string> filepaths = {
+		const Capp::CubemapFiles cubemapFiles = {
 			"Assets/Textures/Skybox/corona/corona_lf.png",
 			"Assets/Textures/Skybox/corona/corona_rt.png",
 			"Assets/Textures/Skybox/corona/corona_up.png",
@@ -69,7 +71,7 @@ void Layer3D::onPush() {
 			"Assets/Textures/Skybox/corona/corona_bk.png"
 		};
 
-		skybox = new Capp::TextureCubemap(filepaths);
+		skybox = new Capp::TextureCubemap(cubemapFiles);
 	}
 
 
@@ -78,9 +80,9 @@ void Layer3D::onPush() {
 	// -----------------------------------------------------------------
 	
 	{
-		//coolLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-		//warmLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-		//customLUT = Capp::ResourceLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+		//coolLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
+		//warmLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
+		//customLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
 	}
 	
 	// -----------------------------------------------------------------

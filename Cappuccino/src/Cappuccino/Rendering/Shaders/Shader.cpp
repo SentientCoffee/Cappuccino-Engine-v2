@@ -1,6 +1,6 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/Shaders/Shader.h"
-#include "Cappuccino/Resource/ResourceLoader.h"
+#include "Cappuccino/Resource/AssetLoader.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,7 +21,7 @@ void Shader::attach(const std::string& filepath, const ShaderStage stage) {
 	
 	CAPP_ASSERT(!filepath.empty(), "No {0} shader file path given!", stage);
 	
-	const std::string shaderSrc = ResourceLoader::loadTextFile(filepath);
+	const std::string shaderSrc = AssetLoader::readTextFile(filepath);
 	CAPP_ASSERT(!shaderSrc.empty(), "{0} shader file is empty!\n\tShader file: {1}", stage, filepath);
 
 	const unsigned int shaderHandle = createShader(shaderSrc, stage);

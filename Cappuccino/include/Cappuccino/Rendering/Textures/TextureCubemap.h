@@ -16,17 +16,23 @@ namespace Capp {
 		PositiveZ = 0x8519,		// GL_TEXTURE_CUBE_MAP_POSITIVE_Z
 		NegativeZ = 0x851A,		// GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 	};
+
+	struct CubemapFiles {
+		std::array<std::string, 6> files;
+		
+		CubemapFiles(const std::string& left, const std::string& right, const std::string& up, const std::string& down, const std::string& front, const std::string& back);
+		CubemapFiles(const std::array<std::string, 6>& filepaths);
+		CubemapFiles(const std::vector<std::string>& filepaths);
+
+		const std::string& operator[](unsigned index) const;
+		unsigned size() const;
+	};
 	
 	class TextureCubemap {
-
-		using StringVector = std::vector<std::string>;
-		using StringInitList = std::initializer_list<std::string>;
-		
 	public:
 
 		TextureCubemap(unsigned faceSize, InternalFormat format = InternalFormat::RGB8);
-		TextureCubemap(const StringVector& filepaths);
-		TextureCubemap(const StringInitList& filepaths);
+		TextureCubemap(const CubemapFiles& filepaths);
 		
 		~TextureCubemap();
 
@@ -34,8 +40,7 @@ namespace Capp {
 		unsigned getRendererID() const;
 		static void unbind(unsigned slot);
 
-		void setCubemapTextures(const StringVector& filepaths);
-		void setCubemapTextures(const StringInitList& filepaths);
+		void setCubemapTextures(const CubemapFiles& filepaths);
 		
 	private:
 

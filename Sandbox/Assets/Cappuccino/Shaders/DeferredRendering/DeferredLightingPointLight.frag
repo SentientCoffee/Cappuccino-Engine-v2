@@ -135,9 +135,9 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 	shadowPosition = shadowPosition * 0.5 + 0.5;
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
-	float shadow = 0.0;
-	//float shadowDepth = texture(uShadowMap, shadowPosition.xy / shadowPosition.w).r;
-	//float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
+	//float shadow = 0.0;
+	float shadowDepth = texture(uShadowMap, shadowPosition.xyz / shadowPosition.w).r;
+	float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
 	//float shadow = calculateProjShadowPCF(shadowPosition, bias);
 
 	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {

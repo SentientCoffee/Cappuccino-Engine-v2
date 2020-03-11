@@ -1,9 +1,9 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/Textures/Texture2D.h"
+#include "Cappuccino/Resource/AssetLoader.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/integer.hpp>
-#include <stb/stb_image.h>
 
 using namespace Capp;
 
@@ -102,53 +102,46 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, const Internal
 Texture2D::Texture2D(const std::string& filepath, const Mipmaps enableMipmaps) :
 	_formats({})
 {
-	int width, height, channels;
-	stbi_set_flip_vertically_on_load(true);
-	stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-	CAPP_ASSERT(data != nullptr && width > 0 && height > 0 && channels > 0, "Failed to load image!\n\tTexture path: {0}", filepath);
-	_width = width;
-	_height = height;
+	const AssetLoader::ImageData image = AssetLoader::loadImageFile(filepath);
+	_width = image.width;
+	_height = image.height;
 
-	switch(channels) {
+	switch(image.channels) {
 		case 1:
-			_formats.internalFormat = InternalFormat::Red8;
-			_formats.pixelFormat = PixelFormat::Red;
+			_formats = { InternalFormat::Red8, PixelFormat::Red };
 			break;
 		case 2:
-			_formats.internalFormat = InternalFormat::RG8;
-			_formats.pixelFormat = PixelFormat::RG;
+			_formats = { InternalFormat::RG8, PixelFormat::RG };
 			break;
 		case 3:
-			_formats.internalFormat = InternalFormat::RGB8;
-			_formats.pixelFormat = PixelFormat::RGB;
+			_formats = { InternalFormat::RGB8, PixelFormat::RGB };
 			break;
 		case 4:
-			_formats.internalFormat = InternalFormat::RGBA8;
-			_formats.pixelFormat = PixelFormat::RGBA;
+			_formats = { InternalFormat::RGBA8, PixelFormat::RGBA };
 			break;
 		default:
-			_formats.internalFormat = InternalFormat::None;
-			_formats.pixelFormat = PixelFormat::None;
+			_formats = { InternalFormat::None, PixelFormat::None };
 			break;
 	}
 
 	CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
 	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
 
-	if(enableMipmaps == Mipmaps::On) { _mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u); }
+	if(enableMipmaps == Mipmaps::On) {
+		_mipLevels = glm::max(glm::log2(glm::min(_width, _height)), 1u);
+	}
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 	glTextureStorage2D(_id, _mipLevels > 0 ? _mipLevels : 1, static_cast<GLenum>(_formats.internalFormat), _width, _height);
 	setParameters(_parameters);
+	glTextureSubImage2D(_id, 0, 0, 0, _width, _height,
+		static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), image.data);
 
-	if(data != nullptr) {
-		glTextureSubImage2D(_id, 0, 0, 0, _width, _height,
-			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), data);
+	if(enableMipmaps == Mipmaps::On) {
+		glGenerateTextureMipmap(_id);
 	}
 
-	if(enableMipmaps == Mipmaps::On) { glGenerateTextureMipmap(_id); }
-
-	stbi_image_free(data);
+	free(image.data);
 }
 
 Texture2D::~Texture2D() {

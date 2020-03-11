@@ -52,9 +52,9 @@
 #include "Cappuccino/Rendering/Textures/TextureCubemap.h"
 
 // Resource management
+#include "Cappuccino/Resource/AssetLoader.h"
 #include "Cappuccino/Resource/FontLibrary.h"
 #include "Cappuccino/Resource/MeshLibrary.h"
-#include "Cappuccino/Resource/ResourceLoader.h"
 #include "Cappuccino/Resource/ShaderLibrary.h"
 
 // Scene management

@@ -1,12 +1,33 @@
 #include "CappPCH.h"
 #include "Cappuccino/Rendering/Textures/TextureCubemap.h"
-
-#include "Cappuccino/Rendering/Textures/TextureDefaults.h"
+#include "Cappuccino/Resource/AssetLoader.h"
 
 #include <glad/glad.h>
-#include <stb/stb_image.h>
 
 using namespace Capp;
+
+CubemapFiles::CubemapFiles(const std::string& left, const std::string& right, const std::string& up, const std::string& down, const std::string& front, const std::string& back) :
+	files({ left, right, up, down, front, back }) {}
+
+CubemapFiles::CubemapFiles(const std::array<std::string, 6>& filepaths) :
+	files(filepaths) {}
+
+CubemapFiles::CubemapFiles(const std::vector<std::string>& filepaths) {
+	for(unsigned i = 0; i < filepaths.size(); ++i) {
+		if(i >= 6) {
+			CAPP_PRINT_ERROR("Cubemap cannot load in more than 6 faces!\n\tLast filepath: {0}", filepaths[5]);
+			break;
+		}
+		files[i] = filepaths[i];
+	}
+}
+
+const std::string& CubemapFiles::operator[](const unsigned index) const {
+	CAPP_ASSERT(index < 6, "Cannot access cubemap file with index {0}! (Index out of range)", index);
+	return files.at(index);
+}
+
+unsigned CubemapFiles::size() const { return static_cast<unsigned>(files.size()); }
 
 TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat format) :
 	_size(faceSize)
@@ -81,13 +102,10 @@ TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat for
 	setParameters(params);
 }
 
-TextureCubemap::TextureCubemap(const std::vector<std::string>& filepaths) {
+TextureCubemap::TextureCubemap(const CubemapFiles& filepaths) {
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
 	setCubemapTextures(filepaths);
 }
-
-TextureCubemap::TextureCubemap(const std::initializer_list<std::string>& filepaths) :
-	TextureCubemap(std::vector<std::string>(filepaths)) {}
 
 TextureCubemap::~TextureCubemap() {
 	glDeleteTextures(1, &_id);
@@ -98,83 +116,63 @@ unsigned TextureCubemap::getRendererID() const { return _id; }
 void TextureCubemap::bind(const unsigned slot) const { glBindTextureUnit(slot, _id); }
 void TextureCubemap::unbind(const unsigned slot) { glBindTextureUnit(slot, 0); }
 
-void TextureCubemap::setCubemapTextures(const std::initializer_list<std::string>& filepaths) {
-	setCubemapTextures(std::vector<std::string>(filepaths));
-}
-
-void TextureCubemap::setCubemapTextures(const std::vector<std::string>& filepaths) {
-	CAPP_ASSERT(filepaths.size() <= 6, "Cubemap cannot load in more than 6 faces!");
-
-	stbi_set_flip_vertically_on_load(false);
+void TextureCubemap::setCubemapTextures(const CubemapFiles& filepaths) {
+	const TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
+	setParameters(params);
+	
 	for(unsigned i = 0; i < filepaths.size(); ++i) {
-		int width, height, channels;
-		unsigned char* data = stbi_load(filepaths[i].c_str(), &width, &height, &channels, 0);
-
-		if(!data) {
-			CAPP_ASSERT(data != nullptr, "Failed to load texture for texture cube!\n\tTexture path: {0}", filepaths[i]);
-			stbi_image_free(data);
-		}
-		
-		if(_size != 0 && (static_cast<unsigned>(width) != _size || static_cast<unsigned>(height) != _size)) {
-			CAPP_ASSERT(_size == 0 || static_cast<unsigned>(width) == _size && static_cast<unsigned>(height) == _size, "Texture image file dimensions do not match the size of this cubemap!\n\tTexture path: {0}", filepaths[i]);
-			stbi_image_free(data);
+		if(filepaths[i].empty()) {
+			CAPP_ASSERT(filepaths[i].empty(), "Could not read filepath on index {0}!", i);
+			continue;
 		}
 
-		if(width != height) {
-			CAPP_ASSERT(width == height, "Texture image for cubemap must be square!\n\tTexture path: {0}", filepaths[i]);
-			stbi_image_free(data);
+		const AssetLoader::ImageData image = AssetLoader::loadImageFile(filepaths[i], false);
+			
+		if(image.width != image.height) {
+			CAPP_ASSERT(image.width == image.height, "Texture image for cubemap must be square!\n\tTexture path: {0}", filepaths[i]);
+			free(image.data);
+			return;
+		}
+
+		switch(image.channels) {
+			case 1:
+				_formats = { InternalFormat::Red8, PixelFormat::Red };
+				break;
+			case 2:
+				_formats = { InternalFormat::RG8, PixelFormat::RG };
+				break;
+			case 3:
+				_formats = { InternalFormat::RGB8, PixelFormat::RGB };
+				break;
+			case 4:
+				_formats = { InternalFormat::RGBA8, PixelFormat::RGBA };
+				break;
+			default:
+				_formats = { InternalFormat::None, PixelFormat::None };
+				break;
+		}
+		if(_formats.internalFormat == InternalFormat::None || _formats.pixelFormat == PixelFormat::None) {
+			CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
+			CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
+			free(image.data);
+			return;
 		}
 
 		if(i == 0) {
-			_size = width;
-
-			const TextureParams params = {
-				WrapMode::ClampToEdge,
-				MinFilter::Linear,
-				MagFilter::Linear
-			};
-
-			setParameters(params);
-			
+			_size = image.width;
 			glTextureStorage2D(_id, 1, static_cast<GLenum>(_formats.internalFormat), _size, _size);
 		}
-
-		switch(channels) {
-			case 1:
-				_formats.internalFormat = InternalFormat::Red8;
-				_formats.pixelFormat = PixelFormat::Red;
-				break;
-			case 2:
-				_formats.internalFormat = InternalFormat::RG8;
-				break;
-			case 3:
-				_formats.internalFormat = InternalFormat::RGB8;
-				_formats.pixelFormat = PixelFormat::RGB;
-				break;
-			case 4:
-				_formats.internalFormat = InternalFormat::RGBA8;
-				_formats.pixelFormat = PixelFormat::RGBA;
-				break;
-			default:
-				_formats.internalFormat = InternalFormat::None;
-				_formats.pixelFormat = PixelFormat::None;
-				break;
+		
+		if(static_cast<unsigned>(image.width) != _size || static_cast<unsigned>(image.height) != _size) {
+			CAPP_ASSERT(_size == 0 || static_cast<unsigned>(image.width) == _size && static_cast<unsigned>(image.height) == _size, "Texture image dimensions do not the set size!\n\tTexture path: {0}", filepaths[i]);
+			free(image.data);
+			return;
 		}
+			
+		glTextureSubImage3D(_id, 0, 0, 0, i, _size, _size, 1,
+			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), image.data);
 
-		CAPP_ASSERT(_formats.internalFormat != InternalFormat::None, "Unsupported image format!");
-		CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
-
-		glTexSubImage2D(static_cast<unsigned>(CubemapFace::PositiveX) + i, 0, 0, 0, _size, _size,
-			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), data);
-
-		stbi_image_free(data);
-	}
-
-	for(unsigned i = 5; i >= filepaths.size(); --i) {
-		_formats.pixelFormat = PixelFormat::RGBA;
-
-		glTexSubImage2D(static_cast<unsigned>(CubemapFace::PositiveX) + i, 0, 0, 0, 1, 1,
-			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), &whiteTexture);
+		free(image.data);
 	}
 }
 

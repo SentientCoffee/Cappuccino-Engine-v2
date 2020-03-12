@@ -470,15 +470,15 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f, -1.0f), { 0.0f, -1.0f,  0.0f })
 			};
 			
-			for(unsigned i = 0; i < shadowTransforms.size(); ++i) {
-				pLight->getShadowBuffer()->bind((CubemapFace)(static_cast<unsigned>(CubemapFace::PositiveX) + i));
+			for(unsigned i = 0; i < 6; ++i) {
+				pLight->getShadowBuffer()->bind();
 				RenderCommand::setViewport(0, 0, pLight->getShadowBuffer()->getWidth(), pLight->getShadowBuffer()->getHeight());
 				RenderCommand::clearScreen(ClearFlags::Depth);
 				{
 					rStorage->pShadowPass->bind();
 					rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
 					rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
-					rStorage->pShadowPass->setUniform<Mat4>("uLightViews[" + std::to_string(i) + "]", shadowTransforms[i]);
+					rStorage->pShadowPass->setUniform<Mat4>("uShadowViewProjections[" + std::to_string(i) + "]", shadowTransforms[i]);
 					
 					for(auto model : rStorage->modelRenderQueue) {
 						if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
@@ -563,11 +563,11 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::setViewport(0, 0, rStorage->deferredComposite->getWidth(), rStorage->deferredComposite->getHeight());
 		RenderCommand::clearScreen();
 		{
-			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
-			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour1)->bind(1);
-			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour2)->bind(2);
-			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour3)->bind(3);
-			rStorage->gBuffer->getAttachment(AttachmentTarget::Colour4)->bind(4);
+			rStorage->gBuffer->getTextureAttachment(AttachmentTarget::Colour0)->bind(0);
+			rStorage->gBuffer->getTextureAttachment(AttachmentTarget::Colour1)->bind(1);
+			rStorage->gBuffer->getTextureAttachment(AttachmentTarget::Colour2)->bind(2);
+			rStorage->gBuffer->getTextureAttachment(AttachmentTarget::Colour3)->bind(3);
+			rStorage->gBuffer->getTextureAttachment(AttachmentTarget::Colour4)->bind(4);
 			rStorage->fullscreenQuad->getVAO()->bind();
 
 			// Directional lights
@@ -582,9 +582,12 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 				shader->setUniform<Float>("uAmbientPower", 0.3f);
+
+				shader->setUniform<Float>("uShadowBias", 0.001f);
+
 			
 				for(auto dLight : rStorage->activeLights.directionalLights) {
-					dLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+					dLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
 				
 				
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(dLight->getViewMatrix());
@@ -593,7 +596,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					shader->setUniform<Vec3>("uDirectionalLight.colour", dLight->getColour());
 					shader->setUniform<Mat4>("uLightViewSpace", dLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
 					shader->setUniform<Int>("uShadowMap", 6);
-					shader->setUniform<Float>("uShadowBias", 0.001f);
 				
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 				}
@@ -611,17 +613,20 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 				shader->setUniform<Float>("uAmbientPower", 0.3f);
+
+				shader->setUniform<Mat4>("uToWorldSpace", glm::inverse(rStorage->perspectiveCamera.getViewMatrix()));
+				shader->setUniform<Float>("uFarPlane", 100.0f);
 				shader->setUniform<Float>("uShadowBias", 0.001f);
+				
 
 				for(auto pLight : rStorage->activeLights.pointLights) {
-					pLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+					pLight->getShadowBuffer()->getCubemapAttachment(AttachmentTarget::Depth)->bind(6);
 
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(pLight->getViewMatrix());
 				
 					shader->setUniform<Vec3>("uPointLight.position", glm::vec3(lightViewToCameraView * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
 					shader->setUniform<Vec3>("uPointLight.colour", pLight->getColour());
 					shader->setUniform<Float>("uPointLight.attenuation", pLight->getAttenuation());
-					shader->setUniform<Mat4>("uLightViewSpace", pLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
 					shader->setUniform<Int>("uShadowMap", 6);
 				
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
@@ -640,10 +645,11 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 				shader->setUniform<Float>("uAmbientPower", 0.3f);
+				
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 
 				for(auto sLight : rStorage->activeLights.spotlights) {
-					sLight->getShadowBuffer()->getAttachment(AttachmentTarget::Depth)->bind(6);
+					sLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
 
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(sLight->getViewMatrix());
 
@@ -857,7 +863,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			RenderCommand::setViewport(0, 0, rStorage->gammaCorrection.buffer->getWidth(), rStorage->gammaCorrection.buffer->getHeight());
 
 			rStorage->gammaCorrection.shader->bind();
-			lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+			lastPass->getTextureAttachment(AttachmentTarget::Colour0)->bind(0);
 			rStorage->gammaCorrection.shader->setUniform<Int>("uImage", 0);
 			rStorage->gammaCorrection.shader->setUniform<Float>("uGamma", rStorage->gamma);
 			rStorage->gammaCorrection.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
@@ -877,7 +883,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			RenderCommand::setViewport(0, 0, pass.buffer->getWidth(), pass.buffer->getHeight());
 
 			pass.shader->bind();
-			lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+			lastPass->getTextureAttachment(AttachmentTarget::Colour0)->bind(0);
 			pass.shader->setUniform<Int>("uImage", 0);
 			pass.shader->setUniform<Vec2>("uScreenSize", glm::vec2(window->getWidth(), window->getHeight()));
 
@@ -898,7 +904,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	RenderCommand::setViewport(0, 0, lastPass->getWidth(), lastPass->getHeight());
 	{
 		rStorage->framebufferShader->bind();
-		lastPass->getAttachment(AttachmentTarget::Colour0)->bind(0);
+		lastPass->getTextureAttachment(AttachmentTarget::Colour0)->bind(0);
 		rStorage->fullscreenQuad->getVAO()->bind();
 		RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 	}

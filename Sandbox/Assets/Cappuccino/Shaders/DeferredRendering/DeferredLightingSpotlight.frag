@@ -51,16 +51,17 @@ struct GBuffer {
 // ----- Uniforms --------------------------------
 // -----------------------------------------------
 
+uniform GBuffer uGBuffer;
+
 uniform vec3 uAmbientColour;
 uniform float uAmbientPower;
 
-uniform Spotlight uSpotlight;
-uniform mat4 uLightViewSpace;
-
-uniform sampler2D uShadowMap;
 uniform float uShadowBias = 0.001;
 
-uniform GBuffer uGBuffer;
+uniform Spotlight uSpotlight;
+uniform mat4 uLightViewSpace;
+uniform sampler2D uShadowMap;
+
 
 // -----------------------------------------------
 // ----- Functions -------------------------------

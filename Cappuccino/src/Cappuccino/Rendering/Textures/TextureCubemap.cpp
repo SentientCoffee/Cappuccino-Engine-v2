@@ -96,7 +96,11 @@ TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat for
 	CAPP_ASSERT(_formats.pixelFormat != PixelFormat::None, "Unsupported pixel format!");
 
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
-	glTextureStorage2D(_id, 1, static_cast<GLenum>(_formats.internalFormat), _size, _size);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
+	for(unsigned i = 0; i < 6; ++i) {
+		glTexImage2D(static_cast<GLenum>(CubemapFace::PositiveX) + i, 0, static_cast<GLenum>(_formats.internalFormat), _size, _size, 0,
+			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), nullptr);
+	}
 	
 	const TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
 	setParameters(params);

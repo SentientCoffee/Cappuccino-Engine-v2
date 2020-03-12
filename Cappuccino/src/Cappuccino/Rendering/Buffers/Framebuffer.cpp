@@ -47,6 +47,7 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 		}
 		else {
 			it->second.texture = nullptr;
+			it->second.cubemap = nullptr;
 		}
 	}
 	else if(target >= AttachmentTarget::Colour0 && target <= AttachmentTarget::Colour7) {
@@ -56,63 +57,71 @@ void Framebuffer::addAttachment(const AttachmentTarget target, const Attachment&
 	
 	Attachment a = attachment;
 
-	if(a.type == AttachmentType::RenderBuffer) {
-		glCreateRenderbuffers(1, &a.id);
-		glNamedRenderbufferStorage(a.id, static_cast<GLenum>(a.format), _width, _height);
-		glNamedFramebufferRenderbuffer(_id, static_cast<GLenum>(target), GL_RENDERBUFFER, a.id);
-	}
-	else if(a.type == AttachmentType::Texture || a.type == AttachmentType::Cubemap) {
-		a.texture = new Texture2D(_width, _height, a.format, Mipmaps::Off);
-		a.texture->setParameters(a.parameters);
-		a.id = a.texture->getRendererID();
+	switch(a.type) {
+		case AttachmentType::RenderBuffer:
+			glCreateRenderbuffers(1, &a.id);
+			glNamedRenderbufferStorage(a.id, static_cast<GLenum>(a.format), _width, _height);
+			glNamedFramebufferRenderbuffer(_id, static_cast<GLenum>(target), GL_RENDERBUFFER, a.id);
+			break;
+		case AttachmentType::Texture:
+			a.texture = new Texture2D(_width, _height, a.format, Mipmaps::Off);
+			a.texture->setParameters(a.parameters);
+			a.id = a.texture->getRendererID();
 
-		glNamedFramebufferTexture(_id, static_cast<GLenum>(target), a.id, 0);
-
-		if(a.type == AttachmentType::Cubemap) {
+			glNamedFramebufferTexture(_id, static_cast<GLenum>(target), a.id, 0);
+			break;
+		case AttachmentType::Cubemap:
 			CAPP_ASSERT(_width == _height, "Texture attachment for cubemap must be square!\n\tFramebuffer: {0}", _name);
-			a.cubemap = new TextureCubemap(_width, InternalFormat::Red32F);
-		}
+			a.cubemap = new TextureCubemap(_width, a.format);
+			a.id = a.cubemap->getRendererID();
+
+			glNamedFramebufferTexture(_id, static_cast<GLenum>(target), a.id, 0);
+			break;
 	}
 
 	_attachments[target] = a;
 }
 
-Texture2D* Framebuffer::getAttachment(const AttachmentTarget target) {
+Texture2D* Framebuffer::getTextureAttachment(const AttachmentTarget target) {
 	const auto it = _attachments.find(target);
 	if(it == _attachments.end()) {
-		CAPP_ASSERT(it != _attachments.end(), "Could not get attachment {0} from framebuffer \"{1}\"!", target, _name);
+		CAPP_ASSERT(it != _attachments.end(), "Failed to find attachment {0} from framebuffer \"{1}\"!", target, _name);
 		return nullptr;
 	}
 	if(it->second.type == AttachmentType::RenderBuffer) {
 		CAPP_ASSERT(it->second.type != AttachmentType::RenderBuffer, "Attachment {0} from framebuffer \"{1}\" is a renderbuffer, cannot retrieve", target, _name);
 		return nullptr;
 	}
-
+	if(it->second.type == AttachmentType::Cubemap) {
+		CAPP_ASSERT(it->second.type != AttachmentType::Cubemap, "Attachment {0} from framebuffer \"{1}\" is a cubemap, try using Framebuffer::getCubemapAttachment()", target, _name);
+		return nullptr;
+	}
+	
 	return it->second.texture;
+}
+
+TextureCubemap* Framebuffer::getCubemapAttachment(const AttachmentTarget target) {
+	const auto it = _attachments.find(target);
+	if(it == _attachments.end()) {
+		CAPP_ASSERT(it != _attachments.end(), "Failed to find attachment {0} from framebuffer \"{1}\"!", target, _name);
+		return nullptr;
+	}
+	if(it->second.type == AttachmentType::RenderBuffer) {
+		CAPP_ASSERT(it->second.type != AttachmentType::RenderBuffer, "Attachment {0} from framebuffer \"{1}\" is a renderbuffer, cannot retrieve", target, _name);
+		return nullptr;
+	}
+	if(it->second.type == AttachmentType::Texture) {
+		CAPP_ASSERT(it->second.type != AttachmentType::Texture, "Attachment {0} from framebuffer \"{1}\" is a texture, try using Framebuffer::getTextureAttachment()", target, _name);
+		return nullptr;
+	}
+
+	return it->second.cubemap;
 }
 
 void Framebuffer::bind(const FramebufferBinding binding) {
 	validateFramebuffer();
 	_binding = binding;
 	glBindFramebuffer(static_cast<GLenum>(binding), _id);
-}
-
-void Framebuffer::bind(const CubemapFace face, const FramebufferBinding binding) {
-	validateFramebuffer();
-	bool hasCubemap = false;
-	for(const auto& a : _attachments) {
-		if(a.second.type == AttachmentType::Cubemap && a.second.cubemap != nullptr) {
-			hasCubemap = true;
-			glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(a.first), static_cast<GLenum>(face), a.second.cubemap->getRendererID(), 0);
-			break;
-		}
-	}
-	if(!hasCubemap) {
-		CAPP_ASSERT(hasCubemap, "Attachment type of at least one attachment must be set to Cubemap before trying to render!");
-		return;
-	}
-
-	bind(binding);
 }
 
 void Framebuffer::unbind() {

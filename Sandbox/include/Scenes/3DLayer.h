@@ -28,7 +28,14 @@ private:
 	CameraController cameraController;
 	bool flashlight = true;
 
-	Capp::Model* floorPlane = nullptr;
+	Capp::Model* floor = nullptr;
+	Capp::Model* wall1 = nullptr;
+	Capp::Model* wall2 = nullptr;
+	Capp::Model* wall3 = nullptr;
+	Capp::Model* wall4 = nullptr;
+	Capp::Model* ceiling = nullptr;
+
+	
 	Capp::Model* pointLightCube = nullptr;
 	Capp::Model* spotlightCube = nullptr;
 	

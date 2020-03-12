@@ -24,10 +24,10 @@ namespace Capp {
 		void resize(unsigned width, unsigned height);
 
 		void addAttachment(AttachmentTarget target, const Attachment& attachment);
-		Texture2D* getAttachment(AttachmentTarget target);
+		Texture2D* getTextureAttachment(AttachmentTarget target);
+		TextureCubemap* getCubemapAttachment(AttachmentTarget target);
 
 		void bind(FramebufferBinding binding = FramebufferBinding::DrawOnly);
-		void bind(CubemapFace face, FramebufferBinding binding = FramebufferBinding::DrawOnly);
 		void unbind();
 
 		static void blitBufferData(const glm::ivec4& sourceBounds, const glm::ivec4& destinationBounds, ClearFlags flags = ClearFlags::All, MagFilter magFilter = MagFilter::Linear);

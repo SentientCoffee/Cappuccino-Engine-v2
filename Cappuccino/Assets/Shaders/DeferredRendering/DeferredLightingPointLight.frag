@@ -44,16 +44,18 @@ struct GBuffer {
 // ----- Uniforms --------------------------------
 // -----------------------------------------------
 
+uniform GBuffer uGBuffer;
+
 uniform vec3 uAmbientColour;
 uniform float uAmbientPower;
 
-uniform PointLight uPointLight;
-uniform mat4 uLightViewSpace;
-
-uniform samplerCube uShadowMap;
+uniform mat4 uToWorldSpace;
+uniform float uFarPlane;
 uniform float uShadowBias = 0.001;
 
-uniform GBuffer uGBuffer;
+uniform PointLight uPointLight;
+uniform samplerCube uShadowMap;
+
 
 // -----------------------------------------------
 // ----- Functions -------------------------------
@@ -130,19 +132,12 @@ vec3 calculatePointLight(PointLight light, Material material, vec4 viewPosition,
 	float attenuation = 1.0 / (1.0 + light.attenuation * pow(dist, 2.0));
 
 	// Shadow component
-	vec4 shadowPosition = uLightViewSpace * viewPosition;
-	shadowPosition /= shadowPosition.w;
-	shadowPosition = shadowPosition * 0.5 + 0.5;
+	vec4 worldPositionToLight = (uToWorldSpace * viewPosition) - (uToWorldSpace * vec4(light.position, 1.0));
+	float positionDepth = length(worldPositionToLight.xyz);
 
 	float bias = max(uShadowBias * 10.0 * (1.0 - dot(normal, lightDirection)), uShadowBias);
-	//float shadow = 0.0;
-	float shadowDepth = texture(uShadowMap, shadowPosition.xyz / shadowPosition.w).r;
-	float shadow = shadowDepth < ((shadowPosition.z - bias) / shadowPosition.w) ? 1.0 : 0.0;
-	//float shadow = calculateProjShadowPCF(shadowPosition, bias);
-
-	if(shadowPosition.x < 0 || shadowPosition.x > 1 || shadowPosition.y < 0 || shadowPosition.y > 1 || shadowPosition.z < 0 || shadowPosition.z > 1) {
-		shadow = 0.0;
-	}
+	float shadowDepth = texture(uShadowMap, worldPositionToLight.xyz).r * uFarPlane;
+	float shadow = shadowDepth < (positionDepth - bias) ? 1.0 : 0.0;
 
 	return (1.0 - shadow) * attenuation * (diffuse + specular + rim);
 }

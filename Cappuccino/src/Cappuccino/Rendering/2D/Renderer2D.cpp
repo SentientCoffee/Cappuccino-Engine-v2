@@ -243,7 +243,7 @@ void Renderer2D::finish() {
 	
 	RenderCommand::setViewport(0, 0, r2DStorage->mainBuffer->getWidth(), r2DStorage->mainBuffer->getHeight());
 	r2DStorage->mainBufferShader->bind();
-	r2DStorage->mainBuffer->getAttachment(AttachmentTarget::Colour0)->bind(0);
+	r2DStorage->mainBuffer->getTextureAttachment(AttachmentTarget::Colour0)->bind(0);
 	r2DStorage->fullscreenQuad->getVAO()->bind();
 	RenderCommand::drawIndexed(r2DStorage->fullscreenQuad->getVAO());
 

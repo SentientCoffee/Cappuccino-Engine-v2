@@ -9,22 +9,34 @@ void Layer3D::onPush() {
 	// -----------------------------------------------------------------
 
 	{
-		unsigned blackTexture = 0x00000000;
-		unsigned whiteTexture = 0xFFFFFFFF;
+		unsigned white = 0xFFFFFFFF;
+		unsigned black = 0x00000000;
 		auto whiteMaterial = new Capp::Material;
-		whiteMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &whiteTexture));
-		whiteMaterial->setValue("specular", new Capp::Texture2D(1, 1, &blackTexture));
-		whiteMaterial->setValue("emission", new Capp::Texture2D(1, 1, &blackTexture));
+		whiteMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &white));
+		whiteMaterial->setValue("specular", new Capp::Texture2D(1, 1, &black));
+		whiteMaterial->setValue("emission", new Capp::Texture2D(1, 1, &black));
 
 		const auto cubeMesh = Capp::MeshLibrary::loadMesh("Floor plane", "Assets/Cappuccino/Meshes/Cube.obj");
 
-		floorPlane = new Capp::Model(cubeMesh, whiteMaterial);
-		floorPlane->setPosition(0.0f, -1.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
+		floor = new Capp::Model(cubeMesh, whiteMaterial);
+		wall1 = new Capp::Model(cubeMesh, whiteMaterial);
+		wall2 = new Capp::Model(cubeMesh, whiteMaterial);
+		wall3 = new Capp::Model(cubeMesh, whiteMaterial);
+		wall4 = new Capp::Model(cubeMesh, whiteMaterial);
+		ceiling = new Capp::Model(cubeMesh, whiteMaterial);
+		
+		floor->setPosition(0.0f, -10.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
+		wall1->setPosition( 10.0f, 0.0f, 0.0f ).setRotation(0.0f, 0.0f, 90.0f).setScale(20.0f, 0.01f, 20.0f);
+		wall2->setPosition(-10.0f, 0.0f, 0.0f ).setRotation(0.0f, 0.0f, 90.0f).setScale(20.0f, 0.01f, 20.0f);
+		wall3->setPosition( 0.0f, 0.0f,  10.0f).setRotation(90.0f, 0.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
+		wall4->setPosition( 0.0f, 0.0f, -10.0f).setRotation(90.0f, 0.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
+		ceiling->setPosition(0.0f, 10.0f, 0.0f).setScale(20.0f, 0.1f, 20.0f);
+
 
 		pointLightCube = new Capp::Model(cubeMesh, whiteMaterial);
-		pointLightCube->setScale(0.5f);
 		spotlightCube = new Capp::Model(cubeMesh, whiteMaterial);
-		spotlightCube->setScale(0.5f);
+		pointLightCube->setScale(0.3f);
+		spotlightCube->setScale(0.3f);
 	}
 	
 	// -----------------------------------------------------------------
@@ -117,7 +129,7 @@ void Layer3D::onPush() {
 }
 
 void Layer3D::onPop() {
-	delete floorPlane;
+	delete floor;
 	
 	delete captain1;
 	delete captain2;
@@ -242,14 +254,20 @@ void Layer3D::update() {
 	
 	Capp::Renderer::start(cameraController.getCamera(), lights, skybox);
 	{
-		Capp::Renderer::addToQueue(floorPlane);
+		Capp::Renderer::addToQueue(floor);
+		Capp::Renderer::addToQueue(wall1);
+		Capp::Renderer::addToQueue(wall2);
+		Capp::Renderer::addToQueue(wall3);
+		Capp::Renderer::addToQueue(wall4);
+		Capp::Renderer::addToQueue(ceiling);
+
 		Capp::Renderer::addToQueue(captain1);
 		Capp::Renderer::addToQueue(captain2);
 		Capp::Renderer::addToQueue(f16);
 		Capp::Renderer::addToQueue(sentry1);
 		Capp::Renderer::addToQueue(sentry2);
 
-		Capp::Renderer::addToQueue(pointLightCube);
+		//Capp::Renderer::addToQueue(pointLightCube);
 		if(flashlight) {
 			//Capp::Renderer::addToQueue(spotlightCube);
 		}

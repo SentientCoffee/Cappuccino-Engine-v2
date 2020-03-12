@@ -87,7 +87,11 @@ PointLight::PointLight(const glm::vec3& position, const glm::vec3& colour, const
 	_transform.setPosition(position);
 	viewMatrixCalc();
 	_shadowBuffer->setName("Shadow Buffer (Point light)");
-	const Attachment depth = { AttachmentType::Cubemap, InternalFormat::Depth32F,{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) } };
+	const Attachment depth = {
+		AttachmentType::Cubemap,
+		InternalFormat::Depth32F,
+		{ WrapMode::ClampToBorder, MinFilter::Nearest, MagFilter::Nearest, Anisotropy::Aniso1x, glm::vec4(1.0f) }
+	};
 	_shadowBuffer->addAttachment(AttachmentTarget::Depth, depth);
 }
 

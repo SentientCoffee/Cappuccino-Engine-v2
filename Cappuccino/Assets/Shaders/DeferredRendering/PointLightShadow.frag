@@ -6,8 +6,8 @@ uniform vec3 uLightPosition;
 uniform float uFarPlane;
 
 void main() {
-	float distancetoLight = length(inPosition.xyz - uLightPosition);
-	distancetoLight /= uFarPlane;
+	float distanceToLight = length(inPosition.xyz - uLightPosition);
+	distanceToLight /= uFarPlane;
 
-	gl_FragDepth = distancetoLight;
+	gl_FragDepth = distanceToLight;
 }

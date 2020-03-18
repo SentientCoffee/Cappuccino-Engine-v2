@@ -470,35 +470,35 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f, -1.0f), { 0.0f, -1.0f,  0.0f })
 			};
 			
-			for(unsigned i = 0; i < 6; ++i) {
-				pLight->getShadowBuffer()->bind();
-				RenderCommand::setViewport(0, 0, pLight->getShadowBuffer()->getWidth(), pLight->getShadowBuffer()->getHeight());
-				RenderCommand::clearScreen(ClearFlags::Depth);
-				{
-					rStorage->pShadowPass->bind();
-					rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
-					rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
+			pLight->getShadowBuffer()->bind();
+			RenderCommand::setViewport(0, 0, pLight->getShadowBuffer()->getWidth(), pLight->getShadowBuffer()->getHeight());
+			RenderCommand::clearScreen(ClearFlags::Depth);
+			{
+				rStorage->pShadowPass->bind();
+				rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
+				rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
+				for(unsigned i = 0; i < 6; ++i) {
 					rStorage->pShadowPass->setUniform<Mat4>("uShadowViewProjections[" + std::to_string(i) + "]", shadowTransforms[i]);
+				}
 					
-					for(auto model : rStorage->modelRenderQueue) {
-						if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
-							continue;
-						}
+				for(auto model : rStorage->modelRenderQueue) {
+					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
+						continue;
+					}
 
-						const auto mesh = model->getMesh();
-						rStorage->pShadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
+					const auto mesh = model->getMesh();
+					rStorage->pShadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
 
-						mesh->getVAO()->bind();
-						if(mesh->getVAO()->getIndexBuffer() != nullptr) {
-							RenderCommand::drawIndexed(mesh->getVAO());
-						}
-						else {
-							RenderCommand::drawArray(mesh->getVAO());
-						}
+					mesh->getVAO()->bind();
+					if(mesh->getVAO()->getIndexBuffer() != nullptr) {
+						RenderCommand::drawIndexed(mesh->getVAO());
+					}
+					else {
+						RenderCommand::drawArray(mesh->getVAO());
 					}
 				}
-				pLight->getShadowBuffer()->unbind();
 			}
+			pLight->getShadowBuffer()->unbind();
 		}
 
 		RenderCommand::setCullingMode(CullMode::BackFace);
@@ -585,11 +585,8 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 
-			
 				for(auto dLight : rStorage->activeLights.directionalLights) {
 					dLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
-				
-				
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(dLight->getViewMatrix());
 				
 					shader->setUniform<Vec3>("uDirectionalLight.direction", glm::mat3(lightViewToCameraView) * glm::vec3(0.0f, 0.0f, -1.0f));

@@ -15,6 +15,7 @@ It also utilizes the [GLM math library](https://glm.g-truc.net/0.9.9/index.html)
 - Material system
 - Lighting system
 - Framebuffers
+- Shadow mapping support
 - Custom post-processing effects
 
 More on the way:

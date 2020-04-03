@@ -1,9 +1,7 @@
 #pragma once
 
-namespace Capp {
-
-	enum class KeyCode {
-		// From glfw3.h
+namespace Capp::KeyCode {
+	enum : unsigned int {
 		Space                  = 32,
 		Apostrophe             = 39,		/* ' */
 		Comma                  = 44,		/* , */
@@ -127,5 +125,4 @@ namespace Capp {
 		RightSuper             = 347,
 		Menu                   = 348
 	};
-
 }

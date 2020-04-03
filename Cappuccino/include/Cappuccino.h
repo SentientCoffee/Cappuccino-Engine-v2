@@ -19,6 +19,8 @@
 
 // Input system
 #include "Cappuccino/Input/Input.h"
+#include "Cappuccino/Input/KeyCodes.h"
+#include "Cappuccino/Input/MouseButtonCodes.h"
 
 // Game objects
 #include "Cappuccino/Objects/GameObject.h"

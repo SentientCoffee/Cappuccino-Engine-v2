@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Event.h"
-#include "Cappuccino/Input/MouseButtonCodes.h"
 
 namespace Capp {
 
@@ -53,7 +52,6 @@ namespace Capp {
 		EVENT_CLASS_TYPE(MouseButtonPressed);
 
 		int getMouseButton() const;
-		bool compareMouseButton(MouseButton mouseButton) const;
 		
 		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
@@ -73,7 +71,6 @@ namespace Capp {
 		EVENT_CLASS_TYPE(MouseButtonReleased);
 
 		int getMouseButton() const;
-		bool compareMouseButton(MouseButton mouseButton) const;
 		
 		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;

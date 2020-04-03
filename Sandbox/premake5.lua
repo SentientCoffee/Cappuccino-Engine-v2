@@ -10,6 +10,8 @@ project "Sandbox"
 	targetdir "Build/bin/%{cfg.architecture}/%{cfg.buildcfg}"
 	objdir "Build/obj/%{cfg.architecture}/%{cfg.buildcfg}"
 	
+	flags { "FatalWarnings" }
+
 	includedirs {
 		"%{wks.location}/Externals/fmod/include",
 		"%{wks.location}/Externals/freetype/include",

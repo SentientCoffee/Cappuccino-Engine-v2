@@ -150,7 +150,7 @@ void Layer3D::onPop() {
 void Layer3D::update() {
 	cameraController.update();
 
-	Capp::Lights lights = { { dirLight }, { pointLight } };
+	Capp::Lights lights = { { dirLight }, { pointLight }, {} };
 	pointLightCube->setPosition(pointLight->getPosition());
 	
 	if(flashlight) {
@@ -386,7 +386,7 @@ void Layer3D::onEvent(Capp::Event& e) {
 }
 
 bool Layer3D::onKeyPressed(Capp::KeyPressedEvent& e) {
-	if(e.compareKey(Capp::KeyCode::F)) {
+	if(e.getKeyCode() == Capp::KeyCode::F) {
 		flashlight ^= 1;
 	}
 

@@ -7,20 +7,20 @@
 
 using namespace Capp;
 
-bool Input::keyPressed(KeyCode key) {
+bool Input::keyPressed(const unsigned int key) {
 	const int state = glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(key));
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-bool Input::keyReleased(KeyCode key) {
+bool Input::keyReleased(const unsigned int key) {
 	return glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(key)) == GLFW_RELEASE;
 }
 
-bool Input::mouseButtonPressed(MouseButton button) {
+bool Input::mouseButtonPressed(const unsigned int button) {
 	return glfwGetMouseButton(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_PRESS;
 }
 
-bool Input::mouseButtonReleased(MouseButton button) {
+bool Input::mouseButtonReleased(const unsigned int button) {
 	return glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_RELEASE;
 }
 

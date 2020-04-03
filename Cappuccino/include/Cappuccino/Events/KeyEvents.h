@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Cappuccino/Events/Event.h"
-#include "Cappuccino/Input/KeyCodes.h"
 
 namespace Capp {
 
@@ -14,8 +13,6 @@ namespace Capp {
 		
 		int getKeyCode() const;
 		int getRepeatCount() const;
-
-		bool compareKey(KeyCode keyCode) const;
 
 		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
@@ -35,7 +32,6 @@ namespace Capp {
 		EVENT_CLASS_TYPE(KeyReleased);
 
 		int getKeyCode() const;
-		bool compareKey(KeyCode keyCode) const;
 
 		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;
@@ -55,7 +51,6 @@ namespace Capp {
 		EVENT_CLASS_TYPE(KeyReleased);
 
 		int getKeyCode() const;
-		bool compareKey(KeyCode keyCode) const;
 
 		#if CAPP_DEBUG || CAPP_RELEASE
 		std::string toString() const override;

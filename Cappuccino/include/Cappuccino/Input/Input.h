@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Cappuccino/Input/KeyCodes.h"
-#include "Cappuccino/Input/MouseButtonCodes.h"
-
 #include <glm/glm.hpp>
 
 namespace Capp {
@@ -10,11 +7,11 @@ namespace Capp {
 	class Input {
 	public:
 
-		static bool keyPressed(KeyCode key);
-		static bool keyReleased(KeyCode key);
+		static bool keyPressed(unsigned int key);
+		static bool keyReleased(unsigned int key);
 
-		static bool mouseButtonPressed(MouseButton button);
-		static bool mouseButtonReleased(MouseButton button);
+		static bool mouseButtonPressed(unsigned int button);
+		static bool mouseButtonReleased(unsigned int button);
 
 		static glm::vec2 getMousePosition();
 

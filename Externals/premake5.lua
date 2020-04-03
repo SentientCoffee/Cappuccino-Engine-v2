@@ -9,6 +9,8 @@ project "Externals"
 	targetdir "Build/bin/%{cfg.architecture}/%{cfg.buildcfg}"
 	objdir "Build/obj/%{cfg.architecture}/%{cfg.buildcfg}"
 	
+	warnings "default"
+
 	includedirs {
 		"glad/include",
 		"glfw3/include",

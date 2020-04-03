@@ -72,7 +72,7 @@ bool CameraController::onWindowResized(Capp::WindowResizedEvent& e) {
 }
 
 bool CameraController::onKeyPressed(Capp::KeyPressedEvent& e) {
-	if(e.compareKey(Capp::KeyCode::Escape)) {
+	if(e.getKeyCode() == Capp::KeyCode::Escape) {
 		_mouseHidden ^= 1;
 	}
 

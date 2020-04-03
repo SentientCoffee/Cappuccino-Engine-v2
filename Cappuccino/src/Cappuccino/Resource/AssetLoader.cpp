@@ -47,6 +47,8 @@ Texture3D* AssetLoader::loadCUBEFile(const std::string& filepath) {
 		lutData.push_back(line);
 	}
 	
+	lutFile.close();
+
 	CAPP_ASSERT(lutData.size() == pow(lutSize, 3), "LUT size is incorrect!\n\tGiven LUT size: {0}\n\tExpected LUT size: {1}\n\tFilepath: {2}", lutData.size(), pow(lutSize, 3), filepath);
 	
 	return new Texture3D(lutSize, lutSize, lutSize, lutData.data());

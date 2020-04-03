@@ -14,6 +14,8 @@ project "Cappuccino"
 	
 	defines { "GLFW_INCLUDE_NONE" }
 	
+	flags { "FatalWarnings" }
+
 	includedirs {
 		"%{wks.location}/Externals/fmod/include",
 		"%{wks.location}/Externals/freetype/include",

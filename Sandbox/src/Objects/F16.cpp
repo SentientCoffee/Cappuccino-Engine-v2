@@ -3,15 +3,15 @@
 F16::F16() {
 	unsigned blackTexture = 0x00000000;
 	
-	auto material = new Capp::Material();
-	material->setValue("diffuse", new Capp::Texture2D("Assets/Textures/Checkerboard.png"));
-	material->setValue("specular", new Capp::Texture2D("Assets/Textures/CheckerboardSpecular.png"));
-	material->setValue("emission", new Capp::Texture2D(1, 1, &blackTexture));
-	material->setValue("roughness", 0.22f);
+	auto material = Capp::Material::create();
+	material->setDiffuseMap(Capp::Texture2D::create("Assets/Textures/Checkerboard.png"));
+	material->setSpecularMap(Capp::Texture2D::create("Assets/Textures/CheckerboardSpecular.png"));
+	material->setEmissionMap(Capp::Texture2D::create(1, 1, &blackTexture));
+	material->setRoughness(0.22f);
 
-	Capp::Mesh* mesh = Capp::MeshLibrary::loadMesh("F16", "Assets/Meshes/F16.obj");
+	const Ref<Capp::Mesh> mesh = Capp::MeshLibrary::loadMesh("F16", "Assets/Meshes/F16.obj");
 
-	_models = { new Capp::Model(mesh, material) };
+	_models = { Capp::Model::create(mesh, material) };
 }
 
 F16::~F16() = default;

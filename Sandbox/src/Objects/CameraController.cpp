@@ -42,7 +42,7 @@ void CameraController::update() {
 		const glm::vec2 mousePos = Capp::Input::getMousePosition();
 		const glm::vec2 offset = { mousePos.x - _lastPos.x, _lastPos.y - mousePos.y }; // y is reversed since y-coordinates range from bottom to top
 	
-		_yaw += offset.x * _mouseSensitivity * Capp::Time::getDeltaTime();
+		_yaw   += offset.x * _mouseSensitivity * Capp::Time::getDeltaTime();
 		_pitch += offset.y * _mouseSensitivity * Capp::Time::getDeltaTime();
 		_pitch = glm::clamp(_pitch, -89.0f, 89.0f);
 
@@ -50,9 +50,9 @@ void CameraController::update() {
 		rotation.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
 		rotation.y = sin(glm::radians(_pitch));
 		rotation.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-		_camera.lookAt(_camera.getPosition() + glm::normalize(rotation));
-		
 		_lastPos = mousePos;
+		
+		_camera.lookAt(_camera.getPosition() + glm::normalize(rotation));
 	}
 }
 
@@ -72,15 +72,17 @@ bool CameraController::onWindowResized(Capp::WindowResizedEvent& e) {
 }
 
 bool CameraController::onKeyPressed(Capp::KeyPressedEvent& e) {
+	const auto window = Capp::Application::getInstance()->getWindow();
+	
 	if(e.getKeyCode() == Capp::KeyCode::Escape) {
 		_mouseHidden ^= 1;
 	}
 
 	if(!_mouseHidden) {
-		Capp::Application::getInstance()->getWindow()->showMouseCursor();
+		window->showMouseCursor();
 	}
 	else {
-		Capp::Application::getInstance()->getWindow()->disableMouseCursor();
+		window->disableMouseCursor();
 		_lastPos = Capp::Input::getMousePosition();
 	}
 	

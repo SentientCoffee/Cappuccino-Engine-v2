@@ -6,9 +6,7 @@
 
 using namespace Capp;
 
-Texture1D::Texture1D(const std::string& filepath) :
-	_texturePath(filepath)
-{
+Texture1D::Texture1D(const std::string& filepath) {
 	const AssetLoader::ImageData image = AssetLoader::loadImageFile(filepath);
 	_size = image.width;
 
@@ -43,7 +41,7 @@ Texture1D::Texture1D(const std::string& filepath) :
 }
 
 Texture1D::Texture1D(const unsigned size, void* data, const InternalFormat format) :
-	_size(size)
+	_size(size), _formats({})
 {
 	switch(format) {
 		case InternalFormat::Red16F:
@@ -77,6 +75,7 @@ Texture1D::Texture1D(const unsigned size, void* data, const InternalFormat forma
 		case InternalFormat::RGBA16:
 			_formats.pixelFormat = PixelFormat::RGBA;
 			break;
+		
 		default:
 			_formats.pixelFormat = PixelFormat::None;
 			break;
@@ -106,14 +105,15 @@ Texture1D::~Texture1D() {
 	glDeleteTextures(1, &_id);
 }
 
-unsigned Texture1D::getRendererID() const { return _id; }
-unsigned Texture1D::getSize() const { return _size; }
-
 void Texture1D::bind(const unsigned slot) const {
 	glBindTextureUnit(slot, _id);
 }
 void Texture1D::unbind(const unsigned slot) {
 	glBindTextureUnit(slot, 0);
+}
+
+void Texture1D::setData(void* data, unsigned size) {
+	
 }
 
 void Texture1D::setParameters(const TextureParams& params) {

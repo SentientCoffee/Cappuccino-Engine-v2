@@ -8,46 +8,32 @@
 namespace Capp {
 
 	class Material {
+
+		using TextureMap = std::unordered_map<std::string, Ref<Texture2D>>;
+		
 	public:
 
 		Material();
-		Material(Shader* shader);
 		~Material();
 
-		Shader* getShader() const;
-		void setShader(Shader* shader);
+		static Ref<Material> create() {
+			return Memory::createRef<Material>();
+		}
 
-		void apply() const;
+		void setDiffuseMap(const Ref<Texture2D>& diffuse);
+		void setSpecularMap(const Ref<Texture2D>& specular);
+		void setEmissionMap(const Ref<Texture2D>& emission);
+		void setNormalMap(const Ref<Texture2D>& normal);
+		void setParallaxMap(const Ref<Texture2D>& parallax);
 
-		void setValue(const std::string& name, bool value);
-		void setValue(const std::string& name, int value);
-		void setValue(const std::string& name, float value);
-		
-		void setValue(const std::string& name, const glm::vec2& value);
-		void setValue(const std::string& name, const glm::vec3& value);
-		void setValue(const std::string& name, const glm::vec4& value);
-		
-		void setValue(const std::string& name, const glm::mat3& value);
-		void setValue(const std::string& name, const glm::mat4& value);
-		
-		void setValue(const std::string& name, Texture2D* value);
+		void setRoughness(float roughness);
 
+		void apply(const Ref<Shader>& shader) const;
+		
 	private:
 
-		Shader* _shader = nullptr;
-
-		std::unordered_map<std::string, bool> _bools;
-		std::unordered_map<std::string, int> _ints;
-		std::unordered_map<std::string, float> _floats;
-		
-		std::unordered_map<std::string, glm::vec2> _vec2s;
-		std::unordered_map<std::string, glm::vec3> _vec3s;
-		std::unordered_map<std::string, glm::vec4> _vec4s;
-		
-		std::unordered_map<std::string, glm::mat3> _mat3s;
-		std::unordered_map<std::string, glm::mat4> _mat4s;
-
-		std::unordered_map<std::string, Texture2D*> _textures;
+		float _roughness = 1.0f;
+		TextureMap _textures;
 		
 	};
 	

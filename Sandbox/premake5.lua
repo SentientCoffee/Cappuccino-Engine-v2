@@ -15,6 +15,7 @@ project "Sandbox"
 	includedirs {
 		"%{wks.location}/Externals/fmod/include",
 		"%{wks.location}/Externals/freetype/include",
+		"%{wks.location}/Externals/freetype/include/freetype",
 		"%{wks.location}/Externals/glad/include",
 		"%{wks.location}/Externals/glfw3/include",
 		"%{wks.location}/Externals/glm/include",

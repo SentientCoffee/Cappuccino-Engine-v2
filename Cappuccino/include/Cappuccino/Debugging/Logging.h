@@ -25,19 +25,19 @@ namespace Capp {
 #if CAPP_DEBUG || CAPP_RELEASE
 
 // Engine log macros
-#define CAPP_PRINT_CRITICAL(message, ...)	::Capp::Logger::getEngineLogger()->critical(message, ##__VA_ARGS__);
-#define CAPP_PRINT_ERROR(message, ...)		::Capp::Logger::getEngineLogger()->error(message, ##__VA_ARGS__);
-#define CAPP_PRINT_WARNING(message, ...)	::Capp::Logger::getEngineLogger()->warn(message, ##__VA_ARGS__);
-#define CAPP_PRINT_INFO(message, ...)		::Capp::Logger::getEngineLogger()->info(message, ##__VA_ARGS__);
-#define CAPP_PRINT(message, ...)			::Capp::Logger::getEngineLogger()->trace(message, ##__VA_ARGS__);
+#define CAPP_PRINT_CRITICAL(message, ...)	::Capp::Logger::getEngineLogger()->critical(message, ##__VA_ARGS__)
+#define CAPP_PRINT_ERROR(message, ...)		::Capp::Logger::getEngineLogger()->error(message, ##__VA_ARGS__)
+#define CAPP_PRINT_WARNING(message, ...)	::Capp::Logger::getEngineLogger()->warn(message, ##__VA_ARGS__)
+#define CAPP_PRINT_INFO(message, ...)		::Capp::Logger::getEngineLogger()->info(message, ##__VA_ARGS__)
+#define CAPP_PRINT(message, ...)			::Capp::Logger::getEngineLogger()->trace(message, ##__VA_ARGS__)
 
 
 // Client log macros 
-#define DEBUG_PRINT_CRITICAL(message, ...)	::Capp::Logger::getClientLogger()->critical(message, ##__VA_ARGS__);
-#define DEBUG_PRINT_ERROR(message, ...)		::Capp::Logger::getClientLogger()->error(message, ##__VA_ARGS__);
-#define DEBUG_PRINT_WARNING(message, ...)	::Capp::Logger::getClientLogger()->warn(message, ##__VA_ARGS__);
-#define DEBUG_PRINT_INFO(message, ...)		::Capp::Logger::getClientLogger()->info(message, ##__VA_ARGS__);
-#define DEBUG_PRINT(message, ...)			::Capp::Logger::getClientLogger()->trace(message, ##__VA_ARGS__);
+#define DEBUG_PRINT_CRITICAL(message, ...)	::Capp::Logger::getClientLogger()->critical(message, ##__VA_ARGS__)
+#define DEBUG_PRINT_ERROR(message, ...)		::Capp::Logger::getClientLogger()->error(message, ##__VA_ARGS__)
+#define DEBUG_PRINT_WARNING(message, ...)	::Capp::Logger::getClientLogger()->warn(message, ##__VA_ARGS__)
+#define DEBUG_PRINT_INFO(message, ...)		::Capp::Logger::getClientLogger()->info(message, ##__VA_ARGS__)
+#define DEBUG_PRINT(message, ...)			::Capp::Logger::getClientLogger()->trace(message, ##__VA_ARGS__)
 
 #else
 

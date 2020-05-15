@@ -1,29 +1,38 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Rendering/Buffers/Buffers.h"
 
 namespace Capp {
 
 	class VertexArray {
+
+		using VertexBufferList = std::vector<Ref<VertexBuffer>>;
+		
 	public:
 
 		VertexArray();
 		~VertexArray();
 
+		static Ref<VertexArray> create() {
+			return Memory::createRef<VertexArray>();
+		}
+		
 		void bind() const;
 		static void unbind();
 		
-		void addVertexBuffer(VertexBuffer* vertexBuffer);
-		void setIndexBuffer(IndexBuffer* indexBuffer);
+		void addVertexBuffer(const Ref<VertexBuffer>& vertexBuffer);
+		void setIndexBuffer(const Ref<IndexBuffer>& indexBuffer);
 
-		const std::vector<VertexBuffer*>& getVertexBuffers() const;
-		const IndexBuffer* getIndexBuffer() const;
+		const VertexBufferList& getVertexBuffers() const { return _vertexBuffers; }
+		Ref<IndexBuffer> getIndexBuffer() const { return _indexBuffer; }
 
+		
 	private:
 
 		unsigned int _id = 0;
-		std::vector<VertexBuffer*> _vertexBuffers;
-		IndexBuffer* _indexBuffer;
+		VertexBufferList _vertexBuffers;
+		Ref<IndexBuffer> _indexBuffer;
 		
 	};
 	

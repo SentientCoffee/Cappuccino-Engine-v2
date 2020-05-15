@@ -3,25 +3,9 @@
 namespace Capp {
 	
 	enum class ShaderDataType : unsigned int {
-		Bool = 0,
-		Int,
-		Float,
-		Vec2,
-		Vec3,
-		Vec4,
-		Mat3,
-		Mat4
-	};
-
-	enum SDT {
-		Bool  = ShaderDataType::Bool,
-		Int   = ShaderDataType::Int,
-		Float = ShaderDataType::Float,
-		Vec2  = ShaderDataType::Vec2,
-		Vec3  = ShaderDataType::Vec3,
-		Vec4  = ShaderDataType::Vec4,
-		Mat3  = ShaderDataType::Mat3,
-		Mat4  = ShaderDataType::Mat4
+		Bool = 0, Int, Float,
+		Vec2, Vec3, Vec4,
+		Mat3, Mat4
 	};
 
 	enum class ShaderStage : unsigned int {
@@ -66,3 +50,14 @@ namespace Capp {
 	#endif
 	
 }
+
+enum SDT {
+	Bool  = Capp::ShaderDataType::Bool,
+	Int   = Capp::ShaderDataType::Int,
+	Float = Capp::ShaderDataType::Float,
+	Vec2  = Capp::ShaderDataType::Vec2,
+	Vec3  = Capp::ShaderDataType::Vec3,
+	Vec4  = Capp::ShaderDataType::Vec4,
+	Mat3  = Capp::ShaderDataType::Mat3,
+	Mat4  = Capp::ShaderDataType::Mat4
+};

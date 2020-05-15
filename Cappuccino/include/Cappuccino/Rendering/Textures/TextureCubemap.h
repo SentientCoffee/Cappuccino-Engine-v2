@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Rendering/Textures/TextureFormats.h"
 #include "Cappuccino/Rendering/Textures/TextureParams.h"
 
@@ -31,11 +32,19 @@ namespace Capp {
 	class TextureCubemap {
 	public:
 
+		TextureCubemap() = default;
 		TextureCubemap(unsigned faceSize, InternalFormat format = InternalFormat::RGB8);
 		TextureCubemap(const CubemapFiles& filepaths);
-		
 		~TextureCubemap();
 
+		static Ref<TextureCubemap> create(unsigned faceSize, InternalFormat format = InternalFormat::RGB8) {
+			return Memory::createRef<TextureCubemap>(faceSize, format);
+		}
+		
+		static Ref<TextureCubemap> create(const CubemapFiles& filepaths) {
+			return Memory::createRef<TextureCubemap>(filepaths);
+		}
+		
 		void bind(unsigned slot) const;
 		unsigned getRendererID() const;
 		static void unbind(unsigned slot);
@@ -43,7 +52,7 @@ namespace Capp {
 		void setCubemapTextures(const CubemapFiles& filepaths);
 		
 	private:
-
+		
 		void setParameters(const TextureParams& params);
 		
 		unsigned _id = 0;

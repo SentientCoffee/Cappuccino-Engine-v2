@@ -13,24 +13,15 @@ using namespace Capp;
 
 bool Hitbox::_drawHitboxes = false;
 
-Hitbox::~Hitbox() {
-	delete _vao;
+Hitbox& Hitbox::setPosition(const glm::vec3& position) {
+	_transform.setPosition(position);
+	return *this;
 }
 
-void Hitbox::setShouldDraw(const bool draw) { _drawHitboxes = draw; }
-bool Hitbox::shouldDraw() { return _drawHitboxes; }
-
-VertexArray* Hitbox::getVAO() const { return _vao; }
-
-const glm::vec3& Hitbox::getPosition() const { return _transform.getPosition(); }
-Transform& Hitbox::setPosition(const glm::vec3& position) { return _transform.setPosition(position); }
-Transform& Hitbox::setPosition(const float x, const float y, const float z) { return _transform.setPosition(x, y, z); }
-
-const glm::vec3& Hitbox::getRotation() const { return _transform.getRotation(); }
-Transform& Hitbox::setRotation(const glm::vec3& eulerRotation) { return _transform.setRotation(eulerRotation); }
-Transform& Hitbox::setRotation(const float x, const float y, const float z) { return _transform.setRotation(x, y, z); }
-
-Transform& Hitbox::getTransform() { return _transform; }
+Hitbox& Hitbox::setRotation(const glm::vec3& degrees) {
+	_transform.setRotation(degrees);
+	return *this;
+}
 
 // --------------------------------------------------------------------------------
 // ----- Hitbox cube --------------------------------------------------------------
@@ -59,9 +50,9 @@ HitboxCube::HitboxCube(const glm::vec3& position, const glm::vec3& dimensions, c
 		1, 5, 7,	1, 3, 7
 	};
 	
-	_vao = new VertexArray;
-	const auto vbo = new VertexBuffer(_vertices);
-	const auto ibo = new IndexBuffer(indices);
+	_vao = VertexArray::create();
+	const auto vbo = VertexBuffer::create(_vertices);
+	const auto ibo = IndexBuffer::create(indices);
 
 	const BufferLayout layout = {
 		{ ShaderDataType::Vec3, "inPosition" },
@@ -79,7 +70,7 @@ Transform& HitboxCube::setScale(const glm::vec3& scale) { return _transform.setS
 Transform& HitboxCube::setScale(const float x, const float y, const float z) { return _transform.setScale(x, y, z); }
 Transform& HitboxCube::setScale(const float scale) { return _transform.setScale(scale); }
 
-bool HitboxCube::checkCollision(HitboxCube* other) const {
+bool HitboxCube::checkCollision(const Ref<HitboxCube>& other) const {
 	// https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection (for SAT algorithm)
 	// https://www.babylonjs-playground.com/#235QZM#5 (for getting normals)
 
@@ -122,7 +113,7 @@ bool HitboxCube::checkCollision(HitboxCube* other) const {
 	return true;
 }
 
-bool HitboxCube::checkCollision(HitboxSphere* other) const {
+bool HitboxCube::checkCollision(const Ref<HitboxSphere>& other) const {
 	const glm::vec3 spherePos = other->_transform.getPosition();
 	const float sphereRadius = other->_transform.getScale().x;
 	const glm::vec3 boxPos = _transform.getPosition();
@@ -133,10 +124,10 @@ bool HitboxCube::checkCollision(HitboxSphere* other) const {
 	distance += getDistance(spherePos.y, boxPos.y, boxSize.y);
 	distance += getDistance(spherePos.z, boxPos.z, boxSize.z);
 	
-	return distance <= sphereRadius * sphereRadius ;
+	return distance <= sphereRadius * sphereRadius;
 }
 
-float HitboxCube::getDistance(const float spherePos, const float boxPos, const float boxSize) const {
+float HitboxCube::getDistance(const float spherePos, const float boxPos, const float boxSize) {
 	float distance = 0.0f;
 	if(spherePos < boxPos - boxSize / 2.0f) {
 		const float dist = boxPos - boxSize / 2.0f - spherePos;
@@ -193,9 +184,9 @@ HitboxSphere::HitboxSphere(const glm::vec3& position, const float radius) {
 		5, 2, 3
 	};
 
-	_vao = new VertexArray;
-	const auto vbo = new VertexBuffer(vertices);
-	const auto ibo = new IndexBuffer(indices);
+	_vao = VertexArray::create();
+	const auto vbo = VertexBuffer::create(vertices);
+	const auto ibo = IndexBuffer::create(indices);
 
 	const BufferLayout layout = {
 		{ ShaderDataType::Vec3, "inPosition" },
@@ -211,7 +202,7 @@ HitboxSphere::HitboxSphere(const glm::vec3& position, const float radius) {
 float HitboxSphere::getScale() const { return _transform.getScale().x; }
 Transform& HitboxSphere::setScale(const float scale) { return _transform.setScale(scale); }
 
-bool HitboxSphere::checkCollision(HitboxSphere* other) const {
+bool HitboxSphere::checkCollision(const Ref<HitboxSphere>& other) const {
 	const float thisRadiusSq = _transform.getScale().x;// *_transform.getScale().x;
 	const float otherRadiusSq = other->_transform.getScale().x;// *other->_transform.getScale().x;
 	const float minDistance = thisRadiusSq + otherRadiusSq;
@@ -222,7 +213,17 @@ bool HitboxSphere::checkCollision(HitboxSphere* other) const {
 	return actualDistance < minDistance;
 }
 
-bool HitboxSphere::checkCollision(HitboxCube* other) {
-	return other->checkCollision(this);
+bool HitboxSphere::checkCollision(const Ref<HitboxCube>& other) const {
+	const glm::vec3 spherePos = _transform.getPosition();
+	const float sphereRadius = _transform.getScale().x;
+	const glm::vec3 boxPos = other->_transform.getPosition();
+	const glm::vec3 boxSize = other->_transform.getScale();
+
+	float distance = 0.0f;
+	distance += other->getDistance(spherePos.x, boxPos.x, boxSize.x);
+	distance += other->getDistance(spherePos.y, boxPos.y, boxSize.y);
+	distance += other->getDistance(spherePos.z, boxPos.z, boxSize.z);
+
+	return distance <= sphereRadius * sphereRadius;
 }
 

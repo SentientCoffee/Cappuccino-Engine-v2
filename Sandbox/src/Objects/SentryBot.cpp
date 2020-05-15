@@ -1,15 +1,15 @@
 #include "Objects/SentryBot.h"
 
 SentryBot::SentryBot() {
-	auto material = new Capp::Material();
-	material->setValue("diffuse", new Capp::Texture2D("Assets/Textures/Sentry/Sentry-Diffuse.png"));
-	material->setValue("specular", new Capp::Texture2D("Assets/Textures/Sentry/Sentry-Metallic.png"));
-	material->setValue("emission", new Capp::Texture2D("Assets/Textures/Sentry/Sentry-Emission.png"));
-	material->setValue("roughness", 0.22f);
+	auto material = Capp::Material::create();
+	material->setDiffuseMap(Capp::Texture2D::create("Assets/Textures/Sentry/Sentry-Diffuse.png"));
+	material->setSpecularMap(Capp::Texture2D::create("Assets/Textures/Sentry/Sentry-Metallic.png"));
+	material->setEmissionMap(Capp::Texture2D::create("Assets/Textures/Sentry/Sentry-Emission.png"));
+	material->setRoughness(0.22f);
 
-	Capp::Mesh* mesh = Capp::MeshLibrary::loadMesh("Sentry", "Assets/Meshes/Sentry.obj");
+	const Ref<Capp::Mesh> mesh = Capp::MeshLibrary::loadMesh("Sentry", "Assets/Meshes/Sentry.obj");
 
-	_models = { new Capp::Model(mesh, material) };
+	_models = { Capp::Model::create(mesh, material) };
 }
 
 SentryBot::~SentryBot() = default;

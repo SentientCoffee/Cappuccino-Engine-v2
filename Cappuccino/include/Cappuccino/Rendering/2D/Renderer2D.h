@@ -20,7 +20,7 @@ namespace Capp {
 
 		static void drawQuad(const Quad& quad);
 
-		static void drawText(Text* text);
+		static void drawText(Ref<Text> text);
 		
 	};
 	

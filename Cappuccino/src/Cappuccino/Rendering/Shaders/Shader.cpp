@@ -8,19 +8,20 @@
 using namespace Capp;
 
 Shader::Shader(const std::string& name) :
-	_name(name)
-{}
+	_name(name) {}
 
-Shader::~Shader() { glDeleteProgram(_id); }
+Shader::~Shader() {
+	glDeleteProgram(_id);
+}
 
 void Shader::attach(const std::string& filepath, const ShaderStage stage) {
 	if(_isCompiled) {
 		CAPP_ASSERT(!_isCompiled, "Cannot modify shader program after compilation!\n\tShader: {0}", _name);
 		return;
 	}
-	
+
 	CAPP_ASSERT(!filepath.empty(), "No {0} shader file path given!", stage);
-	
+
 	const std::string shaderSrc = AssetLoader::readTextFile(filepath);
 	CAPP_ASSERT(!shaderSrc.empty(), "{0} shader file is empty!\n\tShader file: {1}", stage, filepath);
 
@@ -39,7 +40,7 @@ void Shader::compile() {
 
 void Shader::reload() {
 	_isCompiled = false;
-	
+
 	for(const auto& path : _filepaths) {
 		attach(path.second, path.first);
 	}
@@ -84,7 +85,7 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage st
 		infoLog.reserve(logLength);
 		glGetShaderInfoLog(shaderHandle, logLength, &logLength, infoLog.data());
 		glDeleteShader(shaderHandle);
-		
+
 		CAPP_PRINT_ERROR("Failed to compile shader!\n\t{0} shader at {1}:\n{2}", stage, _filepaths[stage], infoLog.data());
 		return 0;
 	}
@@ -93,7 +94,7 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage st
 }
 
 unsigned Shader::compileProgram() const {
-	
+
 	const unsigned programHandle = glCreateProgram();
 
 	for(const auto handle : _handles) {
@@ -132,12 +133,10 @@ void Shader::bind() const {
 	CAPP_ASSERT(_isCompiled, "Shader is not compiled!\n\tShader: {0}", _name);
 	glUseProgram(_id);
 }
-void Shader::unbind() { glUseProgram(0); }
 
-void Shader::setName(const std::string& name) { _name = name; }
-const std::string& Shader::getName() const { return _name; }
-
-unsigned Shader::getRendererID() const { return _id; }
+void Shader::unbind() {
+	glUseProgram(0);
+}
 
 int Shader::getUniformLocation(const std::string& uniformName) const {
 	const int uniformLocation = glGetUniformLocation(_id, uniformName.c_str());
@@ -150,24 +149,31 @@ int Shader::getUniformLocation(const std::string& uniformName) const {
 void Shader::setUniformBool(const std::string& uniformName, const bool& value) const {
 	glUniform1i(getUniformLocation(uniformName), static_cast<int>(value));
 }
+
 void Shader::setUniformInt(const std::string& uniformName, const int& value) const {
 	glUniform1i(getUniformLocation(uniformName), value);
 }
+
 void Shader::setUniformFloat(const std::string& uniformName, const float& value) const {
 	glUniform1f(getUniformLocation(uniformName), value);
 }
+
 void Shader::setUniformVec2(const std::string& uniformName, const glm::vec2& value) const {
 	glUniform2fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
+
 void Shader::setUniformVec3(const std::string& uniformName, const glm::vec3& value) const {
 	glUniform3fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
+
 void Shader::setUniformVec4(const std::string& uniformName, const glm::vec4& value) const {
 	glUniform4fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
 }
+
 void Shader::setUniformMat3(const std::string& uniformName, const glm::mat3& value) const {
 	glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
 }
+
 void Shader::setUniformMat4(const std::string& uniformName, const glm::mat4& value) const {
 	glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
 }

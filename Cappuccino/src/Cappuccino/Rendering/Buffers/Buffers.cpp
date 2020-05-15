@@ -85,8 +85,6 @@ IndexBuffer::~IndexBuffer() {
 void IndexBuffer::bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id); }
 void IndexBuffer::unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 
-unsigned IndexBuffer::getCount() const { return _indexCount; }
-
 void IndexBuffer::setBufferData(const std::vector<unsigned>& indices) const {
 	CAPP_ASSERT(_usage == BufferUsage::DynamicDraw, "Buffer must be set as dynamic draw before changing buffer data!");
 	glNamedBufferSubData(_id, 0, static_cast<long long>(indices.size() * sizeof(unsigned)), indices.data());

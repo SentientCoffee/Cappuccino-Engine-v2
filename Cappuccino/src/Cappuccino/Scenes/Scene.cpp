@@ -1,8 +1,6 @@
 #include "CappPCH.h"
 #include "Cappuccino/Scenes/Scene.h"
 
-#include "Cappuccino/Objects/GameObject.h"
-
 using namespace Capp;
 
 Scene::Scene(const std::string& name) :
@@ -11,29 +9,38 @@ Scene::Scene(const std::string& name) :
 	pushOverlay(_imguiLayer);
 }
 
+Scene::~Scene() {
+	for(auto gameObject : _gameObjects) {
+		delete gameObject;
+	}
+
+	_gameObjects.clear();
+}
+
 void Scene::init() {}
 void Scene::exit() {}
 void Scene::drawImgui() {}
 
 void Scene::update() {
-	for(auto layer : _layerStack) {
-		layer->update();
-	}
 
-	for(auto gameObject : GameObject::gameObjects) {
+	for(const auto& gameObject : _gameObjects) {
 		if(gameObject->isActive()) {
 			gameObject->update();
 		}
 	}
+
+	for(auto layer : _layerStack) {
+		layer->update();
+	}
 	
 	#if CAPP_DEBUG || CAPP_RELEASE
 	
-	_imguiLayer->begin();
+	ImguiLayer::begin();
 	drawImgui();
 	for(auto layer : _layerStack) {
 		layer->drawImgui();
 	}
-	_imguiLayer->end();
+	ImguiLayer::end();
 	
 	#endif
 }
@@ -44,7 +51,7 @@ void Scene::onEvent(Event& e) {
 		(*--it)->onEvent(e);
 	}
 
-	for(auto gameObject : GameObject::gameObjects) {
+	for(const auto& gameObject : _gameObjects) {
 		if(gameObject->isActive()) {
 			if(e.isHandled()) { break; }
 			gameObject->onEvent(e);
@@ -59,6 +66,10 @@ void Scene::pushLayer(Layer* layer) {
 void Scene::pushOverlay(Layer* overlay) {
 	_layerStack.pushOverlay(overlay);
 	overlay->onPush();
+}
+
+void Scene::addGameObject(GameObject* gameObject) {
+	_gameObjects.push_back(gameObject);
 }
 
 const std::string& Scene::getName() const { return _sceneName; }

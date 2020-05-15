@@ -4,8 +4,7 @@
 
 namespace Capp {
 
-	class Physics {
-	public:
+	struct Physics {
 
 		static const float gravity;
 		static const float universalG;
@@ -14,10 +13,10 @@ namespace Capp {
 
 	class RigidBody {
 
-		using HitboxVector = std::vector<Hitbox*>;
-		using HitboxInitList = std::initializer_list<Hitbox*>;
-		using HitboxIterator = std::vector<Hitbox*>::iterator;
-		using ConstHitboxIterator = std::vector<Hitbox*>::const_iterator;
+		using HitboxVector        = std::vector<Ref<Hitbox>>;
+		using HitboxInitList      = std::initializer_list<Ref<Hitbox>>;
+		using HitboxIterator      = std::vector<Ref<Hitbox>>::iterator;
+		using ConstHitboxIterator = std::vector<Ref<Hitbox>>::const_iterator;
 		
 	public:
 
@@ -52,7 +51,7 @@ namespace Capp {
 		RigidBody& setPosition(float x, float y, float z);
 		const glm::vec3& getPosition() const;
 
-		RigidBody& setRotation(const glm::vec3& eulerRotation);
+		RigidBody& setRotation(const glm::vec3& degrees);
 		RigidBody& setRotation(float x, float y, float z);
 		const glm::vec3& getRotation() const;
 
@@ -64,7 +63,7 @@ namespace Capp {
 		Transform& getTransform();
 
 		bool checkCollision(const RigidBody& other);
-		bool checkCollision(Hitbox* other);
+		bool checkCollision(const Ref<Hitbox>& other);
 
 		HitboxVector getHitboxes() const;
 

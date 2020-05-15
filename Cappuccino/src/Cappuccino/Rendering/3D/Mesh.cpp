@@ -5,9 +5,9 @@
 using namespace Capp;
 
 Mesh::Mesh(const std::string& name, const std::string& filepath) :
-	_name(name), _meshPath(filepath)
+	_name(name)
 {
-	_vao = new VertexArray;
+	_vao = VertexArray::create();
 	AssetLoader::MeshData data = AssetLoader::loadOBJFile(filepath);
 
 	const BufferLayout layout = {
@@ -24,9 +24,9 @@ Mesh::Mesh(const std::string& name, const std::string& filepath) :
 Mesh::Mesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices) :
 	_name(name)
 {
-	_vao = new VertexArray;
-	const auto vbo = new VertexBuffer(vertices);
-	const auto ibo = new IndexBuffer(indices);
+	_vao = VertexArray::create();
+	const auto vbo = VertexBuffer::create(vertices);
+	const auto ibo = IndexBuffer::create(indices);
 
 	const BufferLayout layout = {
 		{ ShaderDataType::Vec3, "inPosition" },
@@ -38,9 +38,3 @@ Mesh::Mesh(const std::string& name, const std::vector<Vertex>& vertices, const s
 	_vao->addVertexBuffer(vbo);
 	_vao->setIndexBuffer(ibo);
 }
-
-Mesh::~Mesh() {
-	delete _vao;
-}
-
-VertexArray* Mesh::getVAO() const { return _vao; }

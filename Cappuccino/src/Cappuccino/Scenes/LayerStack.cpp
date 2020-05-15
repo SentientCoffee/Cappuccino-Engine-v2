@@ -41,7 +41,7 @@ void LayerStack::popOverlay(Layer* overlay) {
 	}
 }
 
-std::vector<Layer*>::iterator LayerStack::begin() { return _layers.begin(); }
+std::vector<Layer*>::iterator LayerStack::begin()             { return _layers.begin(); }
 std::vector<Layer*>::const_iterator LayerStack::begin() const { return _layers.begin(); }
-std::vector<Layer*>::iterator LayerStack::end() { return _layers.end(); }
-std::vector<Layer*>::const_iterator LayerStack::end() const { return _layers.end(); }
+std::vector<Layer*>::iterator LayerStack::end()               { return _layers.end(); }
+std::vector<Layer*>::const_iterator LayerStack::end() const   { return _layers.end(); }

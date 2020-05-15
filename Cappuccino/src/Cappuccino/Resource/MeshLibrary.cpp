@@ -3,7 +3,7 @@
 
 using namespace Capp;
 
-std::unordered_map<std::string, Mesh*> MeshLibrary::_meshes;
+MeshLibrary::MeshMap MeshLibrary::_meshes;
 bool MeshLibrary::_initialized = false;
 
 void MeshLibrary::init() {
@@ -16,13 +16,10 @@ void MeshLibrary::init() {
 }
 
 void MeshLibrary::shutdown() {
-	for(const auto& mesh : _meshes) {
-		delete mesh.second;
-	}
 	_meshes.clear();
 }
 
-void MeshLibrary::addMesh(const std::string& name, Mesh* mesh) {
+void MeshLibrary::addMesh(const std::string& name, const Ref<Mesh>& mesh) {
 	if(hasMesh(name)) {
 		CAPP_ASSERT(!hasMesh(name), "Mesh \"{0}\" already exists!", name);
 		return;
@@ -31,16 +28,16 @@ void MeshLibrary::addMesh(const std::string& name, Mesh* mesh) {
 	_meshes[name] = mesh;
 }
 
-Mesh* MeshLibrary::loadMesh(const std::string& name, const std::string& filepath) {
+Ref<Mesh> MeshLibrary::loadMesh(const std::string& name, const std::string& filepath) {
 	if(hasMesh(name)) {
 		CAPP_PRINT_INFO("Mesh \"{0}\" already exists, using loaded mesh...", name);
 		return _meshes[name];
 	}
 
-	return _meshes[name] = new Mesh(name, filepath);
+	return _meshes[name] = Mesh::create(name, filepath);
 }
 
-Mesh* MeshLibrary::getMesh(const std::string& name) {
+Ref<Mesh> MeshLibrary::getMesh(const std::string& name) {
 	if(!hasMesh(name)) {
 		CAPP_ASSERT(hasMesh(name), "Mesh \"{0}\" not found!", name);
 		return nullptr;

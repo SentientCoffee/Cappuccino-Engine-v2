@@ -10,7 +10,9 @@
 class Sandbox final : public Capp::Application {
 public:
 	Sandbox() : Application(SCR_WIDTH, SCR_HEIGHT, SCR_TITLE) {
-		auto* scene = new TestScene;
+		getWindow()->setVSyncEnabled(true);
+		
+		const auto scene = new TestScene;
 		
 		Capp::SceneManager::addScene(scene);
 		Capp::SceneManager::changeScene(scene);

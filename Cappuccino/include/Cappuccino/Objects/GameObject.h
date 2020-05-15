@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Events/Event.h"
 #include "Cappuccino/Objects/Rigidbody.h"
 #include "Cappuccino/Rendering/3D/Model.h"
@@ -10,34 +11,36 @@ namespace Capp {
 
 	class GameObject {
 
-		using ModelVector = std::vector<Model*>;
-		using ModelInitList = std::initializer_list<Model*>;
+		using ModelList = std::vector<Ref<Model>>;
 		
 	public:
 
 		GameObject();
-		GameObject(const ModelVector& models);
-		GameObject(const ModelInitList& models);
-		virtual ~GameObject();
+		virtual ~GameObject() = default;
 
-		bool operator==(const GameObject& other) const;
+		template<class Object, typename = typename std::enable_if<std::is_base_of<GameObject, Object>::value>::type>
+		static Ref<Object> create() {
+			return Memory::createRef<Object>();
+		}
+
+		bool operator==(const GameObject& other) const { return _objectId == other._objectId; }
 
 		virtual void update() = 0;
 		virtual void onEvent(Event& e) = 0;
 
-		unsigned getId() const;
+		unsigned getId() const { return _objectId; }
 
-		const std::string& getName() const;
-		void setName(const std::string& name);
+		const std::string& getName() const { return _name; }
+		void setName(const std::string& name) { _name = name; }
 		
-		const std::string& getTag() const;
-		void setTag(const std::string& tag);
+		const std::string& getTag() const { return _tag; }
+		void setTag(const std::string& tag) { _tag = tag; }
 
-		bool isActive() const;
-		void setActive(bool active);
+		bool isActive() const { return _isActive; }
+		void setActive(const bool active) { _isActive = active; }
 
-		bool isVisible() const;
-		void setVisible(bool visible);
+		bool isVisible() const { return _isVisible; }
+		void setVisible(const bool visible) { _isVisible = visible; }
 
 		const glm::vec3& getPosition() const;
 		GameObject& setPosition(const glm::vec3& position);
@@ -46,9 +49,9 @@ namespace Capp {
 		GameObject& translateBy(float x, float y, float z);
 		
 		const glm::vec3& getRotation() const;
-		GameObject& setRotation(const glm::vec3& eulerRotation);
+		GameObject& setRotation(const glm::vec3& degrees);
 		GameObject& setRotation(float x, float y, float z);
-		GameObject& rotateBy(const glm::vec3& eulerRotation);
+		GameObject& rotateBy(const glm::vec3& degrees);
 		GameObject& rotateBy(float x, float y, float z);
 		
 		const glm::vec3& getScale() const;
@@ -59,12 +62,10 @@ namespace Capp {
 		GameObject& scaleBy(float x, float y, float z);
 		GameObject& scaleBy(float scale);
 
-		bool checkCollision(GameObject* other);
+		bool checkCollision(Ref<GameObject> other);
 		
-		const RigidBody& getRigidBody() const;
-		ModelVector getModels() const;
-		
-		static std::vector<GameObject*> gameObjects;
+		const RigidBody& getRigidBody() const { return _rigidbody; }
+		ModelList getModels() const { return _models; }
 		
 	protected:
 
@@ -76,11 +77,11 @@ namespace Capp {
 		bool _isVisible = true;
 
 		RigidBody _rigidbody;
-		ModelVector _models;
+		ModelList _models;
 
 	private:
 		
-		static unsigned objectCount;
+		static unsigned _objectCount;
 		
 	};
 	

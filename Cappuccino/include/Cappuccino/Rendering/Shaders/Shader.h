@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Rendering/Shaders/ShaderTypes.h"
 
 #include <glm/glm.hpp>
@@ -16,6 +17,10 @@ namespace Capp {
 		Shader(const std::string& name);
 		~Shader();
 
+		static Ref<Shader> create(const std::string& name) {
+			return Memory::createRef<Shader>(name);
+		}
+		
 		void attach(const std::string& filepath, ShaderStage stage);
 		void compile();
 
@@ -24,10 +29,10 @@ namespace Capp {
 
 		void reload();
 		
-		void setName(const std::string& name);
-		const std::string& getName() const;
+		void setName(const std::string& name) { _name = name; }
+		const std::string& getName() const { return _name; }
 
-		unsigned getRendererID() const;
+		unsigned getRendererID() const { return _id; }
 
 		template<SDT Val, typename S>
 		void setUniform(const std::string& uniformName, const S& value);

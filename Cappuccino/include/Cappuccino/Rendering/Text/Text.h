@@ -9,36 +9,48 @@ namespace Capp {
 	class Text {
 	public:
 
-		Text(const std::string& text, Font* font);
-		~Text();
+		Text(const std::string& text, const Ref<Font>& font);
+		~Text() = default;
 
-		const std::string& getText() const;
-		void setText(const std::string& text);
+		static Ref<Text> create(const std::string& text, const Ref<Font>& font) {
+			return Memory::createRef<Text>(text, font);
+		}
+
+		Text& setColour(const glm::vec4& colour);
+		Text& setPosition(const glm::vec2& position);
+		Text& setScale(float scale);
+
+		const std::string& getText() const { return _text; }
+		void setText(const std::string& text) { _text = text; }
 		
-		Font* getFont() const;
-		void setFont(Font* font);
+		Ref<Font> getFont() const { return _font; }
+		void setFont(const Ref<Font>& font) { _font = font; }
 
-		const glm::vec4& getTextColour() const;
-		void setTextColour(const glm::vec4& colour);
-		void setTextColour(const glm::vec3& colour);
-		void setTextColour(float r, float g, float b, float a = 1.0f);
+		const glm::vec4& getTextColour() const { return _textColour; }
+		
+		Text& setColour(const glm::vec3& colour) {
+			return setColour({ colour.r, colour.g, colour.b, 1.0f });
+		}
+		Text& setColour(const float r, const float g, const float b, const float a = 1.0f) {
+			return setColour({ r, g ,b, a });
+		}
 
-		Text& setTextPosition(const glm::vec2& position);
-		Text& setTextPosition(float x, float y);
-		Text& setTextScale(float scale);
+		Text& setPosition(const float x, const float y) {
+			return setPosition({ x, y });
+		}
 
-		const Transform& getTransform() const;
+		const Transform& getTransform() const { return _transform; }
 
-		VertexArray* getVAO() const;
+		Ref<VertexArray> getVAO() const { return _vao; }
 
 	private:
 
 		std::string _text;
-		Font* _font;
+		Ref<Font> _font;
+
 		glm::vec4 _textColour;
 		Transform _transform;
-
-		VertexArray* _vao;
+		Ref<VertexArray> _vao;
 		
 	};
 	

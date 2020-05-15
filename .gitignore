@@ -3,6 +3,7 @@
 # Build folders for projects
 [Bb]uild/
 [Ee]xternals/[Bb]uild/
+[Ss]andbox/[Bb]uild/
 
 # Hidden .vs folder
 .vs/

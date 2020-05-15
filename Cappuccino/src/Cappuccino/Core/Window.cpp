@@ -36,7 +36,7 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 		default: break;
 	}
 
-	log += "\nSOURCE: ";
+	log += "\n\tSOURCE: ";
 	switch(source) {
 		case GL_DEBUG_SOURCE_API:					log += "API"; break;
 		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:			log += "Window system"; break;
@@ -47,7 +47,7 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 		default: break;
 	}
 
-	log += " \nSEVERITY: ";
+	log += " \n\tSEVERITY: ";
 	switch(severity) {
 		case GL_DEBUG_SEVERITY_HIGH:				log += "HIGH"; break;
 		case GL_DEBUG_SEVERITY_MEDIUM:				log += "MEDIUM"; break;
@@ -59,7 +59,7 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 	log += "\n" + std::string(message);
 	
 	if(type == GL_DEBUG_TYPE_ERROR) {
-		CAPP_ASSERT(type == GL_DEBUG_TYPE_ERROR, "{0}", log);
+		CAPP_ASSERT(type != GL_DEBUG_TYPE_ERROR, "{0}", log);
 	}
 	else if(severity == GL_DEBUG_SEVERITY_HIGH) {
 		CAPP_PRINT_ERROR("{0}", log);
@@ -77,13 +77,13 @@ static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 
 Window::Window() :
 	Window({"Failed to load properly!",
-			100, 100,
-			true, nullptr}) {}
+		100, 100,
+		true, nullptr}) {}
 
 Window::Window(const WindowProperties& properties) :
 	_properties(properties) {
 
-	CAPP_PRINT_INFO("Creating window \"{0}\" ({1} x {2})", _properties.title.c_str(), _properties.width, _properties.height);
+	CAPP_PRINT_INFO("Creating window \"{0}\" ({1} x {2})", _properties.title, _properties.width, _properties.height);
 	
 	if(!glfwInitialized) {
 		const int glfwStatus = glfwInit();
@@ -109,11 +109,13 @@ Window::Window(const WindowProperties& properties) :
 	const int gladStatus = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 	CAPP_ASSERT(gladStatus, "Could not initialize GLAD!");
 
+	#if CAPP_DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(glErrorCallback, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-
+	#endif
+	
 	CAPP_PRINT_INFO("OpenGL version {0}", glGetString(GL_VERSION));
 	CAPP_PRINT_INFO("GLSL version {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	CAPP_PRINT_INFO("Using {0} {1}"

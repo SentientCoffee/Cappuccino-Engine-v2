@@ -34,7 +34,7 @@ Optionally, you can make a game project using the `CappGameGeneraion.bat` file i
 Note that you need to have Cappuccino Engine installed and built <b>BEFORE</b> you try to make a game project.
 
 # One Last Thing
-[Jewel3D](https://github.com/EmilianC/Jewel3D) was a big part of our learning over the summer of 2019, and we would like to personally thank the creator.
+[Jewel3D](https://github.com/EmilianC/Jewel3D) was a big part of our learning over the summer of 2019, and we would like to personally thank the creator, Emilian Cioca.
 Also, the current version of the engine is very heavily inspired by the [Hazel engine](https://github.com/TheCherno/Hazel) made by [The Cherno](https://www.youtube.com/user/TheChernoProject).
 Please check them both out!
 

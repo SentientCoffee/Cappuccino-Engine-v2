@@ -67,8 +67,8 @@ namespace Capp {
 	
 	struct TextureFormats {
 		InternalFormat internalFormat = InternalFormat::None;
-		PixelFormat pixelFormat = PixelFormat::None;
-		PixelType pixelType = PixelType::UnsignedByte;
+		PixelFormat pixelFormat       = PixelFormat::None;
+		PixelType pixelType           = PixelType::UnsignedByte;
 	};
 	
 }

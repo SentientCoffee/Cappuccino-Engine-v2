@@ -4,7 +4,7 @@
 using namespace Capp;
 
 FT_Library FontLibrary::_fontLibrary;
-std::unordered_map<std::string, Font*> FontLibrary::_fonts;
+FontLibrary::FontMap FontLibrary::_fonts;
 
 bool FontLibrary::_initialized = false;
 
@@ -20,14 +20,11 @@ void FontLibrary::init() {
 }
 
 void FontLibrary::shutdown() {
-	for(auto& font : _fonts) {
-		delete font.second;
-	}
-	
+	_fonts.clear();
 	FT_Done_FreeType(_fontLibrary);
 }
 
-void FontLibrary::addFont(const std::string& name, Font* font) {
+void FontLibrary::addFont(const std::string& name, const Ref<Font>& font) {
 	if(hasFont(name)) {
 		CAPP_ASSERT(!hasFont(name), "Font \"{0}\" already exists!", name);
 		return;
@@ -36,16 +33,16 @@ void FontLibrary::addFont(const std::string& name, Font* font) {
 	_fonts[name] = font;
 }
 
-Font* FontLibrary::loadFont(const std::string& name, const std::string& filepath) {
+Ref<Font> FontLibrary::loadFont(const std::string& name, const std::string& filepath) {
 	if(hasFont(name)) {
 		CAPP_PRINT_INFO("Font \"{0}\" already exists, using loaded font...", name);
 		return _fonts[name];
 	}
 	
-	return _fonts[name] = new Font(name, filepath);
+	return _fonts[name] = Font::create(name, filepath);
 }
 
-Font* FontLibrary::getFont(const std::string& name) {
+Ref<Font> FontLibrary::getFont(const std::string& name) {
 	if(!hasFont(name)) {
 		CAPP_ASSERT(hasFont(name), "Font \"{0}\" has not been loaded!", name);
 		return nullptr;
@@ -55,5 +52,3 @@ Font* FontLibrary::getFont(const std::string& name) {
 }
 
 bool FontLibrary::hasFont(const std::string& name) { return _fonts.find(name) != _fonts.end(); }
-
-FT_Library FontLibrary::getFontLibrary() { return _fontLibrary; }

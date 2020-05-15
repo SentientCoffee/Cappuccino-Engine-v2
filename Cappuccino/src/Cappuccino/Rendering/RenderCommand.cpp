@@ -9,18 +9,11 @@
 using namespace Capp;
 
 void RenderCommand::init() {
-	// Blending
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	// Scissor testing (for multiple viewports)
 	glEnable(GL_SCISSOR_TEST);
 
 	// Seamless cubemaps
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-	// 3D textures
-	glEnable(GL_TEXTURE_3D);
 	
 	// Initialize 2D and 3D renderers
 	Renderer::init();
@@ -32,9 +25,15 @@ void RenderCommand::shutdown() {
 	Renderer2D::shutdown();
 }
 
+
 // ----------------------------------------------------------------
 // ----- Viewports ------------------------------------------------
 // ----------------------------------------------------------------
+ 
+void RenderCommand::setViewport(const glm::vec2& offset, const glm::vec2& dimensions) {
+	glViewport(static_cast<GLint>(offset.x), static_cast<GLint>(offset.y), static_cast<GLsizei>(dimensions.x), static_cast<GLsizei>(dimensions.y));
+	glScissor(static_cast<GLint>(offset.x), static_cast<GLint>(offset.y), static_cast<GLsizei>(dimensions.x), static_cast<GLsizei>(dimensions.y));
+}
 
 void RenderCommand::setViewport(const unsigned x, const unsigned y, const unsigned w, const unsigned h) {
 	glViewport(x, y, w, h);
@@ -67,16 +66,16 @@ void RenderCommand::clearScreen(ClearFlags flags) {
 // ----- Draw calls -----------------------------------------------
 // ----------------------------------------------------------------
 
-void RenderCommand::drawArray(VertexArray* vertexArray) {
+void RenderCommand::drawArray(const Ref<VertexArray>& vertexArray) {
 	unsigned count = 0;
-	for(auto vbo : vertexArray->getVertexBuffers()) {
+	for(const auto& vbo : vertexArray->getVertexBuffers()) {
 		count += vbo->getCount();
 	}
 
 	glDrawArrays(GL_TRIANGLES, 0, count);
 }
 
-void RenderCommand::drawIndexed(VertexArray* vertexArray) {
+void RenderCommand::drawIndexed(const Ref<VertexArray>& vertexArray) {
 	glDrawElements(GL_TRIANGLES, vertexArray->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
@@ -84,16 +83,14 @@ void RenderCommand::drawIndexed(VertexArray* vertexArray) {
 // ----- Face culling ---------------------------------------------
 // ----------------------------------------------------------------
 
-void RenderCommand::enableCulling() {
-	glEnable(GL_CULL_FACE);
-}
-
-void RenderCommand::disableCulling() {
-	glDisable(GL_CULL_FACE);
-}
-
 void RenderCommand::setCullingMode(CullMode mode) {
-	glCullFace(static_cast<GLenum>(mode));
+	if(mode == CullMode::None) {
+		glDisable(GL_CULL_FACE);
+	}
+	else {
+		glEnable(GL_CULL_FACE);
+		glCullFace(static_cast<GLenum>(mode));
+	}
 }
 
 // ----------------------------------------------------------------

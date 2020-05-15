@@ -20,12 +20,12 @@
 namespace Capp {
 
 	struct PostProcessingPass {
-		Framebuffer* buffer;
-		Shader* shader;
+		Ref<Framebuffer> buffer;
+		Ref<Shader> shader;
 	};
 
 	using PostPasses = std::vector<PostProcessingPass>;
-	using Skybox = std::optional<TextureCubemap*>;
+	using Skybox = std::optional<Ref<TextureCubemap>>;
 
 	class Renderer {
 	public:
@@ -44,18 +44,14 @@ namespace Capp {
 		static void finish(const PostPasses& postProcessing = {});
 
 		// Rendering commands
-		static void addToQueue(VertexArray* vertexArray, Shader* shader = nullptr);
-		static void addToQueue(VertexArray* vertexArray, Material* material);
-		
-		static void addToQueue(Mesh* mesh, Shader* shader);
-		static void addToQueue(Mesh* mesh, Material* material);
+		static void addToQueue(const Ref<Mesh>& mesh, const Ref<Material>& material);
 
-		static void addToQueue(Model* model);
+		static void addToQueue(const Ref<Model>& model);
 
-		static void addToQueue(Hitbox* hitbox);
+		static void addToQueue(const Ref<GameObject>& gameObject);
+
+		static void addToQueue(const Ref<Hitbox>& hitbox);
 		static void addToQueue(const RigidBody& rigidBody);
-
-		static void addToQueue(GameObject* gameObject);
 
 		// Gamma correction
 		static void setGamma(float gamma);

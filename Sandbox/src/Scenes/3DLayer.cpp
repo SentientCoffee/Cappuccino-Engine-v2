@@ -11,19 +11,19 @@ void Layer3D::onPush() {
 	{
 		unsigned white = 0xFFFFFFFF;
 		unsigned black = 0x00000000;
-		auto whiteMaterial = new Capp::Material;
-		whiteMaterial->setValue("diffuse", new Capp::Texture2D(1, 1, &white));
-		whiteMaterial->setValue("specular", new Capp::Texture2D(1, 1, &black));
-		whiteMaterial->setValue("emission", new Capp::Texture2D(1, 1, &black));
+		auto whiteMaterial = Capp::Material::create();
+		whiteMaterial->setDiffuseMap(Capp::Texture2D::create(1, 1, &white));
+		whiteMaterial->setSpecularMap(Capp::Texture2D::create(1, 1, &black));
+		whiteMaterial->setEmissionMap(Capp::Texture2D::create(1, 1, &black));
 
 		const auto cubeMesh = Capp::MeshLibrary::loadMesh("Floor plane", "Assets/Cappuccino/Meshes/Cube.obj");
 
-		floor = new Capp::Model(cubeMesh, whiteMaterial);
-		wall1 = new Capp::Model(cubeMesh, whiteMaterial);
-		wall2 = new Capp::Model(cubeMesh, whiteMaterial);
-		wall3 = new Capp::Model(cubeMesh, whiteMaterial);
-		wall4 = new Capp::Model(cubeMesh, whiteMaterial);
-		ceiling = new Capp::Model(cubeMesh, whiteMaterial);
+		floor   = Capp::Model::create(cubeMesh, whiteMaterial);
+		wall1   = Capp::Model::create(cubeMesh, whiteMaterial);
+		wall2   = Capp::Model::create(cubeMesh, whiteMaterial);
+		wall3   = Capp::Model::create(cubeMesh, whiteMaterial);
+		wall4   = Capp::Model::create(cubeMesh, whiteMaterial);
+		ceiling = Capp::Model::create(cubeMesh, whiteMaterial);
 		
 		floor->setPosition(0.0f, -10.0f, 0.0f).setScale(20.0f, 0.01f, 20.0f);
 		wall1->setPosition( 10.0f, 0.0f, 0.0f ).setRotation(0.0f, 0.0f, 90.0f).setScale(20.0f, 0.01f, 20.0f);
@@ -33,8 +33,8 @@ void Layer3D::onPush() {
 		ceiling->setPosition(0.0f, 10.0f, 0.0f).setScale(20.0f, 0.1f, 20.0f);
 
 
-		pointLightCube = new Capp::Model(cubeMesh, whiteMaterial);
-		spotlightCube = new Capp::Model(cubeMesh, whiteMaterial);
+		pointLightCube = Capp::Model::create(cubeMesh, whiteMaterial);
+		spotlightCube  = Capp::Model::create(cubeMesh, whiteMaterial);
 		pointLightCube->setScale(0.3f);
 		spotlightCube->setScale(0.3f);
 	}
@@ -44,29 +44,29 @@ void Layer3D::onPush() {
 	// -----------------------------------------------------------------
 
 	{
-		captain1 = new Captain;
+		captain1 = Capp::GameObject::create<Captain>();
 		captain1->setPosition(6.0f, 0.0f, 0.0f).setRotation(0.0, 90.0f, 0.0f);
 
-		captain2 = new Captain;
+		captain2 = Capp::GameObject::create<Captain>();
 		captain2->setPosition(-6.0f, 0.0f, 0.0f).setRotation(0.0, -90.0f, 0.0f);
 	
-		f16 = new F16;
+		f16 = Capp::GameObject::create<F16>();
 	
-		sentry1 = new SentryBot;
+		sentry1 = Capp::GameObject::create<SentryBot>();
 		sentry1->setPosition(0.0f, 0.0f, 6.0f).setRotation(0.0f, 180.0f, 0.0f);
 
-		sentry2 = new SentryBot;
+		sentry2 = Capp::GameObject::create<SentryBot>();
 		sentry2->setPosition(0.0f, 0.0f, -6.0f);
 	
 
-		pointLight = new Capp::PointLight({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
-		dirLight = new Capp::DirectionalLight({ 0.0f, -1.0f, 0.0f }, { 0.1f, 0.4f, 0.15f });
+		pointLight = Capp::PointLight::create({ 0.0f, 1.0f, -2.0f }, { 0.8f, 0.2f, 0.3f }, 1.0f / 6.0f);
+		dirLight = Capp::DirectionalLight::create({ 0.0f, -1.0f, 0.0f }, { 0.1f, 0.4f, 0.15f });
 
-		spotlight = new Capp::Spotlight;
+		spotlight = Capp::Spotlight::create();
 		spotlight->setPosition(glm::vec3(0.0f, 4.0f, 0.0f)).setDirection(glm::vec3(-90.0f, 0.0f, 0.0f));
 		spotlight->setColour(0.3f, 0.2f, 0.7f).setAttenuation(1.0f / 20.0f).setInnerCutoffAngle(5.0f).setOuterCutoffAngle(22.5f);
 	
-		//Capp::Hitbox::setShouldDraw(true);
+		//Capp::Hitbox::setAllVisible(true);
 	}
 
 	// -----------------------------------------------------------------
@@ -83,7 +83,7 @@ void Layer3D::onPush() {
 			"Assets/Textures/Skybox/corona/corona_bk.png"
 		};
 
-		skybox = new Capp::TextureCubemap(cubemapFiles);
+		skybox = Capp::TextureCubemap::create(cubemapFiles);
 	}
 
 
@@ -92,9 +92,9 @@ void Layer3D::onPush() {
 	// -----------------------------------------------------------------
 	
 	{
-		//coolLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Cool-512.cube");
-		//warmLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Warm-512.cube");
-		//customLUT = Capp::AssetLoader::loadCUBEFile("Assets/LUTs/Bleach-512.cube");
+		coolLUT   = Capp::Texture3D::create("Assets/LUTs/Cool-512.cube");
+		warmLUT   = Capp::Texture3D::create("Assets/LUTs/Warm-512.cube");
+		customLUT = Capp::Texture3D::create("Assets/LUTs/Bleach-512.cube");
 	}
 	
 	// -----------------------------------------------------------------
@@ -105,21 +105,21 @@ void Layer3D::onPush() {
 	const Capp::Attachment mainColour = { Capp::AttachmentType::Texture, Capp::InternalFormat::RGB8 };
 	
 	{
-		grayscale.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		grayscale.buffer = Capp::Framebuffer::create(window->getWidth(), window->getHeight());
 		grayscale.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 		grayscale.shader = Capp::ShaderLibrary::loadShader("Grayscale");
 		grayscale.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
 		grayscale.shader->attach("Assets/Shaders/PostProcessing/GrayscaleShader.frag", Capp::ShaderStage::Fragment);
 		grayscale.shader->compile();
 
-		inversion.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		inversion.buffer = Capp::Framebuffer::create(window->getWidth(), window->getHeight());
 		inversion.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 		inversion.shader = Capp::ShaderLibrary::loadShader("Inversion");
 		inversion.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
 		inversion.shader->attach("Assets/Shaders/PostProcessing/InversionShader.frag", Capp::ShaderStage::Fragment);
 		inversion.shader->compile();
 
-		colourGrading.buffer = new Capp::Framebuffer(window->getWidth(), window->getHeight());
+		colourGrading.buffer = Capp::Framebuffer::create(window->getWidth(), window->getHeight());
 		colourGrading.buffer->addAttachment(Capp::AttachmentTarget::Colour0, mainColour);
 		colourGrading.shader = Capp::ShaderLibrary::loadShader("Colour Grading");
 		colourGrading.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", Capp::ShaderStage::Vertex);
@@ -128,24 +128,7 @@ void Layer3D::onPush() {
 	}
 }
 
-void Layer3D::onPop() {
-	delete floor;
-	
-	delete captain1;
-	delete captain2;
-	delete f16;
-	delete sentry1;
-	delete sentry2;
-	
-	delete dirLight;
-	delete pointLight;
-	delete spotlight;
-	delete skybox;
-
-	delete coolLUT;
-	delete warmLUT;
-	delete customLUT;
-}
+void Layer3D::onPop() {}
 
 void Layer3D::update() {
 	cameraController.update();
@@ -228,20 +211,20 @@ void Layer3D::update() {
 		switch(lutSetting) {
 			case 1:
 				coolLUT->bind(1);
-				colourGrading.shader->setUniform<Capp::Vec3>("uLUTDimensions", coolLUT->getSize());
+				colourGrading.shader->setUniform<Vec3>("uLUTDimensions", coolLUT->getSize());
 				break;
 			case 2:
 				warmLUT->bind(1);
-				colourGrading.shader->setUniform<Capp::Vec3>("uLUTDimensions", warmLUT->getSize());
+				colourGrading.shader->setUniform<Vec3>("uLUTDimensions", warmLUT->getSize());
 				break;
 			case 3:
 				customLUT->bind(1);
-				colourGrading.shader->setUniform<Capp::Vec3>("uLUTDimensions", customLUT->getSize());
+				colourGrading.shader->setUniform<Vec3>("uLUTDimensions", customLUT->getSize());
 				break;
 			default:
 				break;
 		}
-		colourGrading.shader->setUniform<Capp::Int>("uLUTSlot", 1);
+		colourGrading.shader->setUniform<Int>("uLUTSlot", 1);
 		postPasses.push_back(colourGrading);
 	}
 
@@ -289,21 +272,21 @@ void Layer3D::drawImgui() {
 		if(isGammaCorrected) {
 			ImGui::DragFloat("Gamma", &gamma, 0.1f, 0.01f, 10.0f);
 		}
-		ImGui::NewLine();
+		//ImGui::NewLine();
 
-		auto dLighting = Capp::ShaderLibrary::getShader("Deferred Directional Lighting Default");
-		auto pLighting = Capp::ShaderLibrary::getShader("Deferred Point Lighting Default");
-		auto sLighting = Capp::ShaderLibrary::getShader("Deferred Spotlighting Default");
-		
-		if(ImGui::Button("Reload directional lighting shader")) {
-			dLighting->reload();
-		}
-		if(ImGui::Button("Reload point lighting shader")) {
-			pLighting->reload();
-		}
-		if(ImGui::Button("Reload spotlighting shader")) {
-			sLighting->reload();
-		}
+		//auto dLighting = Capp::ShaderLibrary::getShader("Deferred Directional Lighting Default");
+		//auto pLighting = Capp::ShaderLibrary::getShader("Deferred Point Lighting Default");
+		//auto sLighting = Capp::ShaderLibrary::getShader("Deferred Spotlighting Default");
+		//
+		//if(ImGui::Button("Reload directional lighting shader")) {
+		//	dLighting->reload();
+		//}
+		//if(ImGui::Button("Reload point lighting shader")) {
+		//	pLighting->reload();
+		//}
+		//if(ImGui::Button("Reload spotlighting shader")) {
+		//	sLighting->reload();
+		//}
 	}
 	ImGui::End();
 	

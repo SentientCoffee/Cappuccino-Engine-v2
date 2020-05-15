@@ -9,10 +9,10 @@ namespace Capp {
 
 	struct BufferElement {
 		std::string name;
-		ShaderDataType type;
-		unsigned size;
-		unsigned offset;
-		bool normalized;
+		ShaderDataType type = ShaderDataType::Float;
+		unsigned size = 0;
+		unsigned offset = 0;
+		bool normalized = false;
 
 		BufferElement() = default;
 		BufferElement(ShaderDataType type, const std::string& name, bool normalized = false);
@@ -22,9 +22,9 @@ namespace Capp {
 
 	class BufferLayout {
 
-		using BufferElemVector = std::vector<BufferElement>;
-		using BufferElemInitList = std::initializer_list<BufferElement>;
-		using BufferElemIterator = std::vector<BufferElement>::iterator;
+		using BufferElemVector        = std::vector<BufferElement>;
+		using BufferElemInitList      = std::initializer_list<BufferElement>;
+		using BufferElemIterator      = std::vector<BufferElement>::iterator;
 		using ConstBufferElemIterator = std::vector<BufferElement>::const_iterator;
 
 	public:
@@ -34,15 +34,15 @@ namespace Capp {
 		BufferLayout(const BufferElemInitList& elements);
 		~BufferLayout();
 
-		BufferElemVector getElements() const;
-		unsigned int size() const;
+		BufferElemVector getElements() const { return _elements; }
+		unsigned int size() const { return static_cast<unsigned int>(_elements.size()); }
 		
-		BufferElemIterator begin();
-		BufferElemIterator end();
-		ConstBufferElemIterator begin() const;
-		ConstBufferElemIterator end() const;
+		BufferElemIterator begin() { return _elements.begin(); }
+		BufferElemIterator end() { return _elements.end(); }
+		ConstBufferElemIterator begin() const { return _elements.begin(); }
+		ConstBufferElemIterator end() const { return _elements.end(); }
 
-		unsigned int getStride() const;
+		unsigned int getStride() const { return _stride; }
 
 	private:
 

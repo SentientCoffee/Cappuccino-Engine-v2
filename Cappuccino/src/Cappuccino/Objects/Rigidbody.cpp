@@ -22,26 +22,22 @@ const float Physics::universalG = 6.67f * static_cast<float>(pow(10, -11));
 RigidBody::RigidBody(const HitboxVector& hitboxes) :
 	_hitboxes(hitboxes) {
 	
-	for(auto hitbox : _hitboxes) {
-		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
+	for(const auto& hitbox : _hitboxes) {
+		hitbox->getTransform().setParentTransform(_transform.getLocalTransform());
 	}
 }
 RigidBody::RigidBody(const HitboxInitList& hitboxes) :
 	RigidBody(HitboxVector(hitboxes)) {}
 
 RigidBody::~RigidBody() {
-	for(auto hitbox : _hitboxes) {
-		delete hitbox;
-	}
-	
 	_hitboxes.clear();
 }
 
 RigidBody& RigidBody::operator=(const HitboxVector& hitboxes) {
 	_hitboxes = hitboxes;
 
-	for(auto hitbox : _hitboxes) {
-		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
+	for(const auto& hitbox : _hitboxes) {
+		hitbox->getTransform().setParentTransform(_transform.getLocalTransform());
 	}
 	
 	return *this;
@@ -49,8 +45,8 @@ RigidBody& RigidBody::operator=(const HitboxVector& hitboxes) {
 RigidBody& RigidBody::operator=(const HitboxInitList& hitboxes) {
 	_hitboxes = hitboxes;
 
-	for(auto hitbox : _hitboxes) {
-		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
+	for(const auto& hitbox : _hitboxes) {
+		hitbox->getTransform().setParentTransform(_transform.getLocalTransform());
 	}
 	
 	return *this;
@@ -101,7 +97,7 @@ void RigidBody::addVelocity(const glm::vec3& velocity) {
 
 RigidBody& RigidBody::setPosition(const glm::vec3& position) {
 	_transform.setPosition(position);
-	for(auto hitbox : _hitboxes) {
+	for(const auto& hitbox : _hitboxes) {
 		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
 	}
 	return *this;
@@ -109,9 +105,9 @@ RigidBody& RigidBody::setPosition(const glm::vec3& position) {
 RigidBody& RigidBody::setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
 const glm::vec3& RigidBody::getPosition() const { return _transform.getPosition(); }
 
-RigidBody& RigidBody::setRotation(const glm::vec3& eulerRotation) {
-	_transform.setRotation(eulerRotation);
-	for(auto hitbox : _hitboxes) {
+RigidBody& RigidBody::setRotation(const glm::vec3& degrees) {
+	_transform.setRotation(degrees);
+	for(const auto& hitbox : _hitboxes) {
 		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
 	}
 	return *this;
@@ -121,7 +117,7 @@ const glm::vec3& RigidBody::getRotation() const { return _transform.getRotation(
 
 RigidBody& RigidBody::setScale(const glm::vec3& scale) {
 	_transform.setScale(scale);
-	for(auto hitbox : _hitboxes) {
+	for(const auto& hitbox : _hitboxes) {
 		hitbox->getTransform().setParentTransform(_transform.getWorldTransform());
 	}
 	return *this;	
@@ -137,8 +133,8 @@ bool RigidBody::checkCollision(const RigidBody& other) {
 		return false;
 	}
 
-	for(auto thisHitbox : _hitboxes) {
-		for(auto otherHitbox : other._hitboxes) {
+	for(const auto& thisHitbox : _hitboxes) {
+		for(const auto& otherHitbox : other._hitboxes) {
 
 			if(thisHitbox->getHitboxType() == HitboxType::None) {
 				CAPP_ASSERT(false, "Hitbox must have a type to check for collisions!");
@@ -146,16 +142,16 @@ bool RigidBody::checkCollision(const RigidBody& other) {
 			}
 			
 			if(thisHitbox->getHitboxType() == HitboxType::Cube) {
-				const auto th = dynamic_cast<HitboxCube*>(thisHitbox);
+				const auto& th = std::dynamic_pointer_cast<HitboxCube>(thisHitbox);
 				switch(otherHitbox->getHitboxType()) {
 					case HitboxType::Cube: {
-						if(th->checkCollision(dynamic_cast<HitboxCube*>(otherHitbox))) {
+						if(th->checkCollision(std::dynamic_pointer_cast<HitboxCube>(otherHitbox))) {
 							return true;
 						}
 						break;
 					}
 					case HitboxType::Sphere: {
-						if(th->checkCollision(dynamic_cast<HitboxSphere*>(otherHitbox))) {
+						if(th->checkCollision(std::dynamic_pointer_cast<HitboxSphere>(otherHitbox))) {
 							return true;
 						}
 						break;
@@ -169,16 +165,16 @@ bool RigidBody::checkCollision(const RigidBody& other) {
 			}
 
 			if(thisHitbox->getHitboxType() == HitboxType::Sphere) {
-				const auto th = dynamic_cast<HitboxSphere*>(thisHitbox);
+				const auto& th = std::dynamic_pointer_cast<HitboxSphere>(thisHitbox);
 				switch(otherHitbox->getHitboxType()) {
 					case HitboxType::Cube: {
-						if(th->checkCollision(dynamic_cast<HitboxCube*>(otherHitbox))) {
+						if(th->checkCollision(std::dynamic_pointer_cast<HitboxCube>(otherHitbox))) {
 							return true;
 						}
 						break;
 					}
 					case HitboxType::Sphere: {
-						if(th->checkCollision(dynamic_cast<HitboxSphere*>(otherHitbox))) {
+						if(th->checkCollision(std::dynamic_pointer_cast<HitboxSphere>(otherHitbox))) {
 							return true;
 						}
 						break;
@@ -196,12 +192,12 @@ bool RigidBody::checkCollision(const RigidBody& other) {
 	return false;
 }
 
-bool RigidBody::checkCollision(Hitbox* other) {
+bool RigidBody::checkCollision(const Ref<Hitbox>& other) {
 	if(_hitboxes.empty()) {
 		return false;
 	}
 
-	for(auto thisHitbox : _hitboxes) {
+	for(const auto& thisHitbox : _hitboxes) {
 
 		if(thisHitbox->getHitboxType() == HitboxType::None) {
 			CAPP_ASSERT(false, "Hitbox must have a type to check for collisions!");
@@ -209,16 +205,16 @@ bool RigidBody::checkCollision(Hitbox* other) {
 		}
 
 		if(thisHitbox->getHitboxType() == HitboxType::Cube) {
-			const auto th = dynamic_cast<HitboxCube*>(thisHitbox);
+			const auto& th = std::dynamic_pointer_cast<HitboxCube>(thisHitbox);
 			switch(other->getHitboxType()) {
 				case HitboxType::Cube: {
-					if(th->checkCollision(dynamic_cast<HitboxCube*>(other))) {
+					if(th->checkCollision(std::dynamic_pointer_cast<HitboxCube>(other))) {
 						return true;
 					}
 					break;
 				}
 				case HitboxType::Sphere: {
-					if(th->checkCollision(dynamic_cast<HitboxSphere*>(other))) {
+					if(th->checkCollision(std::dynamic_pointer_cast<HitboxSphere>(other))) {
 						return true;
 					}
 					break;
@@ -232,16 +228,16 @@ bool RigidBody::checkCollision(Hitbox* other) {
 		}
 
 		if(thisHitbox->getHitboxType() == HitboxType::Sphere) {
-			const auto th = dynamic_cast<HitboxSphere*>(thisHitbox);
+			const auto& th = std::dynamic_pointer_cast<HitboxSphere>(thisHitbox);
 			switch(other->getHitboxType()) {
 				case HitboxType::Cube: {
-					if(th->checkCollision(dynamic_cast<HitboxCube*>(other))) {
+					if(th->checkCollision(std::dynamic_pointer_cast<HitboxCube>(other))) {
 						return true;
 					}
 					break;
 				}
 				case HitboxType::Sphere: {
-					if(th->checkCollision(dynamic_cast<HitboxSphere*>(other))) {
+					if(th->checkCollision(std::dynamic_pointer_cast<HitboxSphere>(other))) {
 						return true;
 					}
 					break;

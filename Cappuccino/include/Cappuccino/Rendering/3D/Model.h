@@ -9,21 +9,26 @@ namespace Capp {
 	class Model {
 	public:
 
-		Model(Mesh* mesh, Material* material);
-		~Model();
+		Model() = default;
+		Model(const Ref<Mesh>& mesh, const Ref<Material>& material);
+		~Model() = default;
 
-		Mesh* getMesh() const;
-		void setMesh(Mesh* mesh);
+		static Ref<Model> create(const Ref<Mesh>& mesh, const Ref<Material>& material) {
+			return Memory::createRef<Model>(mesh, material);
+		}
 
-		Material* getMaterial() const;
-		void setMaterial(Material* material);
+		Ref<Mesh> getMesh() const { return _mesh; }
+		void setMesh(const Ref<Mesh>& mesh) { _mesh = mesh; }
+
+		Ref<Material> getMaterial() const { return _material; }
+		void setMaterial(const Ref<Material>& material) { _material = material; }
 
 		const glm::vec3& getPosition() const;
 		Model& setPosition(const glm::vec3& position);
 		Model& setPosition(float x, float y, float z);
 
 		const glm::vec3& getRotation() const;
-		Model& setRotation(const glm::vec3& eulerRotation);
+		Model& setRotation(const glm::vec3& degrees);
 		Model& setRotation(float x, float y, float z);
 
 		const glm::vec3& getScale() const;
@@ -31,12 +36,12 @@ namespace Capp {
 		Model& setScale(float x, float y, float z);
 		Model& setScale(float scale);
 
-		const Transform& getTransform() const;
+		const Transform& getTransform() const { return _transform; }
 		
 	private:
 
-		Mesh* _mesh;
-		Material* _material;
+		Ref<Mesh> _mesh;
+		Ref<Material> _material;
 		
 		Transform _transform;
 		

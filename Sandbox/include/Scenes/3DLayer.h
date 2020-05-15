@@ -28,35 +28,35 @@ private:
 	CameraController cameraController;
 	bool flashlight = true;
 
-	Capp::Model* floor = nullptr;
-	Capp::Model* wall1 = nullptr;
-	Capp::Model* wall2 = nullptr;
-	Capp::Model* wall3 = nullptr;
-	Capp::Model* wall4 = nullptr;
-	Capp::Model* ceiling = nullptr;
+	Ref<Capp::Model> floor   = nullptr;
+	Ref<Capp::Model> wall1   = nullptr;
+	Ref<Capp::Model> wall2   = nullptr;
+	Ref<Capp::Model> wall3   = nullptr;
+	Ref<Capp::Model> wall4   = nullptr;
+	Ref<Capp::Model> ceiling = nullptr;
 
 	
-	Capp::Model* pointLightCube = nullptr;
-	Capp::Model* spotlightCube = nullptr;
+	Ref<Capp::Model> pointLightCube = nullptr;
+	Ref<Capp::Model> spotlightCube = nullptr;
 	
-	Captain* captain1 = nullptr;
-	Captain* captain2 = nullptr;
-	F16* f16 = nullptr;
-	SentryBot* sentry1 = nullptr;
-	SentryBot* sentry2 = nullptr;
+	Ref<Captain> captain1  = nullptr;
+	Ref<Captain> captain2  = nullptr;
+	Ref<F16> f16           = nullptr;
+	Ref<SentryBot> sentry1 = nullptr;
+	Ref<SentryBot> sentry2 = nullptr;
 	
-	Capp::PointLight* pointLight = nullptr;
-	Capp::DirectionalLight* dirLight = nullptr;
-	Capp::Spotlight* spotlight = nullptr;
+	Ref<Capp::PointLight> pointLight     = nullptr;
+	Ref<Capp::DirectionalLight> dirLight = nullptr;
+	Ref<Capp::Spotlight> spotlight       = nullptr;
 
-	Capp::TextureCubemap* skybox = nullptr;
+	Ref<Capp::TextureCubemap> skybox = nullptr;
 	
-	Capp::Texture3D* coolLUT = nullptr;
-	Capp::Texture3D* warmLUT = nullptr;
-	Capp::Texture3D* customLUT = nullptr;
+	Ref<Capp::Texture3D> coolLUT   = nullptr;
+	Ref<Capp::Texture3D> warmLUT   = nullptr;
+	Ref<Capp::Texture3D> customLUT = nullptr;
 	
-	Capp::PostProcessingPass grayscale = { nullptr, nullptr };
-	Capp::PostProcessingPass inversion = { nullptr, nullptr };
+	Capp::PostProcessingPass grayscale     = { nullptr, nullptr };
+	Capp::PostProcessingPass inversion     = { nullptr, nullptr };
 	Capp::PostProcessingPass colourGrading = { nullptr, nullptr };
 
 	bool isGammaCorrected = false;

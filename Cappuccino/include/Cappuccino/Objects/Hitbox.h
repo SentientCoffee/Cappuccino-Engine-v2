@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Objects/Transform.h"
 #include "Cappuccino/Rendering/VertexArray.h"
 
 #include <glm/glm.hpp>
-
 #include <tuple>
 #include <vector>
 
@@ -19,29 +19,30 @@ namespace Capp {
 	class Hitbox {
 	public:
 		
-		virtual ~Hitbox();
+		virtual ~Hitbox() = default;
 
 		virtual HitboxType getHitboxType() const = 0;
 
-		VertexArray* getVAO() const;
+		Ref<VertexArray> getVAO() const { return _vao; }
 
-		const glm::vec3& getPosition() const;
-		Transform& setPosition(const glm::vec3& position);
-		Transform& setPosition(float x, float y, float z);
+		Hitbox& setPosition(const glm::vec3& position);
+		Hitbox& setRotation(const glm::vec3& degrees);
 
-		const glm::vec3& getRotation() const;
-		Transform& setRotation(const glm::vec3& eulerRotation);
-		Transform& setRotation(float x, float y, float z);
+		const glm::vec3& getPosition() const { return _transform.getPosition(); }
+		Hitbox& setPosition(const float x, const float y, const float z) { return setPosition({ x, y, z }); }
 
-		Transform& getTransform();
+		const glm::vec3& getRotation() const { return _transform.getRotation(); }
+		Hitbox& setRotation(const float x, const float y, const float z) { return setRotation({ x, y, z }); }
+
+		Transform& getTransform() { return _transform; }
 		
-		static void setShouldDraw(bool draw);
-		static bool shouldDraw();
+		static void setAllVisible(const bool draw) { _drawHitboxes = draw; }
+		static bool isVisible() { return _drawHitboxes; }
 
 	protected:
 
 		Transform _transform;
-		VertexArray* _vao = nullptr;
+		Ref<VertexArray> _vao = nullptr;
 
 	private:
 		
@@ -67,13 +68,13 @@ namespace Capp {
 		Transform& setScale(float x, float y, float z);
 		Transform& setScale(float scale);
 		
-		bool checkCollision(HitboxCube* other) const;
-		bool checkCollision(HitboxSphere* other) const;
+		bool checkCollision(const Ref<HitboxCube>& other) const;
+		bool checkCollision(const Ref<HitboxSphere>& other) const;
 
 	private:
 
 		std::tuple<float, float> getSATMinMax(const glm::vec3& axis) const;
-		float getDistance(float spherePos, float boxPos, float boxSize) const;
+		static float getDistance(float spherePos, float boxPos, float boxSize);
 		
 		std::vector<Vertex> _vertices;
 	};
@@ -93,8 +94,8 @@ namespace Capp {
 		float getScale() const;
 		Transform& setScale(float scale);
 
-		bool checkCollision(HitboxSphere* other) const;
-		bool checkCollision(HitboxCube* other);
+		bool checkCollision(const Ref<HitboxSphere>& other) const;
+		bool checkCollision(const Ref<HitboxCube>& other) const;
 		
 	};
 	

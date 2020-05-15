@@ -6,7 +6,7 @@ public:
 
 	SentryBot();
 	~SentryBot();
-
+	
 	void update() override;
 	void onEvent(Capp::Event& e) override;
 

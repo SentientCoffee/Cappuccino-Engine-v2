@@ -18,7 +18,7 @@ namespace Capp {
 		Transform& setPosition(float x, float y, float z);
 
 		const glm::vec3& getRotation() const;
-		Transform& setRotation(const glm::vec3& eulerRotation);
+		Transform& setRotation(const glm::vec3& degrees);
 		Transform& setRotation(float x, float y, float z);
 
 		const glm::vec3& getScale() const;

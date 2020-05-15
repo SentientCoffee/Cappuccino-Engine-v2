@@ -7,11 +7,6 @@
 
 using namespace Capp;
 
-TextureParams::TextureParams(const WrapMode wrapMode, const MinFilter minFilter, const MagFilter magFilter, const Anisotropy anisotropyLevel, const glm::vec4& borderColour) :
-	wrapS(wrapMode), wrapT(wrapMode), wrapR(wrapMode),
-	minFilter(minFilter), magFilter(magFilter),
-	anisotropyLevel(anisotropyLevel), borderColour(borderColour) {}
-
 Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const InternalFormat format, const Mipmaps enableMipmaps) :
 	_width(width), _height(height), _formats({})
 {
@@ -85,7 +80,7 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 	glTextureStorage2D(_id, _mipLevels > 0 ? _mipLevels : 1u, static_cast<GLenum>(_formats.internalFormat), _width, _height);
 
-	if(data != nullptr) {
+	if(data != nullptr || data != 0) {
 		glTextureSubImage2D(_id, 0, 0, 0, _width, _height,
 			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), data);
 		if(enableMipmaps == Mipmaps::On) {

@@ -9,7 +9,7 @@ using namespace Capp;
 // ----- CUBE Loader ------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
-Texture3D* AssetLoader::loadCUBEFile(const std::string& filepath) {
+AssetLoader::LUTData AssetLoader::loadCUBEFile(const std::string& filepath) {
 	std::ifstream lutFile(filepath);
 	CAPP_ASSERT(lutFile.good(), "Failed to read LUT file!\n\tFilepath: {0}", filepath);
 
@@ -51,8 +51,23 @@ Texture3D* AssetLoader::loadCUBEFile(const std::string& filepath) {
 
 	CAPP_ASSERT(lutData.size() == pow(lutSize, 3), "LUT size is incorrect!\n\tGiven LUT size: {0}\n\tExpected LUT size: {1}\n\tFilepath: {2}", lutData.size(), pow(lutSize, 3), filepath);
 	
-	return new Texture3D(lutSize, lutSize, lutSize, lutData.data());
+	return { lutSize, std::move(lutData) };
 }
+
+// ------------------------------------------------------------------------------------------
+// ----- Image File Loader ------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------
+
+AssetLoader::ImageData AssetLoader::loadImageFile(const std::string& filepath, const bool flipped, const int desiredChannels) {
+	stbi_set_flip_vertically_on_load(flipped);
+	int width, height, channels;
+	stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, desiredChannels);
+
+	CAPP_ASSERT(data != nullptr && width > 0 && height > 0 && channels > 0, "Failed to load image file!\n\tFilepath: {0}", filepath);
+
+	return { data, static_cast<unsigned>(width), static_cast<unsigned>(height), static_cast<unsigned>(channels) };
+}
+
 
 // ------------------------------------------------------------------------------------------
 // ----- OBJ Loader -------------------------------------------------------------------------
@@ -65,8 +80,8 @@ struct TriangleFace {
 };
 
 AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
-	std::ifstream file(filepath.data());
-	CAPP_ASSERT(file.good(), "Failed to read OBJ file!\n\tFilepath: {0}", filepath);
+	std::ifstream objFile(filepath.data());
+	CAPP_ASSERT(objFile.good(), "Failed to read OBJ file!\n\tFilepath: {0}", filepath);
 
 	const int lineBufferSize = 256;
 	char lineContent[lineBufferSize];
@@ -76,8 +91,8 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 	std::vector<glm::vec3> normals; normals.reserve(1000000);
 	std::vector<TriangleFace> faces; faces.reserve(1000000);
 
-	while(!file.eof()) {
-		file.getline(lineContent, lineBufferSize);
+	while(!objFile.eof()) {
+		objFile.getline(lineContent, lineBufferSize);
 
 		if(lineContent[0] == 'v') {
 			switch(lineContent[1]) {
@@ -123,7 +138,7 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 		}
 	}
 
-	file.close();
+	objFile.close();
 
 	std::vector<Vertex> allVertices; allVertices.reserve(1000000);
 	for(auto& face : faces) {
@@ -165,7 +180,7 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 		vertexIndexMap[vertex] = index;
 	}
 
-	return { new VertexBuffer(vertices), new IndexBuffer(indices) };
+	return { VertexBuffer::create(vertices), IndexBuffer::create(indices) };
 }
 
 // ------------------------------------------------------------------------------------------
@@ -173,26 +188,12 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 // ------------------------------------------------------------------------------------------
 
 std::string AssetLoader::readTextFile(const std::string& filepath) {
-	std::ifstream file(filepath.data());
+	std::ifstream txtFile(filepath.data());
 	std::stringstream fileContent;
 	CAPP_ASSERT(fileContent.good(), "Failed to read text file!\n\tFilepath: {0}", filepath);
 
-	fileContent << file.rdbuf();
-	file.close();
+	fileContent << txtFile.rdbuf();
+	txtFile.close();
 
 	return fileContent.str();
-}
-
-// ------------------------------------------------------------------------------------------
-// ----- Image File Loader ------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-
-AssetLoader::ImageData AssetLoader::loadImageFile(const std::string& filepath, const bool flipped, const int desiredChannels) {
-	stbi_set_flip_vertically_on_load(flipped);
-	int width, height, channels;
-	stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, desiredChannels);
-	
-	CAPP_ASSERT(data != nullptr && width > 0 && height > 0 && channels > 0, "Failed to load image file!\n\tFilepath: {0}", filepath);
-
-	return { data, static_cast<unsigned>(width), static_cast<unsigned>(height), static_cast<unsigned>(channels) };
 }

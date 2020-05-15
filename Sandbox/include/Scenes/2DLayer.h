@@ -20,8 +20,8 @@ public:
 private:
 
 	Capp::Quad bg;
-	Capp::Text* controls = nullptr;
-	Capp::Text* escape = nullptr;
-	Capp::Text* flashlight = nullptr;
+	Ref<Capp::Text> controls = nullptr;
+	Ref<Capp::Text> escape = nullptr;
+	Ref<Capp::Text> flashlight = nullptr;
 
 };

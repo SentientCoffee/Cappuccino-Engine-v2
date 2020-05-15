@@ -3,9 +3,8 @@
 
 using namespace Capp;
 
-std::unordered_map<std::string, Shader*> ShaderLibrary::_shaders;
+ShaderLibrary::ShaderMap ShaderLibrary::_shaders;
 bool ShaderLibrary::_initialized = false;
-
 
 void ShaderLibrary::init() {
 	if(_initialized) {
@@ -17,13 +16,10 @@ void ShaderLibrary::init() {
 }
 
 void ShaderLibrary::shutdown() {
-	for(const auto& shader : _shaders) {
-		delete shader.second;
-	}
 	_shaders.clear();
 }
 
-void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
+void ShaderLibrary::addShader(const std::string& name, const Ref<Shader>& shader) {
 	if(hasShader(name)) {
 		CAPP_ASSERT(!hasShader(name), "Shader \"{0}\" already exists!", name);
 		return;
@@ -32,16 +28,16 @@ void ShaderLibrary::addShader(const std::string& name, Shader* shader) {
 	_shaders[name] = shader;
 }
 
-Shader* ShaderLibrary::loadShader(const std::string& name) {
+Ref<Shader> ShaderLibrary::loadShader(const std::string& name) {
 	if(hasShader(name)) {
 		CAPP_PRINT_INFO("Shader \"{0}\" already exists, using loaded shader...", name);
 		return _shaders[name];
 	}
 
-	return _shaders[name] = new Shader(name); //, vertexPath, fragmentPath, geometryPath);
+	return _shaders[name] = Shader::create(name);
 }
 
-Shader* ShaderLibrary::getShader(const std::string& name) {
+Ref<Shader> ShaderLibrary::getShader(const std::string& name) {
 	if(!hasShader(name)) {
 		CAPP_ASSERT(hasShader(name), "Shader \"{0}\" not found!", name);
 		return nullptr;

@@ -6,6 +6,7 @@
 
 // Core engine files
 #include "Cappuccino/Core/Application.h"
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Core/Random.h"
 #include "Cappuccino/Core/Time.h"
 

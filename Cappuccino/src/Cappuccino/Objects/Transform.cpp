@@ -26,8 +26,8 @@ Transform& Transform::setPosition(const float x, const float y, const float z) {
 }
 
 const glm::vec3& Transform::getRotation() const { return _rotation; }
-Transform& Transform::setRotation(const glm::vec3& eulerRotation) {
-	_rotation = eulerRotation;
+Transform& Transform::setRotation(const glm::vec3& degrees) {
+	_rotation = degrees;
 	_transformChanged = true;
 	return *this;
 }

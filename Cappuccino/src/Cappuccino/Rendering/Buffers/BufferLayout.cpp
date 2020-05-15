@@ -24,7 +24,7 @@ static unsigned int SDTypeSize(const ShaderDataType type) {
 // ----------------------------------------
 
 BufferElement::BufferElement(const ShaderDataType type, const std::string& name, const bool normalized) :
-	name(name), type(type), size(SDTypeSize(type)), offset(0), normalized(normalized) {}
+	name(name), type(type), size(SDTypeSize(type)), normalized(normalized) {}
 
 unsigned BufferElement::getComponentCount() const {
 	switch(type) {
@@ -60,15 +60,6 @@ BufferLayout::~BufferLayout() {
 	_elements.clear();
 }
 
-std::vector<BufferElement> BufferLayout::getElements() const { return _elements; }
-unsigned int BufferLayout::size() const { return static_cast<unsigned int>(_elements.size()); }
-
-BufferLayout::BufferElemIterator BufferLayout::begin() { return _elements.begin(); }
-BufferLayout::BufferElemIterator BufferLayout::end() { return _elements.end(); }
-BufferLayout::ConstBufferElemIterator BufferLayout::begin() const { return _elements.begin(); }
-BufferLayout::ConstBufferElemIterator BufferLayout::end() const { return _elements.end(); }
-
-unsigned BufferLayout::getStride() const { return _stride; }
 
 void BufferLayout::strideOffsetCalc() {
 	unsigned offset = _stride = 0;

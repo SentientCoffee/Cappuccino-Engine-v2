@@ -19,18 +19,20 @@ namespace Capp {
 		MouseScrolled
 	};
 
-	#define BIND_EVENT_FN(fn)				std::bind(&fn, this, std::placeholders::_1)
+	#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 	
 	#if CAPP_DEBUG || CAPP_RELEASE
 	
-	#define EVENT_CLASS_TYPE(type)			static EventType getStaticType() { return EventType::##type; }\
-											virtual EventType getEventType() const override { return getStaticType(); }\
-											virtual const char* getName() const override { return #type; }
+	#define EVENT_CLASS_TYPE(type)\
+		static EventType getStaticType() { return EventType::##type; }\
+		virtual EventType getEventType() const override { return getStaticType(); }\
+		virtual const char* getName() const override { return #type; }
 
 	#else
 
-	#define EVENT_CLASS_TYPE(type)			static EventType getStaticType() { return EventType::##type; }\
-											virtual EventType getEventType() const override { return getStaticType(); }
+	#define EVENT_CLASS_TYPE(type)\
+		static EventType getStaticType() { return EventType::##type; }\
+		virtual EventType getEventType() const override { return getStaticType(); }
 
 	#endif
 	

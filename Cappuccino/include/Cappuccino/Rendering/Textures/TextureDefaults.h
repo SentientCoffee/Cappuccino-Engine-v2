@@ -1,9 +1,11 @@
 #pragma once
 
 namespace Capp {
-	
-	inline unsigned whiteTexture = 0xFFFFFFFF;
-	inline unsigned blackTexture = 0x00000000;
-	inline unsigned normalTexture = 0x7F7FFFFF;
+
+	namespace TextureDefaults {
+		static unsigned whiteTexture  = 0xFFFFFFFF;
+		static unsigned blackTexture  = 0x00000000;
+		static unsigned normalTexture = 0x7F7FFFFF;
+	};
 	
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cappuccino/Core/Memory.h"
 #include "Cappuccino/Core/Window.h"
 
 #include "Cappuccino/Events/Event.h"
@@ -31,7 +32,7 @@ namespace Capp {
 		bool onWindowClosed(WindowClosedEvent& e);
 		bool onWindowResized(WindowResizedEvent& e);
 		
-		Window* _window;
+		Scope<Window> _window;
 
 		bool _isRunning = true;
 		bool _isMinimized = false;

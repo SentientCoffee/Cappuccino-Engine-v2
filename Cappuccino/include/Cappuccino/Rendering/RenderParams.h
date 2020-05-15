@@ -14,6 +14,8 @@ namespace Capp {
 	};
 
 	enum class CullMode : unsigned int {
+		None                = 0,
+		// From glad.h
 		FrontFace           = 0x0404,		// GL_FRONT
 		BackFace            = 0x0405,		// GL_BACK
 		Both                = 0x0408		// GL_FRONT_AND_BACK

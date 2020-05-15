@@ -3,15 +3,18 @@
 namespace Capp {
 
 	class Time {
+
+		friend class Application;
+		
 	public:
 		
 		static float getTime();
 		static float getDeltaTime();
 
+	private:
+
 		static void preUpdate();
 		static void postUpdate();
-
-	private:
 
 		static float _deltaTime;
 		static float _lastFrameTime;

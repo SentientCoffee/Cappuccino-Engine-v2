@@ -39,8 +39,8 @@ namespace Capp {
 			Anisotropy::Aniso1x
 		};
 		
-		Texture2D* texture = nullptr;
-		TextureCubemap* cubemap = nullptr;
+		Ref<Texture2D> texture = nullptr;
+		Ref<TextureCubemap> cubemap = nullptr;
 
 		Attachment() = default;
 		Attachment(const AttachmentType type, const InternalFormat format) :

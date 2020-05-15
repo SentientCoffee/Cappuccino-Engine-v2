@@ -14,8 +14,8 @@ namespace Capp {
 		void onPop() override;
 		void drawImgui() override;
 
-		void begin();
-		void end();
+		static void begin();
+		static void end();
 		
 	};
 	

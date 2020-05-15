@@ -3,6 +3,7 @@
 #include "Cappuccino/Events/Event.h"
 #include "Cappuccino/Scenes/LayerStack.h"
 #include "Cappuccino/Debugging/ImguiLayer.h"
+#include "Cappuccino/Objects/GameObject.h"
 
 namespace Capp {
 
@@ -11,11 +12,13 @@ namespace Capp {
 	class Scene {
 
 		friend SceneManager;
+		
+		using GameObjectList = std::vector<GameObject*>;
 
 	public:
 
 		Scene(const std::string& name);
-		virtual ~Scene() = default;
+		virtual ~Scene();
 
 		virtual void init();
 		virtual void exit();
@@ -26,11 +29,14 @@ namespace Capp {
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* overlay);
 
+		void addGameObject(GameObject* gameObject);
+
 		const std::string& getName() const;
 
 	protected:
 
 		LayerStack _layerStack;
+		GameObjectList _gameObjects;
 		ImguiLayer* _imguiLayer;
 		
 		std::string _sceneName;

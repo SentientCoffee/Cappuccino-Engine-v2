@@ -20,7 +20,8 @@ Application::Application() :
 Application::Application(const unsigned width, const unsigned height, const std::string& title) {
 	CAPP_ASSERT(!_instance, "Application already exists!");
 	_instance = this;
-	_window = new Window({ title, width, height, true, BIND_EVENT_FN(Application::onEvent) });
+	const WindowProperties properties = { title, width, height, false, BIND_EVENT_FN(Application::onEvent) };
+	_window = Memory::createScope<Window>(properties);
 
 	// Initialize renderers and resource managers
 	RenderCommand::init();
@@ -31,8 +32,7 @@ Application::Application(const unsigned width, const unsigned height, const std:
 Application::~Application() {
 	RenderCommand::shutdown();
 	ResourceManager::shutdown();
-
-	delete _window;
+	
 	_instance = nullptr;
 }
 
@@ -86,6 +86,6 @@ bool Application::onWindowResized(WindowResizedEvent& e) {
 	return false;
 }
 
-Window* Application::getWindow() const { return _window; }
+Window* Application::getWindow() const { return _window.get(); }
 
 Application* Application::getInstance() { return _instance; }

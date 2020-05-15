@@ -6,7 +6,6 @@
 #include "Cappuccino/Rendering/RenderCommand.h"
 #include "Cappuccino/Rendering/Textures/Texture1D.h"
 #include "Cappuccino/Rendering/Textures/Texture3D.h"
-#include "Cappuccino/Resource/ShaderLibrary.h"
 
 using namespace Capp;
 
@@ -14,40 +13,42 @@ using namespace Capp;
 #define MAX_POINT_LIGHTS 50
 #define MAX_SPOTLIGHTS 50
 
+#define FORWARD_RENDERING 0
+
 struct RendererStorage {
 	PerspectiveCamera defaultCamera;
 	PerspectiveCamera perspectiveCamera;
 
-	Shader* blinnPhongShader     = nullptr;
-	Shader* hitboxShader         = nullptr;
-	Shader* skyboxShader         = nullptr;
-	Shader* framebufferShader    = nullptr;
-	Shader* dsShadowPass         = nullptr;
-	Shader* pShadowPass          = nullptr;
-	Shader* gBufferPass          = nullptr;
-	Shader* deferredLightingPass = nullptr;
+	Ref<Shader> blinnPhongShader     = nullptr;
+	Ref<Shader> hitboxShader         = nullptr;
+	Ref<Shader> skyboxShader         = nullptr;
+	Ref<Shader> framebufferShader    = nullptr;
+	Ref<Shader> dsShadowPass         = nullptr;
+	Ref<Shader> pShadowPass          = nullptr;
+	Ref<Shader> gBufferPass          = nullptr;
+	Ref<Shader> deferredLightingPass = nullptr;
 
-	Shader* dDirectionalLightPass = nullptr;
-	Shader* dPointLightPass = nullptr;
-	Shader* dSpotlightPass = nullptr;
+	Ref<Shader> dDirectionalLightPass = nullptr;
+	Ref<Shader> dPointLightPass       = nullptr;
+	Ref<Shader> dSpotlightPass        = nullptr;
 
 	Lights defaultLights;
 	Lights activeLights;
 
-	Mesh* skyboxMesh     = nullptr;
-	Mesh* fullscreenQuad = nullptr;
+	Ref<Mesh> skyboxMesh     = nullptr;
+	Ref<Mesh> fullscreenQuad = nullptr;
 
-	TextureCubemap* defaultSkybox = nullptr;
-	TextureCubemap* activeSkybox  = nullptr;
+	Ref<TextureCubemap> defaultSkybox = nullptr;
+	Ref<TextureCubemap> activeSkybox  = nullptr;
 
-	Framebuffer* gBuffer            = nullptr;
-	Framebuffer* deferredComposite  = nullptr;
-	Framebuffer* accumulationBuffer = nullptr;
+	Ref<Framebuffer> gBuffer            = nullptr;
+	Ref<Framebuffer> deferredComposite  = nullptr;
+	Ref<Framebuffer> accumulationBuffer = nullptr;
 
 	PostProcessingPass gammaCorrection = { nullptr, nullptr };
 
-	std::deque<Model*> modelRenderQueue;
-	std::deque<Hitbox*> hitboxRenderQueue;
+	std::deque<Ref<Model>> modelRenderQueue;
+	std::deque<Ref<Hitbox>> hitboxRenderQueue;
 
 	float gamma = 2.2f;
 };
@@ -56,7 +57,7 @@ static RendererStorage* rStorage;
 
 void Renderer::init() {
 	rStorage = new RendererStorage;
-	const auto window = Application::getInstance()->getWindow();
+	auto* const window = Application::getInstance()->getWindow();
 
 	// --------------------------------------------------
 	// ----- Camera init --------------------------------
@@ -73,57 +74,57 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		rStorage->blinnPhongShader = new Shader("Forward Rendering Default");
+		rStorage->blinnPhongShader = Shader::create("Forward Rendering Default");
 		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/ForwardRendering/SimpleGeometry.vert", ShaderStage::Vertex);
 		rStorage->blinnPhongShader->attach("Assets/Cappuccino/Shaders/ForwardRendering/BlinnPhongShader.frag", ShaderStage::Fragment);
 		rStorage->blinnPhongShader->compile();
 
-		rStorage->hitboxShader = new Shader("Hitbox Default");
+		rStorage->hitboxShader = Shader::create("Hitbox Default");
 		rStorage->hitboxShader->attach("Assets/Cappuccino/Shaders/HitboxShader.vert", ShaderStage::Vertex);
 		rStorage->hitboxShader->attach("Assets/Cappuccino/Shaders/HitboxShader.frag", ShaderStage::Fragment);
 		rStorage->hitboxShader->compile();
 
-		rStorage->skyboxShader = new Shader("Skybox Default");
+		rStorage->skyboxShader = Shader::create("Skybox Default");
 		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/SkyboxShader.vert", ShaderStage::Vertex);
 		rStorage->skyboxShader->attach("Assets/Cappuccino/Shaders/SkyboxShader.frag", ShaderStage::Fragment);
 		rStorage->skyboxShader->compile();
 
-		rStorage->framebufferShader = new Shader("Framebuffer Default");
+		rStorage->framebufferShader = Shader::create("Framebuffer Default");
 		rStorage->framebufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.vert", ShaderStage::Vertex);
 		rStorage->framebufferShader->attach("Assets/Cappuccino/Shaders/FramebufferShader.frag", ShaderStage::Fragment);
 		rStorage->framebufferShader->compile();
 
-		rStorage->dsShadowPass = new Shader("Shadow Mapping Directional/Spot");
+		rStorage->dsShadowPass = Shader::create("Shadow Mapping Directional/Spot");
 		rStorage->dsShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/SimpleShadow.vert", ShaderStage::Vertex);
 		rStorage->dsShadowPass->compile();
 
-		rStorage->pShadowPass = new Shader("Shadow Mapping Point");
+		rStorage->pShadowPass = Shader::create("Shadow Mapping Point");
 		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.vert", ShaderStage::Vertex);
 		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.geom", ShaderStage::Geometry);
 		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.frag", ShaderStage::Fragment);
 		rStorage->pShadowPass->compile();
 		
-		rStorage->gBufferPass = new Shader("Deferred GBuffer Default");
+		rStorage->gBufferPass = Shader::create("Deferred GBuffer Default");
 		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/SimpleGeometry.vert", ShaderStage::Vertex);
 		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/GBufferPass.frag", ShaderStage::Fragment);
 		rStorage->gBufferPass->compile();
 		
-		rStorage->deferredLightingPass = ShaderLibrary::loadShader("Deferred Lighting Default");
+		rStorage->deferredLightingPass = Shader::create("Deferred Lighting Default");
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.frag", ShaderStage::Fragment);
 		rStorage->deferredLightingPass->compile();
 
-		rStorage->dDirectionalLightPass = ShaderLibrary::loadShader("Deferred Directional Lighting Default");
+		rStorage->dDirectionalLightPass = Shader::create("Deferred Directional Lighting Default");
 		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->dDirectionalLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingDirectional.frag", ShaderStage::Fragment);
 		rStorage->dDirectionalLightPass->compile();
 
-		rStorage->dPointLightPass = ShaderLibrary::loadShader("Deferred Point Lighting Default");
+		rStorage->dPointLightPass = Shader::create("Deferred Point Lighting Default");
 		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->dPointLightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingPointLight.frag", ShaderStage::Fragment);
 		rStorage->dPointLightPass->compile();
 
-		rStorage->dSpotlightPass = ShaderLibrary::loadShader("Deferred Spotlighting Default");
+		rStorage->dSpotlightPass = Shader::create("Deferred Spotlighting Default");
 		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->dSpotlightPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingSpotlight.frag", ShaderStage::Fragment);
 		rStorage->dSpotlightPass->compile();
@@ -134,15 +135,15 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		const auto pointLight = new PointLight;
+		const auto pointLight = PointLight::create();
 		pointLight->setPosition(0.0f, 2.0f, 5.0f);
 		rStorage->defaultLights.pointLights = { pointLight };
 
-		const auto dirLight = new DirectionalLight;
+		const auto dirLight = DirectionalLight::create();
 		dirLight->setDirection(0.0f, -1.0f, 0.0f);
 		rStorage->defaultLights.directionalLights = { dirLight };
 
-		const auto spotlight = new Spotlight;
+		const auto spotlight = Spotlight::create();
 		spotlight->setPosition(rStorage->defaultCamera.getPosition()).setDirection(rStorage->defaultCamera.getForward());
 		rStorage->defaultLights.spotlights = { spotlight };
 
@@ -176,7 +177,7 @@ void Renderer::init() {
 			3, 5, 1,	3, 7, 5		// right
 		};
 
-		rStorage->skyboxMesh = new Mesh("Skybox", vertices, indices);
+		rStorage->skyboxMesh = Mesh::create("Skybox", vertices, indices);
 
 		const std::vector<std::string> filepaths = {
 			"Assets/Cappuccino/Textures/Skybox/corona_lf.png",
@@ -187,7 +188,7 @@ void Renderer::init() {
 			"Assets/Cappuccino/Textures/Skybox/corona_bk.png"
 		};
 
-		rStorage->defaultSkybox = new TextureCubemap(filepaths);
+		rStorage->defaultSkybox = TextureCubemap::create(filepaths);
 	}
 
 	// --------------------------------------------------
@@ -207,7 +208,7 @@ void Renderer::init() {
 			0, 2, 3
 		};
 
-		rStorage->fullscreenQuad = new Mesh("Main framebuffer fullscreen quad", vertices, indices);
+		rStorage->fullscreenQuad = Mesh::create("Main framebuffer fullscreen quad", vertices, indices);
 	}
 	
 	// --------------------------------------------------
@@ -215,7 +216,7 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		rStorage->gBuffer = new Framebuffer(window->getWidth(), window->getHeight());
+		rStorage->gBuffer = Framebuffer::create(window->getWidth(), window->getHeight());
 		rStorage->gBuffer->setName("GBuffer");
 		const Attachment viewPosition  = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
 		const Attachment normal        = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
@@ -237,7 +238,7 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		rStorage->deferredComposite = new Framebuffer(window->getWidth(), window->getHeight());
+		rStorage->deferredComposite = Framebuffer::create(window->getWidth(), window->getHeight());
 		rStorage->deferredComposite->setName("Deferred Composite Framebuffer");
 		const Attachment mainColour   = { AttachmentType::Texture, InternalFormat::RGBA8 };
 		const Attachment depthStencil = { AttachmentType::RenderBuffer, InternalFormat::Depth24Stencil8 };
@@ -250,11 +251,11 @@ void Renderer::init() {
 	// --------------------------------------------------
 	
 	{
-		rStorage->gammaCorrection.buffer = new Framebuffer(window->getWidth(), window->getHeight());
+		rStorage->gammaCorrection.buffer = Framebuffer::create(window->getWidth(), window->getHeight());
 		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGB8 };
 		rStorage->gammaCorrection.buffer->addAttachment(AttachmentTarget::Colour0, mainColour);
 		
-		rStorage->gammaCorrection.shader = new Shader("Gamma Correction");
+		rStorage->gammaCorrection.shader = Shader::create("Gamma Correction");
 		rStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", ShaderStage::Vertex);
 		rStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/GammaCorrectionShader.frag", ShaderStage::Fragment);
 		rStorage->gammaCorrection.shader->compile();
@@ -286,6 +287,8 @@ void Renderer::start(const PerspectiveCamera& camera, const Lights& lights, cons
 	rStorage->activeLights.spotlights        = lights.spotlights;
 	rStorage->activeSkybox                   = skybox.value_or(nullptr);
 }
+
+#if FORWARD_RENDERING
 
 void Renderer::addToQueue(VertexArray* vertexArray, Shader* shader) {
 	shader->bind();
@@ -334,20 +337,18 @@ void Renderer::addToQueue(VertexArray* vertexArray, Material* material) {
 	addToQueue(vertexArray, material->getShader());
 }
 
-void Renderer::addToQueue(Mesh* mesh, Shader* shader) {
-	addToQueue(mesh->getVAO(), shader);
+#endif
+
+void Renderer::addToQueue(const Ref<Mesh>& mesh, const Ref<Material>& material) {
+	rStorage->modelRenderQueue.push_back(Model::create(mesh, material));
 }
 
-void Renderer::addToQueue(Mesh* mesh, Material* material) {
-	rStorage->modelRenderQueue.push_back(new Model(mesh, material));
-}
-
-void Renderer::addToQueue(Model* model) {
+void Renderer::addToQueue(const Ref<Model>& model) {
 	rStorage->modelRenderQueue.push_back(model);
 }
 
-void Renderer::addToQueue(GameObject* gameObject) {
-	for(auto model : gameObject->getModels()) {
+void Renderer::addToQueue(const Ref<GameObject>& gameObject) {
+	for(const auto& model : gameObject->getModels()) {
 		addToQueue(model);
 	}
 	if(gameObject->isVisible()) {
@@ -355,28 +356,28 @@ void Renderer::addToQueue(GameObject* gameObject) {
 	}
 }
 
-void Renderer::addToQueue(Hitbox* hitbox) {
+void Renderer::addToQueue(const Ref<Hitbox>& hitbox) {
 	rStorage->hitboxRenderQueue.push_back(hitbox);
 }
 
 void Renderer::addToQueue(const RigidBody& rigidBody) {
-	if(!Hitbox::shouldDraw()) {
+	if(!Hitbox::isVisible()) {
 		return;
 	}
-	for(auto hitbox : rigidBody) {
+	for(const auto& hitbox : rigidBody) {
 		addToQueue(hitbox);
 	}
 }
 
 void Renderer::finish(const PostPasses& postProcessing) {
 
-	const auto window = Application::getInstance()->getWindow();
+	auto* const window = Application::getInstance()->getWindow();
 
 	// --------------------------------------------------
 	// ----- Model sorting ------------------------------
 	// --------------------------------------------------
 	
-	std::sort(rStorage->modelRenderQueue.begin(), rStorage->modelRenderQueue.end(), [](Model* first, const Model* second)-> bool {
+	std::sort(rStorage->modelRenderQueue.begin(), rStorage->modelRenderQueue.end(), [](const Ref<Model>& first, const Ref<Model>& second)-> bool {
 		if(second->getMaterial() == nullptr || second->getMesh() == nullptr) {
 			return false;
 		}
@@ -391,21 +392,13 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
 			return true;
 		#endif
-		
-		if(first->getMaterial()->getShader() != nullptr && second->getMaterial()->getShader() != nullptr) {
-			return first->getMaterial()->getShader()->getRendererID() < second->getMaterial()->getShader()->getRendererID();
-		}
-		if(first->getMaterial()->getShader() != second->getMaterial()->getShader()) {
-			return first->getMaterial()->getShader() < second->getMaterial()->getShader();
-		}
 
-		return first->getMaterial() < second->getMaterial();
+		return first->getMaterial().get() < second->getMaterial().get();
 	});
 
 	// CLEAR WITH ALPHA AT 0.0f SO OTHER LAYERS' FRAMEBUFFERS CAN BE SEEN
 	RenderCommand::setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
 	RenderCommand::enableDepthTesting();
-	RenderCommand::enableCulling();
 	RenderCommand::disableBlending();
 
 	// --------------------------------------------------
@@ -413,32 +406,32 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// --------------------------------------------------
 	
 	{
-		std::deque<Light*> allLights;
+		std::deque<Ref<Light>> allLights;
 		RenderCommand::setCullingMode(CullMode::FrontFace);
 
 		// Directional and spotlights (mono-directional shadow mapping)
-		for(auto light : rStorage->activeLights.directionalLights) {
+		for(const auto& light : rStorage->activeLights.directionalLights) {
 			allLights.push_back(light);
 		}
 		
-		for(auto light : rStorage->activeLights.spotlights) {
+		for(const auto& light : rStorage->activeLights.spotlights) {
 			allLights.push_back(light);
 		}
 
 		while(!allLights.empty()) {
 			// Shadow map
-			const auto light = allLights.front();
+			const auto& light = allLights.front();
 			light->getShadowBuffer()->bind();
 			RenderCommand::setViewport(0, 0, light->getShadowBuffer()->getWidth(), light->getShadowBuffer()->getHeight());
 			RenderCommand::clearScreen(ClearFlags::Depth);
 			{
 				rStorage->dsShadowPass->bind();
-				for(auto model : rStorage->modelRenderQueue) {
+				for(const auto& model : rStorage->modelRenderQueue) {
 					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
 						continue;
 					}
 
-					const auto mesh = model->getMesh();
+					const auto& mesh = model->getMesh();
 
 					rStorage->dsShadowPass->setUniform<Mat4>("uViewProjection", light->getViewProjection());
 					rStorage->dsShadowPass->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
@@ -457,7 +450,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		}
 
 		// Point lights (omnidirectional shadow mapping)
-		for(auto pLight : rStorage->activeLights.pointLights) {
+		for(const auto& pLight : rStorage->activeLights.pointLights) {
 			glm::mat4 proj = pLight->getProjectionMatrix();
 			glm::vec3 pos = pLight->getPosition();
 
@@ -481,7 +474,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					rStorage->pShadowPass->setUniform<Mat4>("uShadowViewProjections[" + std::to_string(i) + "]", shadowTransforms[i]);
 				}
 					
-				for(auto model : rStorage->modelRenderQueue) {
+				for(const auto& model : rStorage->modelRenderQueue) {
 					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
 						continue;
 					}
@@ -515,7 +508,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		RenderCommand::clearScreen();
 		{
 			while(!rStorage->modelRenderQueue.empty()) {
-				const auto model = rStorage->modelRenderQueue.front();
+				const auto& model = rStorage->modelRenderQueue.front();
 
 				if(model->getMesh() == nullptr) {
 					CAPP_PRINT_ERROR("Failed to draw model: missing mesh!");
@@ -526,18 +519,17 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					continue;
 				}
 
-				const auto mesh = model->getMesh();
+				const auto& mesh = model->getMesh();
 
-				auto shader = rStorage->gBufferPass;
-				model->getMaterial()->setShader(shader);
+				auto& shader = rStorage->gBufferPass;
+				model->getMaterial()->apply(shader);
 
 				shader->bind();
-				shader->setUniform<Mat4>("uTransform", model->getTransform().getWorldTransform());
-				shader->setUniform<Mat4>("uView", rStorage->perspectiveCamera.getViewMatrix());
-				shader->setUniform<Mat4>("uProjection", rStorage->perspectiveCamera.getProjectionMatrix());
+				shader->setUniform<Mat4>("uTransform",    model->getTransform().getWorldTransform());
+				shader->setUniform<Mat4>("uView",         rStorage->perspectiveCamera.getViewMatrix());
+				shader->setUniform<Mat4>("uProjection",   rStorage->perspectiveCamera.getProjectionMatrix());
 				shader->setUniform<Mat3>("uNormalMatrix", glm::mat3(glm::transpose(glm::inverse(rStorage->perspectiveCamera.getViewMatrix() * model->getTransform().getWorldTransform()))));
-				shader->setUniform<Float>("uGamma", rStorage->gamma);
-				model->getMaterial()->apply();
+				shader->setUniform<Float>("uGamma",       rStorage->gamma);
 
 				mesh->getVAO()->bind();
 				if(mesh->getVAO()->getIndexBuffer() != nullptr) {
@@ -553,7 +545,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		rStorage->gBuffer->unbind();
 
 		RenderCommand::disableDepthTesting();
-		RenderCommand::disableCulling();
+		RenderCommand::setCullingMode(CullMode::None);
 
 		// Lighting and shadow pass
 		RenderCommand::enableBlending();
@@ -585,7 +577,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 
-				for(auto dLight : rStorage->activeLights.directionalLights) {
+				for(const auto& dLight : rStorage->activeLights.directionalLights) {
 					dLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(dLight->getViewMatrix());
 				
@@ -616,7 +608,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 				
 
-				for(auto pLight : rStorage->activeLights.pointLights) {
+				for(const auto& pLight : rStorage->activeLights.pointLights) {
 					pLight->getShadowBuffer()->getCubemapAttachment(AttachmentTarget::Depth)->bind(6);
 
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(pLight->getViewMatrix());
@@ -645,7 +637,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 
-				for(auto sLight : rStorage->activeLights.spotlights) {
+				for(const auto& sLight : rStorage->activeLights.spotlights) {
 					sLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
 
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(sLight->getViewMatrix());
@@ -682,7 +674,6 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		rStorage->deferredComposite->bind();
 		{
 			if(rStorage->activeSkybox != nullptr) {
-				RenderCommand::disableCulling();
 				RenderCommand::enableDepthTesting();
 				RenderCommand::setDepthTestFunction(DepthTestFunction::LessThanOrEqual);
 				RenderCommand::disableDepthMask();
@@ -710,7 +701,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	{
 		// TODO: HITBOX RENDERING
 		#if 0
-		if(Hitbox::shouldDraw()) {
+		if(Hitbox::isVisible()) {
 			RenderCommand::disableCulling();
 			RenderCommand::setDrawMode(DrawMode::Line);
 
@@ -801,7 +792,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			}
 
 
-			if(Hitbox::shouldDraw()) {
+			if(Hitbox::isVisible()) {
 				RenderCommand::disableCulling();
 				RenderCommand::setDrawMode(DrawMode::Line);
 
@@ -850,7 +841,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// ----- Post-processing passes ---------------------
 	// --------------------------------------------------
 
-	Framebuffer* lastPass = rStorage->deferredComposite;
+	Ref<Framebuffer> lastPass = rStorage->deferredComposite;
 	{
 		// Gamma correction
 		{
@@ -873,7 +864,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		}
 
 		// Other post processing passes
-		for(auto pass : postProcessing) {
+		for(const auto& pass : postProcessing) {
 			pass.buffer->validateFramebuffer();
 			pass.buffer->bind();
 

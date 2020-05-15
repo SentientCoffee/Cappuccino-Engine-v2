@@ -2,7 +2,6 @@
 #include "Cappuccino/Debugging/ImguiLayer.h"
 
 #include "Cappuccino/Core/Application.h"
-#include "Cappuccino/Core/Time.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glfw/glfw3.h>
@@ -52,8 +51,8 @@ void ImguiLayer::drawImgui() {}
 
 void ImguiLayer::end() {
 	ImGuiIO& io = ImGui::GetIO();
-	Application* app = Application::getInstance();
-	io.DisplaySize = { static_cast<float>(app->getWindow()->getWidth()), static_cast<float>(app->getWindow()->getHeight()) };
+	const auto window = Application::getInstance()->getWindow();
+	io.DisplaySize = { static_cast<float>(window->getWidth()), static_cast<float>(window->getHeight()) };
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

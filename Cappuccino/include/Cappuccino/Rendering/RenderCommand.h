@@ -13,6 +13,7 @@ namespace Capp {
 		static void init();
 		static void shutdown();
 		
+		static void setViewport(const glm::vec2& offset, const glm::vec2& dimensions);
 		static void setViewport(unsigned x, unsigned y, unsigned w, unsigned h);
 
 		static glm::vec4 getClearColour();
@@ -21,13 +22,10 @@ namespace Capp {
 
 		static void clearScreen(ClearFlags flags = ClearFlags::All);
 
-		static void drawArray(VertexArray* vertexArray);
-		static void drawIndexed(VertexArray* vertexArray);
+		static void drawArray(const Ref<VertexArray>& vertexArray);
+		static void drawIndexed(const Ref<VertexArray>& vertexArray);
 
-		static void enableCulling();
-		static void disableCulling();
 		static void setCullingMode(CullMode mode);
-
 		static void setDrawMode(DrawMode mode);
 
 		static void enableBlending();

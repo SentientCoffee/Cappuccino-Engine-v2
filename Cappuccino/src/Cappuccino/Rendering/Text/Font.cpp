@@ -2,6 +2,7 @@
 #include "Cappuccino/Rendering/Text/Font.h"
 #include "Cappuccino/Resource/FontLibrary.h"
 
+#include <freetype/freetype.h>
 #include <glad/glad.h>
 
 using namespace Capp;
@@ -10,7 +11,7 @@ Font::Font(const std::string& name, const std::string& filepath) {
 	load(name, filepath);
 }
 
-Font::~Font() {	
+Font::~Font() {
 	_glyphs.clear();
 }
 
@@ -22,17 +23,20 @@ void Font::load(const std::string& name, const std::string& filepath) {
 	CAPP_ASSERT(ftFontFileLoadStatus == 0, "Failed to load font file!\nFont file: {0}", filepath);
 
 	FT_Set_Pixel_Sizes(typeface, 0, 48);       // Set size to load glyphs as
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);                           // Disable byte-alignment restriction
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);     // Disable byte-alignment restriction
 
 	// Only loading in the first 128 characters of the font
 	for(unsigned char ch = 0; ch < 128; ++ch) {
 		const int ftLoadCharStatus = FT_Load_Char(typeface, ch, FT_LOAD_RENDER);
-		CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!\nGlyph: {0}", ch);
-		
-		auto texture = new Texture2D(typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows, typeface->glyph->bitmap.buffer, InternalFormat::Red8);
-		TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
-		texture->setParameters(params);
+		CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!\n\tGlyph: {0}", ch);
 
+		Ref<Texture2D> texture = nullptr;
+		if(typeface->glyph->bitmap.buffer != nullptr) {
+			texture = Texture2D::create(typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows, typeface->glyph->bitmap.buffer, InternalFormat::Red8);
+			TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
+			texture->setParameters(params);
+		}
+		
 		const Glyph glyph = {
 			texture,
 			{ typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows },
@@ -45,8 +49,6 @@ void Font::load(const std::string& name, const std::string& filepath) {
 
 	FT_Done_Face(typeface);
 }
-
-const std::string& Font::getName() const { return _name; }
 
 const Glyph& Font::getCharacter(const unsigned char ch) {
 	if(!hasCharacter(ch)) {

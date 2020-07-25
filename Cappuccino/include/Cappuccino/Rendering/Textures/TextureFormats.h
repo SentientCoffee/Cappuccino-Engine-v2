@@ -2,7 +2,7 @@
 
 namespace Capp {
 
-	enum class InternalFormat : unsigned int {
+	enum class InternalFormat : uint32_t {
 		None                 = 0,
 		// From glad.h
 		Red8                = 0x8229,		// GL_R8
@@ -37,7 +37,7 @@ namespace Capp {
 		Depth24Stencil8     = 0x88F0,		// GL_DEPTH24_STENCIL8
 	};
 
-	enum class PixelFormat : unsigned int {
+	enum class PixelFormat : uint32_t {
 		None                 = 0,
 		// From glad.h
 		Red                  = 0x1903,		//  GL_RED
@@ -53,7 +53,7 @@ namespace Capp {
 		DepthStencil         = 0x84F9		//  GL_DEPTH_STENCIL
 	};
 
-	enum class PixelType : unsigned int {
+	enum class PixelType : uint32_t {
 		// From glad.h
 		Byte                 = 0x1400,		// GL_BYTE
 		UnsignedByte         = 0x1401,		// GL_UNSIGNED_BYTE

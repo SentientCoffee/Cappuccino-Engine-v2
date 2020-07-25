@@ -12,17 +12,13 @@ namespace Capp {
 	public:
 
 		Application();
-		Application(
-			unsigned int       width,
-			unsigned int       height,
-			const std::string& title
-		);
+		Application(uint32_t width, uint32_t height, std::string&& title);
 		virtual ~Application();
 
 		void run();
 		void onEvent(Event& e);
 
-		Window* getWindow() const;
+		const Ref<Window>& getWindow() const;
 
 		static Application* getInstance();
 
@@ -32,7 +28,7 @@ namespace Capp {
 		bool onWindowClosed(WindowClosedEvent& e);
 		bool onWindowResized(WindowResizedEvent& e);
 		
-		Scope<Window> _window;
+		Ref<Window> _window;
 
 		bool _isRunning = true;
 		bool _isMinimized = false;

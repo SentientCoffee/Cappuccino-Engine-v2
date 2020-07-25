@@ -17,11 +17,11 @@ Application* Application::_instance = nullptr;
 Application::Application() :
 	Application(100, 100, "Failed to create app!") {}
 
-Application::Application(const unsigned width, const unsigned height, const std::string& title) {
+Application::Application(const uint32_t width, const uint32_t height, std::string&& title) {
 	CAPP_ASSERT(!_instance, "Application already exists!");
 	_instance = this;
-	const WindowProperties properties = { title, width, height, false, BIND_EVENT_FN(Application::onEvent) };
-	_window = Memory::createScope<Window>(properties);
+	const WindowProperties properties = { std::move(title), width, height, false, BIND_EVENT_FN(Application::onEvent) };
+	_window = Memory::createRef<Window>(properties);
 
 	// Initialize renderers and resource managers
 	RenderCommand::init();
@@ -86,6 +86,6 @@ bool Application::onWindowResized(WindowResizedEvent& e) {
 	return false;
 }
 
-Window* Application::getWindow() const { return _window.get(); }
+const Ref<Window>& Application::getWindow() const { return _window; }
 
 Application* Application::getInstance() { return _instance; }

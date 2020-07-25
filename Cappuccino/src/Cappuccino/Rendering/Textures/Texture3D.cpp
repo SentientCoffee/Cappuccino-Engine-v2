@@ -26,7 +26,7 @@ Texture3D::Texture3D(const std::string& filepath) :
 	setParameters(_parameters);
 }
 
-Texture3D::Texture3D(const unsigned width, const unsigned height, const unsigned depth, void* data, const InternalFormat format) :
+Texture3D::Texture3D(const uint32_t width, const uint32_t height, const uint32_t depth, void* data, const InternalFormat format) :
 	_width(width), _height(height), _depth(depth), _formats({})
 {
 	switch(format) {
@@ -83,23 +83,17 @@ Texture3D::Texture3D(const unsigned width, const unsigned height, const unsigned
 	setParameters(_parameters);
 }
 
-Texture3D::Texture3D(const unsigned width, const unsigned height, const unsigned depth, const InternalFormat format) :
+Texture3D::Texture3D(const uint32_t width, const uint32_t height, const uint32_t depth, const InternalFormat format) :
 	Texture3D(width, height, depth, nullptr, format) {}
 
 Texture3D::~Texture3D() {
 	glDeleteTextures(1, &_id);
 }
 
-unsigned Texture3D::getRendererID() const { return _id; }
-unsigned Texture3D::getWidth() const { return _width; }
-unsigned Texture3D::getHeight() const { return _height; }
-unsigned Texture3D::getDepth() const { return _depth; }
-glm::vec3 Texture3D::getSize() const { return { _width, _height, _depth }; }
-
-void Texture3D::bind(const unsigned slot) const {
+void Texture3D::bind(const uint32_t slot) const {
 	glBindTextureUnit(slot, _id);
 }
-void Texture3D::unbind(const unsigned slot) {
+void Texture3D::unbind(const uint32_t slot) {
 	glBindTextureUnit(slot, 0);
 }
 

@@ -35,7 +35,7 @@ namespace Capp {
 		static void shutdown();
 
 		// Window resized function (for framebuffers)
-		static void onWindowResized(unsigned width, unsigned height);
+		static void onWindowResized(uint32_t width, uint32_t height);
 
 		// Pre and post rendering
 		static void start();

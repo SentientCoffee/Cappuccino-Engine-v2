@@ -35,7 +35,7 @@ void RenderCommand::setViewport(const glm::vec2& offset, const glm::vec2& dimens
 	glScissor(static_cast<GLint>(offset.x), static_cast<GLint>(offset.y), static_cast<GLsizei>(dimensions.x), static_cast<GLsizei>(dimensions.y));
 }
 
-void RenderCommand::setViewport(const unsigned x, const unsigned y, const unsigned w, const unsigned h) {
+void RenderCommand::setViewport(const uint32_t x, const uint32_t y, const uint32_t w, const uint32_t h) {
 	glViewport(x, y, w, h);
 	glScissor(x, y, w, h);
 }
@@ -67,7 +67,7 @@ void RenderCommand::clearScreen(ClearFlags flags) {
 // ----------------------------------------------------------------
 
 void RenderCommand::drawArray(const Ref<VertexArray>& vertexArray) {
-	unsigned count = 0;
+	uint32_t count = 0;
 	for(const auto& vbo : vertexArray->getVertexBuffers()) {
 		count += vbo->getCount();
 	}
@@ -162,11 +162,11 @@ void RenderCommand::disableStencilMask() {
 	glStencilMask(0x00);
 }
 
-void RenderCommand::setStencilMask(const unsigned mask) {
+void RenderCommand::setStencilMask(const uint32_t mask) {
 	glStencilMask(mask);
 }
 
-void RenderCommand::setStencilTestFunction(StencilTestFunction func, const int ref, const unsigned mask) {
+void RenderCommand::setStencilTestFunction(StencilTestFunction func, const int ref, const uint32_t mask) {
 	glStencilFunc(static_cast<GLenum>(func), ref, mask);
 }
 

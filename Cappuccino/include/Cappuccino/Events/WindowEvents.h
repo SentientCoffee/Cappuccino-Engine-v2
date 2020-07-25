@@ -7,20 +7,23 @@ namespace Capp {
 	class WindowResizedEvent : public Event {
 	public:
 
-		WindowResizedEvent(unsigned int width, unsigned int height);
+		WindowResizedEvent(const uint32_t width, const uint32_t height) :
+			_width(width), _height(height) {}
 
 		EVENT_CLASS_TYPE(WindowResized);
 
-		unsigned getWidth() const;
-		unsigned getHeight() const;
+		uint32_t getWidth() const { return _width; }
+		uint32_t getHeight() const { return _height; }
 
-		#if CAPP_DEBUG || CAPP_RELEASE
-		std::string toString() const override;
-		#endif
+#if CAPP_DEBUG || CAPP_RELEASE
+		std::string toString() const override {
+			return std::string("WindowResized: " + std::to_string(_width) + " x " + std::to_string(_height));
+		}
+#endif
 
 	private:
 
-		unsigned _width, _height;
+		uint32_t _width, _height;
 		
 	};
 	

@@ -12,7 +12,7 @@ namespace Capp {
 		static void init();
 		static void shutdown();
 
-		static void onWindowResized(unsigned width, unsigned height);
+		static void onWindowResized(uint32_t width, uint32_t height);
 		
 		static void start();
 		static void start(const OrthographicCamera& camera);
@@ -20,7 +20,7 @@ namespace Capp {
 
 		static void drawQuad(const Quad& quad);
 
-		static void drawText(Ref<Text> text);
+		static void drawText(const Ref<Text>& text);
 		
 	};
 	

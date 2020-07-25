@@ -1,26 +1,25 @@
 #include "CappPCH.h"
 #include "Cappuccino/Input/Input.h"
-
 #include "Cappuccino/Core/Application.h"
 
 #include <glfw/glfw3.h>
 
 using namespace Capp;
 
-bool Input::keyPressed(const unsigned int key) {
+bool Input::keyPressed(const uint32_t key) {
 	const int state = glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(key));
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-bool Input::keyReleased(const unsigned int key) {
+bool Input::keyReleased(const uint32_t key) {
 	return glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(key)) == GLFW_RELEASE;
 }
 
-bool Input::mouseButtonPressed(const unsigned int button) {
+bool Input::mouseButtonPressed(const uint32_t button) {
 	return glfwGetMouseButton(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_PRESS;
 }
 
-bool Input::mouseButtonReleased(const unsigned int button) {
+bool Input::mouseButtonReleased(const uint32_t button) {
 	return glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_RELEASE;
 }
 

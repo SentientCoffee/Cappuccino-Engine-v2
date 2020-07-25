@@ -25,14 +25,14 @@ void Shader::attach(const std::string& filepath, const ShaderStage stage) {
 	const std::string shaderSrc = AssetLoader::readTextFile(filepath);
 	CAPP_ASSERT(!shaderSrc.empty(), "{0} shader file is empty!\n\tShader file: {1}", stage, filepath);
 
-	const unsigned int shaderHandle = createShader(shaderSrc, stage);
+	const uint32_t shaderHandle = createShader(shaderSrc, stage);
 
 	_filepaths[stage] = filepath;
 	_handles[stage] = shaderHandle;
 }
 
 void Shader::compile() {
-	const unsigned newProgram = compileProgram();
+	const uint32_t newProgram = compileProgram();
 	CAPP_ASSERT(newProgram != 0, "Could not compile shader \"{0}\"!", _name);
 	_id = newProgram;
 	_isCompiled = true;
@@ -48,8 +48,8 @@ void Shader::reload() {
 	compile();
 }
 
-unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage stage) {
-	unsigned int shaderHandle = 0;
+uint32_t Shader::createShader(const std::string& shaderSrc, const ShaderStage stage) {
+	uint32_t shaderHandle = 0;
 
 	switch(stage) {
 		case ShaderStage::Vertex:
@@ -72,7 +72,7 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage st
 			break;
 	}
 
-	auto shaderSource = shaderSrc.c_str();
+	const auto* shaderSource = shaderSrc.c_str();
 	glShaderSource(shaderHandle, 1, &shaderSource, nullptr);
 	glCompileShader(shaderHandle);
 
@@ -93,11 +93,11 @@ unsigned Shader::createShader(const std::string& shaderSrc, const ShaderStage st
 	return shaderHandle;
 }
 
-unsigned Shader::compileProgram() const {
+uint32_t Shader::compileProgram() const {
 
-	const unsigned programHandle = glCreateProgram();
+	const uint32_t programHandle = glCreateProgram();
 
-	for(const auto handle : _handles) {
+	for(const auto& handle : _handles) {
 		CAPP_ASSERT(handle.second != 0, "No {0} shader linked!\n\tShader: {1}", handle.first, _name);
 		glAttachShader(programHandle, handle.second);
 	}
@@ -107,22 +107,20 @@ unsigned Shader::compileProgram() const {
 	int success;
 	glGetProgramiv(programHandle, GL_LINK_STATUS, &success);
 	if(!success) {
-		int logLength;
-		glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLength);
-		std::vector<char> infoLog;
-		infoLog.reserve(logLength);
+		int logLength; glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLength);
+		std::vector<char> infoLog; infoLog.reserve(logLength);
 		glGetProgramInfoLog(programHandle, logLength, &logLength, infoLog.data());
 
 		glDeleteProgram(programHandle);
-		for(const auto handle : _handles) {
+		for(const auto handle& : _handles) {
 			glDeleteShader(handle.second);
 		}
 
-		CAPP_ASSERT(success, "Failed to link shader program!\n\tShader: {0}\n{1}", _name, infoLog.data());
+		CAPP_ASSERT(success, "Failed to link shader program!\n\tShader: {0}\n\t{1}", _name, infoLog.data());
 		return 0;
 	}
 
-	for(const auto handle : _handles) {
+	for(const auto handle& : _handles) {
 		glDetachShader(programHandle, handle.second);
 	}
 
@@ -146,34 +144,22 @@ int Shader::getUniformLocation(const std::string& uniformName) const {
 	return uniformLocation;
 }
 
-void Shader::setUniformBool(const std::string& uniformName, const bool& value) const {
-	glUniform1i(getUniformLocation(uniformName), static_cast<int>(value));
-}
+void Shader::setUniformBool (const std::string& uniformName, const bool& value) const      { glUniform1i(getUniformLocation(uniformName), static_cast<int>(value)); }
+void Shader::setUniformInt  (const std::string& uniformName, const int& value) const       { glUniform1i(getUniformLocation(uniformName), value); }
+void Shader::setUniformFloat(const std::string& uniformName, const float& value) const     { glUniform1f(getUniformLocation(uniformName), value); }
+void Shader::setUniformVec2 (const std::string& uniformName, const glm::vec2& value) const { glUniform2fv(getUniformLocation(uniformName), 1, glm::value_ptr(value)); }
+void Shader::setUniformVec3 (const std::string& uniformName, const glm::vec3& value) const { glUniform3fv(getUniformLocation(uniformName), 1, glm::value_ptr(value)); }
+void Shader::setUniformVec4 (const std::string& uniformName, const glm::vec4& value) const { glUniform4fv(getUniformLocation(uniformName), 1, glm::value_ptr(value)); }
+void Shader::setUniformMat3 (const std::string& uniformName, const glm::mat3& value) const { glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value)); }
+void Shader::setUniformMat4 (const std::string& uniformName, const glm::mat4& value) const { glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value)); }
 
-void Shader::setUniformInt(const std::string& uniformName, const int& value) const {
-	glUniform1i(getUniformLocation(uniformName), value);
-}
+void Shader::setUniformBoolArray (const std::string& uniformName, const uint32_t count, const bool* values) const      { glUniform1iv(getUniformLocation(uniformName), count, reinterpret_cast<const GLint*>(values)); }
+void Shader::setUniformIntArray  (const std::string& uniformName, const uint32_t count, const int* values) const       { glUniform1iv(getUniformLocation(uniformName), count, values); }
+void Shader::setUniformFloatArray(const std::string& uniformName, const uint32_t count, const float* values) const     { glUniform1fv(getUniformLocation(uniformName), count, values); }
+void Shader::setUniformVec2Array (const std::string& uniformName, const uint32_t count, const glm::vec2* values) const { glUniform2fv(getUniformLocation(uniformName), count, glm::value_ptr(values[0])); }
+void Shader::setUniformVec3Array (const std::string& uniformName, const uint32_t count, const glm::vec3* values) const { glUniform3fv(getUniformLocation(uniformName), count, glm::value_ptr(values[0])); }
+void Shader::setUniformVec4Array (const std::string& uniformName, const uint32_t count, const glm::vec4* values) const { glUniform4fv(getUniformLocation(uniformName), count, glm::value_ptr(values[0])); }
+void Shader::setUniformMat3Array (const std::string& uniformName, const uint32_t count, const glm::mat3* values) const { glUniformMatrix3fv(getUniformLocation(uniformName), count, GL_FALSE, glm::value_ptr(values[0])); }
+void Shader::setUniformMat4Array (const std::string& uniformName, const uint32_t count, const glm::mat4* values) const { glUniformMatrix4fv(getUniformLocation(uniformName), count, GL_FALSE, glm::value_ptr(values[0])); }
 
-void Shader::setUniformFloat(const std::string& uniformName, const float& value) const {
-	glUniform1f(getUniformLocation(uniformName), value);
-}
 
-void Shader::setUniformVec2(const std::string& uniformName, const glm::vec2& value) const {
-	glUniform2fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
-}
-
-void Shader::setUniformVec3(const std::string& uniformName, const glm::vec3& value) const {
-	glUniform3fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
-}
-
-void Shader::setUniformVec4(const std::string& uniformName, const glm::vec4& value) const {
-	glUniform4fv(getUniformLocation(uniformName), 1, glm::value_ptr(value));
-}
-
-void Shader::setUniformMat3(const std::string& uniformName, const glm::mat3& value) const {
-	glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
-}
-
-void Shader::setUniformMat4(const std::string& uniformName, const glm::mat4& value) const {
-	glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
-}

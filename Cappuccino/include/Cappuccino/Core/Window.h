@@ -13,7 +13,7 @@ namespace Capp {
 		using EventCallbackFunc = std::function<void(Event&)>;
 
 		std::string title;
-		unsigned int width, height;
+		uint32_t width, height;
 
 		bool isVSyncEnabled;
 		EventCallbackFunc eventFunc;
@@ -31,8 +31,8 @@ namespace Capp {
 
 		void update() const;
 
-		unsigned getWidth() const;
-		unsigned getHeight() const;
+		uint32_t getWidth() const;
+		uint32_t getHeight() const;
 
 		void setVSyncEnabled(bool enabled);
 		bool isVSyncEnabled() const;

@@ -14,7 +14,7 @@ namespace Capp {
 		static void shutdown();
 		
 		static void setViewport(const glm::vec2& offset, const glm::vec2& dimensions);
-		static void setViewport(unsigned x, unsigned y, unsigned w, unsigned h);
+		static void setViewport(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 
 		static glm::vec4 getClearColour();
 		static void setClearColour(const glm::vec4& colour);
@@ -43,8 +43,8 @@ namespace Capp {
 		static void disableStencilTesting();
 		static void enableStencilMask();
 		static void disableStencilMask();
-		static void setStencilMask(unsigned mask);
-		static void setStencilTestFunction(StencilTestFunction func, int ref = 1, unsigned mask = 0xFF);
+		static void setStencilMask(uint32_t mask);
+		static void setStencilTestFunction(StencilTestFunction func, int ref = 1, uint32_t mask = 0xFF);
 		static void setStencilOperation(StencilOperation stencilFail, StencilOperation depthFail, StencilOperation bothPass);
 
 	};

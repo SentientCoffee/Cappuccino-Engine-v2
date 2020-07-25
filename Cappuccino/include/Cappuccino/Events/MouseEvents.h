@@ -7,16 +7,20 @@ namespace Capp {
 	class MouseMovedEvent : public Event {
 	public:
 		
-		MouseMovedEvent(float xPos, float yPos);
+		MouseMovedEvent(const float xPos, const float yPos) : _mouseX(xPos), _mouseY(yPos) {}
 
 		EVENT_CLASS_TYPE(MouseMoved);
 
-		float getMouseX() const;
-		float getMouseY() const;
+		float getMouseX() const { return _mouseX; }
+		float getMouseY() const { return _mouseY; }
 
-		#if CAPP_DEBUG || CAPP_RELEASE
-		std::string toString() const override;
-		#endif
+#if CAPP_DEBUG || CAPP_RELEASE
+		
+		std::string toString() const override {
+			return std::string("MouseMoved: " + std::to_string(static_cast<int>(_mouseX)) + ", " + std::to_string(static_cast<int>(_mouseY)));
+		}
+		
+#endif
 
 	private:
 
@@ -27,16 +31,20 @@ namespace Capp {
 	class MouseScrolledEvent : public Event {
 	public:
 
-		MouseScrolledEvent(float xOffset, float yOffset);
+		MouseScrolledEvent(const float xOffset, const float yOffset) : _xOffset(xOffset), _yOffset(yOffset) {}
 
 		EVENT_CLASS_TYPE(MouseScrolled);
 
-		float getXOffset() const;
-		float getYOffset() const;
+		float getXOffset() const { return _xOffset; }
+		float getYOffset() const { return _yOffset; }
 
-		#if CAPP_DEBUG || CAPP_RELEASE
-		std::string toString() const override;
-		#endif
+#if CAPP_DEBUG || CAPP_RELEASE
+		
+		std::string toString() const override {
+			return std::string("MouseScrolled: " + std::to_string(static_cast<int>(_xOffset)) + ", " + std::to_string(static_cast<int>(_yOffset)));
+		}
+		
+#endif
 
 	private:
 
@@ -47,15 +55,19 @@ namespace Capp {
 	class MouseButtonPressedEvent : public Event {
 	public:
 
-		MouseButtonPressedEvent(int button);
+		MouseButtonPressedEvent(const int button) : _mouseButton(button) {}
 
 		EVENT_CLASS_TYPE(MouseButtonPressed);
 
-		int getMouseButton() const;
+		int getMouseButton() const { return _mouseButton; }
 		
-		#if CAPP_DEBUG || CAPP_RELEASE
-		std::string toString() const override;
-		#endif
+#if CAPP_DEBUG || CAPP_RELEASE
+		
+		std::string toString() const override {
+			return std::string("MouseButtonPressed: " + std::to_string(_mouseButton));
+		}
+		
+#endif
 
 	private:
 
@@ -66,15 +78,19 @@ namespace Capp {
 	class MouseButtonReleasedEvent : public Event {
 	public:
 
-		MouseButtonReleasedEvent(int button);
+		MouseButtonReleasedEvent(const int button) : _mouseButton(button) {}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased);
 
-		int getMouseButton() const;
+		int getMouseButton() const { return _mouseButton; }
 		
-		#if CAPP_DEBUG || CAPP_RELEASE
-		std::string toString() const override;
-		#endif
+#if CAPP_DEBUG || CAPP_RELEASE
+		
+		std::string toString() const override {
+			return std::string("MouseButtonReleased: " + std::to_string(_mouseButton));
+		}
+		
+#endif
 
 	private:
 

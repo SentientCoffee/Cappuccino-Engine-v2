@@ -4,7 +4,7 @@
 
 namespace Capp {
 
-	enum class EventType : unsigned int {
+	enum class EventType : uint32_t {
 		None = 0,
 
 		WindowClosed,
@@ -19,22 +19,22 @@ namespace Capp {
 		MouseScrolled
 	};
 
-	#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 	
-	#if CAPP_DEBUG || CAPP_RELEASE
+#if CAPP_DEBUG || CAPP_RELEASE
 	
-	#define EVENT_CLASS_TYPE(type)\
-		static EventType getStaticType() { return EventType::##type; }\
-		virtual EventType getEventType() const override { return getStaticType(); }\
-		virtual const char* getName() const override { return #type; }
+#define EVENT_CLASS_TYPE(type)\
+	static EventType getStaticType() { return EventType::##type; }\
+	virtual EventType getEventType() const override { return getStaticType(); }\
+	virtual const char* getName() const override { return #type; }
 
-	#else
+#else
 
 	#define EVENT_CLASS_TYPE(type)\
 		static EventType getStaticType() { return EventType::##type; }\
 		virtual EventType getEventType() const override { return getStaticType(); }
 
-	#endif
+#endif
 	
 	class Event {
 
@@ -44,14 +44,14 @@ namespace Capp {
 
 		virtual EventType getEventType() const = 0;
 
-		bool isHandled() const;
+		bool isHandled() const { return _isHandled; }
 
-		#if CAPP_DEBUG || CAPP_RELEASE
+#if CAPP_DEBUG || CAPP_RELEASE
 
 		virtual const char* getName() const = 0;
-		virtual std::string toString() const;
+		virtual std::string toString() const { return getName(); };
 		
-		#endif
+#endif
 
 	protected:
 
@@ -62,9 +62,9 @@ namespace Capp {
 		
 	};
 
-	#if CAPP_DEBUG || CAPP_RELEASE
+#if CAPP_DEBUG || CAPP_RELEASE
 	inline std::ostream& operator<<(std::ostream& out, const Event& e) { return out << e.toString(); }
-	#endif
+#endif
 	
 	class EventDispatcher {
 
@@ -73,7 +73,7 @@ namespace Capp {
 
 	public:
 
-		EventDispatcher(Event& e);
+		EventDispatcher(Event& e) : _event(e) {}
 
 		template<typename EType, typename = typename std::enable_if<std::is_base_of<Event, EType>::value>::type>
 		bool dispatchEventType(EventFunction<EType> function);

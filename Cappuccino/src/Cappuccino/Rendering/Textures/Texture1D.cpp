@@ -40,7 +40,7 @@ Texture1D::Texture1D(const std::string& filepath) {
 	setParameters(_parameters);
 }
 
-Texture1D::Texture1D(const unsigned size, void* data, const InternalFormat format) :
+Texture1D::Texture1D(const uint32_t size, void* data, const InternalFormat format) :
 	_size(size), _formats({})
 {
 	switch(format) {
@@ -98,22 +98,22 @@ Texture1D::Texture1D(const unsigned size, void* data, const InternalFormat forma
 	setParameters(_parameters);
 }
 
-Texture1D::Texture1D(const unsigned size, const InternalFormat format) :
+Texture1D::Texture1D(const uint32_t size, const InternalFormat format) :
 	Texture1D(size, nullptr, format) {}
 
 Texture1D::~Texture1D() {
 	glDeleteTextures(1, &_id);
 }
 
-void Texture1D::bind(const unsigned slot) const {
+void Texture1D::bind(const uint32_t slot) const {
 	glBindTextureUnit(slot, _id);
 }
-void Texture1D::unbind(const unsigned slot) {
+void Texture1D::unbind(const uint32_t slot) {
 	glBindTextureUnit(slot, 0);
 }
 
-void Texture1D::setData(void* data, unsigned size) {
-	
+void Texture1D::setData(void* data, uint32_t size) {
+	// TODO: IMPLEMENT TEXTURE1D::SET_DATA()
 }
 
 void Texture1D::setParameters(const TextureParams& params) {

@@ -21,7 +21,7 @@ void Light::viewMatrixCalc() {
 	_shadowViewProjection = _shadowProjectionMatrix * _shadowViewMatrix;
 }
 
-void Light::setShadowResolution(const unsigned resolution) const { _shadowBuffer->resize(resolution, resolution); }
+void Light::setShadowResolution(const uint32_t resolution) const { _shadowBuffer->resize(resolution, resolution); }
 
 // --------------------------------------------------------------------------
 // ----- Directional light --------------------------------------------------

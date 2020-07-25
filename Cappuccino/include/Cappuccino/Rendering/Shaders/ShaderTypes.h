@@ -2,13 +2,13 @@
 
 namespace Capp {
 	
-	enum class ShaderDataType : unsigned int {
+	enum class ShaderDataType : uint32_t {
 		Bool = 0, Int, Float,
 		Vec2, Vec3, Vec4,
 		Mat3, Mat4
 	};
 
-	enum class ShaderStage : unsigned int {
+	enum class ShaderStage : uint32_t {
 		Vertex = 0,
 		TessControl,
 		TessEvaluation,
@@ -17,7 +17,7 @@ namespace Capp {
 		Compute
 	};
 	
-	#if CAPP_DEBUG || CAPP_RELEASE
+#if CAPP_DEBUG || CAPP_RELEASE
 	inline std::string enumToString(const ShaderDataType& dataType) {
 		switch(dataType) {
 			case ShaderDataType::Bool:		return "Bool";
@@ -47,7 +47,7 @@ namespace Capp {
 	}
 
 	inline std::ostream& operator<<(std::ostream& out, const ShaderStage& type) { return out << enumToString(type); }
-	#endif
+#endif
 	
 }
 

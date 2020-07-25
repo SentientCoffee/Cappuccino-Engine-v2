@@ -59,13 +59,13 @@ OrthographicCamera& OrthographicCamera::setRotation(const float rotation) {
 // ----- Perspective Camera ------------------------------------
 // -------------------------------------------------------------
 
-PerspectiveCamera::PerspectiveCamera(const float fovY, const unsigned width, const unsigned height) {
+PerspectiveCamera::PerspectiveCamera(const float fovY, const uint32_t width, const uint32_t height) {
 	_projectionMatrix = glm::perspective(glm::radians(fovY), static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
 	_viewMatrix = glm::mat4(1.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }
 
-void PerspectiveCamera::setProjection(const float fovY, const unsigned width, const unsigned height) {
+void PerspectiveCamera::setProjection(const float fovY, const uint32_t width, const uint32_t height) {
 	_projectionMatrix = glm::perspective(glm::radians(fovY), static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
 	_viewProjection = _projectionMatrix * _viewMatrix;
 }

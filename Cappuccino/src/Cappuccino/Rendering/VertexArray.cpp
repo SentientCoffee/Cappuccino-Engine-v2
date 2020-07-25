@@ -44,7 +44,7 @@ void VertexArray::addVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
 	glBindVertexArray(_id);
 	vertexBuffer->bind();
 
-	unsigned i = 0;
+	uint32_t i = 0;
 	for(const auto& elem : vertexBuffer->getLayout()) {
 		glEnableVertexAttribArray(i);
 
@@ -52,7 +52,7 @@ void VertexArray::addVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
 			SDTypeToOpenGLType(elem.type),
 			elem.normalized ? GL_TRUE : GL_FALSE,
 			vertexBuffer->getLayout().getStride(),
-			reinterpret_cast<const void*>(static_cast<__int64>(elem.offset)));
+			reinterpret_cast<const void*>(static_cast<int64_t>(elem.offset)));
 
 		++i;
 	}

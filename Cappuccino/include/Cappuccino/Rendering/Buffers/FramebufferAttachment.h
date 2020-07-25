@@ -5,7 +5,7 @@
 
 namespace Capp {
 	
-	enum class AttachmentTarget : unsigned int {
+	enum class AttachmentTarget : uint32_t {
 		None = 0,
 		// From glad.h
 		Colour0             = 0x8CE0,		// GL_COLOR_ATTACHMENT0
@@ -22,14 +22,14 @@ namespace Capp {
 		DepthStencil        = 0x821A		// GL_DEPTH_STENCIL_ATTACHMENT
 	};
 
-	enum class AttachmentType : unsigned int {
+	enum class AttachmentType : uint32_t {
 		Texture = 0,
 		Cubemap,
 		RenderBuffer
 	};
 
 	struct Attachment {
-		unsigned id = 0;
+		uint32_t id = 0;
 		AttachmentType type = AttachmentType::Texture;
 		InternalFormat format = InternalFormat::RGBA8;
 		TextureParams parameters = {
@@ -50,7 +50,7 @@ namespace Capp {
 			type(type), format(format), parameters(parameters) {}
 	};
 
-	#if CAPP_DEBUG || CAPP_RELEASE
+#if CAPP_DEBUG || CAPP_RELEASE
 	
 	inline std::string enumToString(const AttachmentTarget& target) {
 		switch(target) {
@@ -72,7 +72,7 @@ namespace Capp {
 
 	inline std::ostream& operator<<(std::ostream& out, const AttachmentTarget& target) { return out << enumToString(target); }
 	
-	#endif
+#endif
 
 	
 }

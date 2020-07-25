@@ -32,15 +32,24 @@ namespace Capp {
 		void setName(const std::string& name) { _name = name; }
 		const std::string& getName() const { return _name; }
 
-		unsigned getRendererID() const { return _id; }
+		uint32_t getRendererID() const { return _id; }
 
 		template<SDT Val, typename S>
 		void setUniform(const std::string& uniformName, const S& value);
+
+		template<SDT Val, typename S>
+		void setUniformArray(const std::string& uniformName, uint32_t count, const S* values);
+
+		template<SDT Val, typename S>
+		void setUniformArray(const std::string& uniformName, const std::vector<S>& values);
+
+		template<SDT Val, typename S, size_t Size>
+		void setUniformArray(const std::string& uniformName, const std::array<S, Size>& values);
 		
 	private:
 
-		unsigned compileProgram() const;
-		unsigned createShader(const std::string& shaderSrc, ShaderStage stage);
+		uint32_t compileProgram() const;
+		uint32_t createShader(const std::string& shaderSrc, ShaderStage stage);
 
 		int getUniformLocation(const std::string& uniformName) const;
 		
@@ -54,13 +63,24 @@ namespace Capp {
 
 		void setUniformMat3(const std::string& uniformName, const glm::mat3& value) const;
 		void setUniformMat4(const std::string& uniformName, const glm::mat4& value) const;
+
+		void setUniformBoolArray(const std::string& uniformName, uint32_t count, const bool* values) const;
+		void setUniformIntArray(const std::string& uniformName, uint32_t count, const int* values) const;
+		void setUniformFloatArray(const std::string& uniformName, uint32_t count, const float* values) const;
+
+		void setUniformVec2Array(const std::string& uniformName, uint32_t count, const glm::vec2* values) const;
+		void setUniformVec3Array(const std::string& uniformName, uint32_t count, const glm::vec3* values) const;
+		void setUniformVec4Array(const std::string& uniformName, uint32_t count, const glm::vec4* values) const;
 		
-		unsigned int _id = 0;
+		void setUniformMat3Array(const std::string& uniformName, uint32_t count, const glm::mat3* values) const;
+		void setUniformMat4Array(const std::string& uniformName, uint32_t count, const glm::mat4* values) const;
+		
+		uint32_t _id = 0;
 		std::string _name;
 		bool _isCompiled = false;
 		
 		std::unordered_map<ShaderStage, std::string> _filepaths;
-		std::unordered_map<ShaderStage, unsigned int> _handles;
+		std::map<ShaderStage, uint32_t> _handles;
 	};
 	
 }

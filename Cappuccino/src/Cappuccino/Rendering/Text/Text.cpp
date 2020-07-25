@@ -4,9 +4,9 @@
 using namespace Capp;
 
 Text::Text(const std::string& text, const Ref<Font>& font) :
-	_text(text), _font(font), _textColour(1.0f) {
-
-	std::vector<float> vertices = {
+	_text(text), _font(font), _textColour(1.0f)
+{
+	std::array<float, 24> vertices = {
 		0.0f, 0.0f,   0.0f, 0.0f,
 		0.0f, 0.0f,   0.0f, 0.0f,
 		0.0f, 0.0f,   0.0f, 0.0f,
@@ -16,7 +16,7 @@ Text::Text(const std::string& text, const Ref<Font>& font) :
 		0.0f, 0.0f,   0.0f, 0.0f
 	};
 
-	std::vector<unsigned> indices = {
+	std::array<uint32_t, 6> indices = {
 		0, 1, 2,
 		0, 2, 3
 	};

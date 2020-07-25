@@ -13,7 +13,7 @@ namespace Capp {
 
 		virtual ~Light() = default;
 
-		void setShadowResolution(unsigned resolution) const;
+		void setShadowResolution(uint32_t resolution) const;
 		
 		void setProjection(const glm::mat4& projection) { _shadowProjectionMatrix = projection; }
 

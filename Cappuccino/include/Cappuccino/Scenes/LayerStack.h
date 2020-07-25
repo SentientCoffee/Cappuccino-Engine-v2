@@ -28,7 +28,7 @@ namespace Capp {
 	private:
 
 		LayerVector _layers;
-		unsigned int _layerInsert = 0;
+		uint32_t _layerInsert = 0;
 	};
 	
 }

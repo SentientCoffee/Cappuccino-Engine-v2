@@ -10,14 +10,14 @@ namespace Capp {
 	struct BufferElement {
 		std::string name;
 		ShaderDataType type = ShaderDataType::Float;
-		unsigned size = 0;
-		unsigned offset = 0;
+		uint32_t size = 0;
+		uint32_t offset = 0;
 		bool normalized = false;
 
 		BufferElement() = default;
 		BufferElement(ShaderDataType type, const std::string& name, bool normalized = false);
 
-		unsigned int getComponentCount() const;
+		uint32_t getComponentCount() const;
 	};
 
 	class BufferLayout {
@@ -30,26 +30,39 @@ namespace Capp {
 	public:
 
 		BufferLayout() = default;
-		BufferLayout(const BufferElemVector& elements);
-		BufferLayout(const BufferElemInitList& elements);
-		~BufferLayout();
+		BufferLayout(const BufferElemVector& elements) :
+			_elements(elements)
+		{
+			strideOffsetCalc();
+		}
+		
+		BufferLayout(const BufferElemInitList& elements) :
+			_elements(elements)
+		{
+			strideOffsetCalc();
+		}
+
+		template<size_t Size> BufferLayout(const std::array<BufferElement, Size>& elements) :
+			_elements(elements.begin(), elements.end()) {}
+
+		~BufferLayout() = default;
 
 		BufferElemVector getElements() const { return _elements; }
-		unsigned int size() const { return static_cast<unsigned int>(_elements.size()); }
+		size_t size() const { return _elements.size(); }
 		
 		BufferElemIterator begin() { return _elements.begin(); }
 		BufferElemIterator end() { return _elements.end(); }
 		ConstBufferElemIterator begin() const { return _elements.begin(); }
 		ConstBufferElemIterator end() const { return _elements.end(); }
 
-		unsigned int getStride() const { return _stride; }
+		uint32_t getStride() const { return _stride; }
 
 	private:
 
 		void strideOffsetCalc();
 
 		BufferElemVector _elements;
-		unsigned int _stride = 0;
+		uint32_t _stride = 0;
 	};
 	
 }

@@ -4,7 +4,7 @@ namespace Capp {
 	// From glfw3.h
 	namespace MouseButton {
 		
-		enum : unsigned int {
+		enum : uint32_t {
 			MB1    = 0,
 			MB2    = 1,
 			MB3    = 2,

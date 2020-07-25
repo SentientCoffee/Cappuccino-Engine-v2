@@ -14,7 +14,7 @@ AssetLoader::LUTData AssetLoader::loadCUBEFile(const std::string& filepath) {
 	CAPP_ASSERT(lutFile.good(), "Failed to read LUT file!\n\tFilepath: {0}", filepath);
 
 	std::vector<glm::vec3> lutData;
-	unsigned lutSize = 0;
+	uint32_t lutSize = 0;
 	
 	while(!lutFile.eof()) {
 		std::string lutLine;
@@ -24,23 +24,19 @@ AssetLoader::LUTData AssetLoader::loadCUBEFile(const std::string& filepath) {
 			continue;
 		}
 
+		if(lutLine.compare(0, 5, "TITLE") == 0) {
+			continue;
+		}
+		
 		if(lutLine.compare(0, 11, "LUT_3D_SIZE") == 0) {
 			std::string token;
 			std::istringstream sin(lutLine);
 
 			sin >> token >> lutSize;
-			lutData.reserve(static_cast<unsigned>(pow(lutSize, 3)));
+			lutData.reserve(static_cast<uint32_t>(pow(lutSize, 3)));
 			continue;
 		}
 
-		if(lutLine.compare(0, 5, "TITLE") == 0) {
-			std::string token, title;
-			std::istringstream sin(lutLine);
-
-			sin >> token >> title;
-			continue;
-		}
-		
 		glm::vec3 line;
 		const bool lutReadStatus = sscanf(lutLine.c_str(), "%f %f %f", &line.r, &line.g, &line.b);
 		CAPP_ASSERT(lutReadStatus, "Failed to read LUT colour values!\n\tFilepath: {0}", filepath);
@@ -65,7 +61,7 @@ AssetLoader::ImageData AssetLoader::loadImageFile(const std::string& filepath, c
 
 	CAPP_ASSERT(data != nullptr && width > 0 && height > 0 && channels > 0, "Failed to load image file!\n\tFilepath: {0}", filepath);
 
-	return { data, static_cast<unsigned>(width), static_cast<unsigned>(height), static_cast<unsigned>(channels) };
+	return { data, static_cast<uint32_t>(width), static_cast<uint32_t>(height), static_cast<uint32_t>(channels) };
 }
 
 
@@ -74,9 +70,9 @@ AssetLoader::ImageData AssetLoader::loadImageFile(const std::string& filepath, c
 // ------------------------------------------------------------------------------------------
 
 struct TriangleFace {
-	std::array<unsigned, 3> vertIndices = { 0, 0, 0 };
-	std::array<unsigned, 3> normIndices = { 0, 0, 0 };
-	std::array<unsigned, 3> uvIndices   = { 0, 0, 0 };
+	std::array<uint32_t, 3> vertIndices = { 0, 0, 0 };
+	std::array<uint32_t, 3> normIndices = { 0, 0, 0 };
+	std::array<uint32_t, 3> uvIndices   = { 0, 0, 0 };
 };
 
 AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
@@ -142,10 +138,10 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 
 	std::vector<Vertex> allVertices; allVertices.reserve(1000000);
 	for(auto& face : faces) {
-		for(unsigned i = 0; i < face.vertIndices.size(); ++i) {
-			unsigned vertIndex = face.vertIndices[i];
-			unsigned uvIndex = face.uvIndices[i];
-			unsigned normIndex = face.normIndices[i];
+		for(uint32_t i = 0; i < face.vertIndices.size(); ++i) {
+			uint32_t vertIndex = face.vertIndices[i];
+			uint32_t uvIndex = face.uvIndices[i];
+			uint32_t normIndex = face.normIndices[i];
 
 			Vertex vertex = {
 				positions[vertIndex - 1],
@@ -157,13 +153,13 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 		}
 	}
 
-	std::vector<unsigned> indices; indices.reserve(1000000);
+	std::vector<uint32_t> indices; indices.reserve(1000000);
 	std::vector<Vertex> vertices; vertices.reserve(1000000);
-	std::map<Vertex, unsigned> vertexIndexMap;
+	std::map<Vertex, uint32_t> vertexIndexMap;
 
 	for(auto& vertex : allVertices) {
 
-		unsigned index;
+		uint32_t index;
 
 		auto it = vertexIndexMap.find(vertex);
 		if(it != vertexIndexMap.end()) {
@@ -173,7 +169,7 @@ AssetLoader::MeshData AssetLoader::loadOBJFile(const std::string& filepath) {
 		else {
 			// New vertex, add to final vertices array and generate new index
 			vertices.push_back(vertex);
-			index = static_cast<unsigned>(vertices.size() - 1);
+			index = static_cast<uint32_t>(vertices.size() - 1);
 		}
 
 		indices.push_back(index);

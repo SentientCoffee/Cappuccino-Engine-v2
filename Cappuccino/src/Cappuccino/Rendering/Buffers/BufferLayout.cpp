@@ -3,7 +3,7 @@
 
 using namespace Capp;
 
-static unsigned int SDTypeSize(const ShaderDataType type) {
+static uint32_t SDTypeSize(const ShaderDataType type) {
 	switch(type) {
 		case ShaderDataType::Bool:
 		case ShaderDataType::Int:		return sizeof(int);
@@ -26,7 +26,7 @@ static unsigned int SDTypeSize(const ShaderDataType type) {
 BufferElement::BufferElement(const ShaderDataType type, const std::string& name, const bool normalized) :
 	name(name), type(type), size(SDTypeSize(type)), normalized(normalized) {}
 
-unsigned BufferElement::getComponentCount() const {
+uint32_t BufferElement::getComponentCount() const {
 	switch(type) {
 		case ShaderDataType::Bool:
 		case ShaderDataType::Int:
@@ -46,23 +46,8 @@ unsigned BufferElement::getComponentCount() const {
 // ----- Buffer layout --------------------
 // ----------------------------------------
 
-BufferLayout::BufferLayout(const std::vector<BufferElement>& elements) :
-	_elements(elements) {
-	strideOffsetCalc();
-}
-
-BufferLayout::BufferLayout(const std::initializer_list<BufferElement>& elements) :
-	_elements(elements) {
-	strideOffsetCalc();
-}
-
-BufferLayout::~BufferLayout() {
-	_elements.clear();
-}
-
-
 void BufferLayout::strideOffsetCalc() {
-	unsigned offset = _stride = 0;
+	uint32_t offset = _stride = 0;
 
 	for(auto& elem : _elements) {
 		elem.offset = offset;

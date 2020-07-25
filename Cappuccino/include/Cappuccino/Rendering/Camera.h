@@ -65,10 +65,10 @@ namespace Capp {
 	public:
 
 		PerspectiveCamera() = default;
-		PerspectiveCamera(float fovY, unsigned width, unsigned height);
+		PerspectiveCamera(float fovY, uint32_t width, uint32_t height);
 		~PerspectiveCamera() = default;
 
-		void setProjection(float fovY, unsigned width, unsigned height);
+		void setProjection(float fovY, uint32_t width, uint32_t height);
 
 		void lookAt(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 		void lookAt(float targetX, float targetY, float targetZ, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));

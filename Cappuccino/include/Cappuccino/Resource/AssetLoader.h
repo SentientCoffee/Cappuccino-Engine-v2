@@ -8,7 +8,7 @@ namespace Capp {
 	public:
 
 		struct LUTData {
-			unsigned size;
+			uint32_t size;
 			std::vector<glm::vec3> data;
 		};
 
@@ -18,8 +18,8 @@ namespace Capp {
 		};
 		
 		struct ImageData {
-			unsigned char* data;
-			unsigned width, height, channels;
+			uint8_t* data;
+			uint32_t width, height, channels;
 		};
 		
 		static LUTData loadCUBEFile(const std::string& filepath);

@@ -9,16 +9,16 @@ namespace Capp {
 	class Texture3D {
 	public:
 		
-		Texture3D(unsigned width, unsigned height, unsigned depth, void* data, InternalFormat format = InternalFormat::RGB8);
-		Texture3D(unsigned width, unsigned height, unsigned depth, InternalFormat format = InternalFormat::RGB8);
+		Texture3D(uint32_t width, uint32_t height, uint32_t depth, void* data, InternalFormat format = InternalFormat::RGB8);
+		Texture3D(uint32_t width, uint32_t height, uint32_t depth, InternalFormat format = InternalFormat::RGB8);
 		Texture3D(const std::string& filepath);
 		~Texture3D();
 
-		static Ref<Texture3D> create(unsigned width, unsigned height, unsigned depth, void* data, InternalFormat format = InternalFormat::RGB8) {
+		static Ref<Texture3D> create(uint32_t width, uint32_t height, uint32_t depth, void* data, InternalFormat format = InternalFormat::RGB8) {
 			return Memory::createRef<Texture3D>(width, height, depth, data, format);
 		}
 
-		static Ref<Texture3D> create(unsigned width, unsigned height, unsigned depth, InternalFormat format = InternalFormat::RGB8) {
+		static Ref<Texture3D> create(uint32_t width, uint32_t height, uint32_t depth, InternalFormat format = InternalFormat::RGB8) {
 			return Memory::createRef<Texture3D>(width, height, depth, format);
 		}
 
@@ -26,23 +26,23 @@ namespace Capp {
 			return Memory::createRef<Texture3D>(filepath);
 		}
 
-		unsigned getRendererID() const;
+		uint32_t getRendererID() const { return _id; }
 		
-		unsigned int getWidth() const;
-		unsigned int getHeight() const;
-		unsigned int getDepth() const;
-		glm::vec3 getSize() const;
+		uint32_t getWidth() const { return _width; }
+		uint32_t getHeight() const { return _height; }
+		uint32_t getDepth() const { return _depth; }
+		glm::vec3 getSize() const { return { _width, _height, _depth }; }
 
 		
-		void bind(unsigned slot) const;
-		static void unbind(unsigned slot);
+		void bind(uint32_t slot) const;
+		static void unbind(uint32_t slot);
 
 		void setParameters(const TextureParams& params);
 
 	private:
 
-		unsigned _id = 0;
-		unsigned _width = 0, _height = 0, _depth = 0;
+		uint32_t _id = 0;
+		uint32_t _width = 0, _height = 0, _depth = 0;
 
 		TextureFormats _formats;
 		TextureParams _parameters;

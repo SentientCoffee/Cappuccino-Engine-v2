@@ -57,7 +57,7 @@ static RendererStorage* rStorage;
 
 void Renderer::init() {
 	rStorage = new RendererStorage;
-	auto* const window = Application::getInstance()->getWindow();
+	auto window = Application::getInstance()->getWindow();
 
 	// --------------------------------------------------
 	// ----- Camera init --------------------------------
@@ -157,7 +157,7 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		const std::vector<Vertex> vertices = {
+		const std::array<Vertex, 8> vertices = { {
 			{ { -1.0f, -1.0f, -1.0f } },
 			{ {  1.0f, -1.0f, -1.0f } },
 			{ { -1.0f, -1.0f,  1.0f } },
@@ -166,20 +166,20 @@ void Renderer::init() {
 			{ {  1.0f,  1.0f, -1.0f } },
 			{ { -1.0f,  1.0f,  1.0f } },
 			{ {  1.0f,  1.0f,  1.0f } }
-		};
+		} };
 
-		const std::vector<unsigned> indices = {
+		const std::array<uint32_t, 36> indices = { {
 			0, 1, 2,	2, 1, 3,	// bottom
 			4, 6, 5,	6, 7, 5,	// top
 			2, 3, 6,	6, 3, 7,	// front
 			0, 1, 4,	4, 1, 5,	// back
 			2, 4, 0,	2, 6, 4,	// left
 			3, 5, 1,	3, 7, 5		// right
-		};
+		} };
 
 		rStorage->skyboxMesh = Mesh::create("Skybox", vertices, indices);
 
-		const std::vector<std::string> filepaths = {
+		const std::array<std::string, 6> filepaths = {
 			"Assets/Cappuccino/Textures/Skybox/corona_lf.png",
 			"Assets/Cappuccino/Textures/Skybox/corona_rt.png",
 			"Assets/Cappuccino/Textures/Skybox/corona_up.png",
@@ -196,14 +196,14 @@ void Renderer::init() {
 	// --------------------------------------------------
 
 	{
-		const std::vector<Vertex> vertices = {
+		const std::array<Vertex, 4> vertices = { {
 			{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
 			{ {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } },
 			{ {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f } },
 			{ { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f } }
-		};
+		} };
 
-		const std::vector<unsigned> indices = {
+		const std::array<uint32_t, 6> indices = {
 			0, 1, 2,
 			0, 2, 3
 		};
@@ -266,7 +266,7 @@ void Renderer::shutdown() {
 	delete rStorage;
 }
 
-void Renderer::onWindowResized(const unsigned width, const unsigned height) {
+void Renderer::onWindowResized(const uint32_t width, const uint32_t height) {
 	rStorage->defaultCamera.setProjection(60.0f, width, height);
 	rStorage->deferredComposite->resize(width, height);
 	rStorage->gBuffer->resize(width, height);
@@ -314,18 +314,18 @@ void Renderer::addToQueue(VertexArray* vertexArray, Material* material) {
 	material->getShader()->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.8f));
 	material->getShader()->setUniform<Float>("uAmbientPower", 0.3f);
 
-	for(unsigned i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
+	for(uint32_t i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
 		material->getShader()->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", rStorage->activeLights.directionalLights[i]->getDirection());
 		material->getShader()->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour", rStorage->activeLights.directionalLights[i]->getColour());
 	}
 
-	for(unsigned i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
+	for(uint32_t i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
 		material->getShader()->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].position", rStorage->activeLights.pointLights[i]->getPosition());
 		material->getShader()->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].colour", rStorage->activeLights.pointLights[i]->getColour());
 		material->getShader()->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation", rStorage->activeLights.pointLights[i]->getAttenuation());
 	}
 
-	for(unsigned i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
+	for(uint32_t i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
 		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].position", rStorage->activeLights.spotlights[i]->getPosition());
 		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].direction", rStorage->activeLights.spotlights[i]->getDirection());
 		material->getShader()->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].colour", rStorage->activeLights.spotlights[i]->getColour());
@@ -371,7 +371,7 @@ void Renderer::addToQueue(const RigidBody& rigidBody) {
 
 void Renderer::finish(const PostPasses& postProcessing) {
 
-	auto* const window = Application::getInstance()->getWindow();
+	auto window = Application::getInstance()->getWindow();
 
 	// --------------------------------------------------
 	// ----- Model sorting ------------------------------
@@ -386,12 +386,12 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		}
 		
 		// TODO: BLENDING
-		#if 0
+#if 0
 		if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
 			return false;
 		if(!first.second->RasterState.Blending.BlendEnabled & second.second->RasterState.Blending.BlendEnabled)
 			return true;
-		#endif
+#endif
 
 		return first->getMaterial().get() < second->getMaterial().get();
 	});
@@ -454,7 +454,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			glm::mat4 proj = pLight->getProjectionMatrix();
 			glm::vec3 pos = pLight->getPosition();
 
-			std::vector<glm::mat4> shadowTransforms = {
+			std::array<glm::mat4, 6> shadowTransforms = {
 				proj * glm::lookAt(pos, pos + glm::vec3( 1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
 				proj * glm::lookAt(pos, pos + glm::vec3(-1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
 				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  1.0f,  0.0f), { 0.0f,  0.0f,  1.0f }),
@@ -470,9 +470,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				rStorage->pShadowPass->bind();
 				rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
 				rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
-				for(unsigned i = 0; i < 6; ++i) {
-					rStorage->pShadowPass->setUniform<Mat4>("uShadowViewProjections[" + std::to_string(i) + "]", shadowTransforms[i]);
-				}
+				rStorage->pShadowPass->setUniformArray<Mat4>("uShadowViewProjections", shadowTransforms);
 					
 				for(const auto& model : rStorage->modelRenderQueue) {
 					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
@@ -671,9 +669,9 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		}
 
 		// Skybox
-		rStorage->deferredComposite->bind();
-		{
-			if(rStorage->activeSkybox != nullptr) {
+		if(rStorage->activeSkybox != nullptr) {
+			rStorage->deferredComposite->bind();
+			{
 				RenderCommand::enableDepthTesting();
 				RenderCommand::setDepthTestFunction(DepthTestFunction::LessThanOrEqual);
 				RenderCommand::disableDepthMask();
@@ -693,14 +691,14 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				RenderCommand::setDepthTestFunction(DepthTestFunction::LessThan);
 				RenderCommand::disableDepthTesting();
 			}
+			rStorage->deferredComposite->unbind();
 		}
-		rStorage->deferredComposite->unbind();
 	}
 
 	// TODO BLOCK
 	{
 		// TODO: HITBOX RENDERING
-		#if 0
+#if 0
 		if(Hitbox::isVisible()) {
 			RenderCommand::disableCulling();
 			RenderCommand::setDrawMode(DrawMode::Line);
@@ -722,12 +720,12 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			RenderCommand::setDrawMode(DrawMode::Fill);
 			RenderCommand::enableCulling();
 		}
-		#endif
+#endif
 
 		// TODO: BLENDING AND FORWARD PASSES AFTER DEFERRED RENDERING
 		RenderCommand::enableBlending();
 		RenderCommand::setSeparateBlendFunction(SourceFactor::SourceAlpha, DestinationFactor::OneMinusSourceAlpha, SourceFactor::One, DestinationFactor::OneMinusSourceAlpha);
-		#if 0
+#if 0
 		// Forward rendering
 		{
 			rStorage->deferredComposite->bind();
@@ -758,18 +756,18 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 					shader->setUniform<Float>("uAmbientPower", 0.3f);
 
-					for(unsigned i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
+					for(uint32_t i = 0; i < rStorage->activeLights.directionalLights.size(); ++i) {
 						shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].direction", rStorage->activeLights.directionalLights[i]->getDirection());
 						shader->setUniform<Vec3>("uDirectionalLights[" + std::to_string(i) + "].colour", rStorage->activeLights.directionalLights[i]->getColour());
 					}
 
-					for(unsigned i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
+					for(uint32_t i = 0; i < rStorage->activeLights.pointLights.size(); ++i) {
 						shader->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].position", rStorage->activeLights.pointLights[i]->getPosition());
 						shader->setUniform<Vec3>("uPointLights[" + std::to_string(i) + "].colour", rStorage->activeLights.pointLights[i]->getColour());
 						shader->setUniform<Float>("uPointLights[" + std::to_string(i) + "].attenuation", rStorage->activeLights.pointLights[i]->getAttenuation());
 					}
 
-					for(unsigned i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
+					for(uint32_t i = 0; i < rStorage->activeLights.spotlights.size(); ++i) {
 						shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].position", rStorage->activeLights.spotlights[i]->getPosition());
 						shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].direction", rStorage->activeLights.spotlights[i]->getDirection());
 						shader->setUniform<Vec3>("uSpotlights[" + std::to_string(i) + "].colour", rStorage->activeLights.spotlights[i]->getColour());
@@ -835,8 +833,9 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 			rStorage->deferredComposite->unbind();
 		}
-		#endif
+#endif
 	}
+	
 	// --------------------------------------------------
 	// ----- Post-processing passes ---------------------
 	// --------------------------------------------------
@@ -902,7 +901,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// --------------------------------------------------
 
 	{
-		for(unsigned i = 0; i < 24; ++i) {
+		for(uint32_t i = 0; i < 32; ++i) {
 			Texture1D::unbind(i);
 			Texture2D::unbind(i);
 			Texture3D::unbind(i);

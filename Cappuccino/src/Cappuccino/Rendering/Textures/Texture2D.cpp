@@ -7,7 +7,7 @@
 
 using namespace Capp;
 
-Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, const InternalFormat format, const Mipmaps enableMipmaps) :
+Texture2D::Texture2D(const uint32_t width, const uint32_t height, void* data, const InternalFormat format, const Mipmaps enableMipmaps) :
 	_width(width), _height(height), _formats({})
 {
 	switch(format) {
@@ -91,7 +91,7 @@ Texture2D::Texture2D(const unsigned width, const unsigned height, void* data, co
 	setParameters(_parameters);
 }
 
-Texture2D::Texture2D(const unsigned width, const unsigned height, const InternalFormat format, const Mipmaps enableMipmaps) :
+Texture2D::Texture2D(const uint32_t width, const uint32_t height, const InternalFormat format, const Mipmaps enableMipmaps) :
 	Texture2D(width, height, nullptr, format, enableMipmaps) {}
 
 Texture2D::Texture2D(const std::string& filepath, const Mipmaps enableMipmaps) :
@@ -143,21 +143,16 @@ Texture2D::~Texture2D() {
 	glDeleteTextures(1, &_id);
 }
 
-unsigned Texture2D::getRendererID() const { return _id; }
-unsigned Texture2D::getWidth() const { return _width; }
-unsigned Texture2D::getHeight() const { return _height; }
-glm::vec2 Texture2D::getSize() const { return { _width, _height }; }
-
-void Texture2D::bind(const unsigned slot) const {
+void Texture2D::bind(const uint32_t slot) const {
 	glBindTextureUnit(slot, _id);
 }
 
-void Texture2D::unbind(const unsigned slot) {
+void Texture2D::unbind(const uint32_t slot) {
 	glBindTextureUnit(slot, 0);
 }
 
-void Texture2D::setData(void* data, const unsigned size) {
-	unsigned bytesPerPixel;
+void Texture2D::setData(void* data, const uint32_t size) {
+	uint32_t bytesPerPixel;
 	switch(_formats.pixelFormat) {
 		case PixelFormat::Red:
 			bytesPerPixel = 1;

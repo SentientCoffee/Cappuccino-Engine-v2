@@ -61,14 +61,18 @@ namespace Capp {
 
 #define CAPP_ASSERT(exp, ...) \
 if(!(exp)) {\
-	::Capp::Logger::getEngineLogger()->error("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getEngineLogger()->critical("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getEngineLogger()->critical("FILE: {0}", __FILE__);\
+	::Capp::Logger::getEngineLogger()->critical("LINE: {0}", __LINE__);\
 	::Capp::Logger::getEngineLogger()->error(##__VA_ARGS__);\
 	__debugbreak();\
 }
 
 #define DEBUG_ASSERT(exp, ...) \
 if(!(exp)) {\
-	::Capp::Logger::getClientLogger()->error("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getClientLogger()->critical("ASSERTION FAILED: {0}", #exp);\
+	::Capp::Logger::getClientLogger()->critical("FILE: {0}", __FILE__);\
+	::Capp::Logger::getClientLogger()->critical("LINE: {0}", __LINE__);\
 	::Capp::Logger::getClientLogger()->error(##__VA_ARGS__);\
 	__debugbreak();\
 }

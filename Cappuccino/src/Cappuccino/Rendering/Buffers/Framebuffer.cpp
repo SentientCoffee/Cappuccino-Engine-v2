@@ -5,7 +5,7 @@
 
 using namespace Capp;
 
-Framebuffer::Framebuffer(const unsigned width, const unsigned height) :
+Framebuffer::Framebuffer(const uint32_t width, const uint32_t height) :
 	_width(width), _height(height) {
 	CAPP_ASSERT(width > 0 && height > 0, "Width and height must be greater than 0!");
 	
@@ -17,7 +17,7 @@ Framebuffer::~Framebuffer() {
 	glDeleteFramebuffers(1, &_id);
 }
 
-void Framebuffer::resize(const unsigned width, const unsigned height) {
+void Framebuffer::resize(const uint32_t width, const uint32_t height) {
 	CAPP_ASSERT(width > 0 && height > 0, "Width and height must be greater than 0!");
 
 	if(_width == width && _height == height) return;
@@ -134,7 +134,7 @@ void Framebuffer::blitBufferData(const glm::ivec4& sourceBounds, const glm::ivec
 
 
 bool Framebuffer::validateFramebuffer() {
-	const unsigned result = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
+	const uint32_t result = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
 	if(result == GL_FRAMEBUFFER_COMPLETE) {
 		return _isValid = true;
 	}

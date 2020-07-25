@@ -2,7 +2,7 @@
 
 namespace Capp {
 
-	enum class WrapMode : unsigned int {
+	enum class WrapMode : uint32_t {
 		// From glad.h
 		ClampToEdge          = 0x812F,		// GL_CLAMP_TO_EDGE
 		ClampToBorder        = 0x812D,		// GL_CLAMP_TO_BORDER
@@ -11,7 +11,7 @@ namespace Capp {
 		MirrorClampToEdge    = 0x8743		// GL_MIRROR_CLAMP_TO_EDGE
 	};
 
-	enum class MinFilter : unsigned int {
+	enum class MinFilter : uint32_t {
 		// From glad.h
 		Nearest              = 0x2600,		// GL_NEAREST
 		Linear               = 0x2601,		// GL_LINEAR
@@ -21,7 +21,7 @@ namespace Capp {
 		LinearMipmapLinear   = 0x2703		// GL_LINEAR_MIPMAP_LINEAR
 	};
 
-	enum class MagFilter : unsigned int {
+	enum class MagFilter : uint32_t {
 		// From glad.h
 		Nearest              = 0x2600,		// GL_NEAREST
 		Linear               = 0x2601		// GL_LINEAR
@@ -32,7 +32,7 @@ namespace Capp {
 		Off                  = false
 	};
 
-	enum class Anisotropy : unsigned int {
+	enum class Anisotropy : uint32_t {
 		Aniso1x              = 1,
 		Aniso2x              = 2,
 		Aniso4x              = 4,

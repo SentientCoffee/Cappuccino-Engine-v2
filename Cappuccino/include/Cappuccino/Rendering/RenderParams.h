@@ -2,7 +2,7 @@
 
 namespace Capp {
 
-	enum class ClearFlags : unsigned int {
+	enum class ClearFlags : uint32_t {
 		// From glad.h
 		Colour              = 0x00004000,					// GL_COLOR_BUFFER_BIT
 		Depth               = 0x00000100,					// GL_DEPTH_BUFFER_BIT
@@ -13,7 +13,7 @@ namespace Capp {
 		All                 = Colour | Depth | Stencil		// GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT
 	};
 
-	enum class CullMode : unsigned int {
+	enum class CullMode : uint32_t {
 		None                = 0,
 		// From glad.h
 		FrontFace           = 0x0404,		// GL_FRONT
@@ -21,14 +21,14 @@ namespace Capp {
 		Both                = 0x0408		// GL_FRONT_AND_BACK
 	};
 	
-	enum class DrawMode : unsigned int {
+	enum class DrawMode : uint32_t {
 		// From glad.h
 		Point               = 0x1B00,		// GL_POINT
 		Line                = 0x1B01,		// GL_LINE
 		Fill                = 0x1B02		// GL_FILL
 	};
 
-	enum class DepthTestFunction : unsigned int {
+	enum class DepthTestFunction : uint32_t {
 		// From glad.h
 		Never               = 0x0200,		// GL_NEVER
 		NotEqual            = 0x0205,		// GL_NOTEQUAL
@@ -40,7 +40,7 @@ namespace Capp {
 		Always              = 0x0207		// GL_ALWAYS
 	};
 
-	enum class StencilTestFunction : unsigned int {
+	enum class StencilTestFunction : uint32_t {
 		// From glad.h
 		Never               = 0x0200,		// GL_NEVER
 		NotEqual            = 0x0205,		// GL_NOTEQUAL
@@ -52,7 +52,7 @@ namespace Capp {
 		Always              = 0x0207		// GL_ALWAYS
 	};
 
-	enum class StencilOperation : unsigned int {
+	enum class StencilOperation : uint32_t {
 		// From glad.h
 		Zero                = 0x0000,		// GL_ZERO
 		Keep                = 0x1E00,		// GL_KEEP
@@ -64,7 +64,7 @@ namespace Capp {
 		Invert              = 0x150A		// GL_INVERT
 	};
 
-	enum class SourceFactor : unsigned int {
+	enum class SourceFactor : uint32_t {
 		// From glad.h
 		Zero                      = 0x0000,		// GL_ZERO
 		One                       = 0x0001,		// GL_ONE
@@ -83,7 +83,7 @@ namespace Capp {
 		OneMinusConstantAlpha     = 0x8004,		// GL_ONE_MINUS_CONSTANT_ALPHA
 	};
 	
-	enum class DestinationFactor : unsigned int {
+	enum class DestinationFactor : uint32_t {
 		// From glad.h
 		Zero                      = 0x0000,		// GL_ZERO
 		One                       = 0x0001,		// GL_ONE

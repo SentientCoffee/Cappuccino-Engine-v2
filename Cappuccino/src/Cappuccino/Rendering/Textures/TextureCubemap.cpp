@@ -13,7 +13,7 @@ CubemapFiles::CubemapFiles(const std::array<std::string, 6>& filepaths) :
 	files(filepaths) {}
 
 CubemapFiles::CubemapFiles(const std::vector<std::string>& filepaths) {
-	for(unsigned i = 0; i < filepaths.size(); ++i) {
+	for(uint32_t i = 0; i < filepaths.size(); ++i) {
 		if(i >= 6) {
 			CAPP_PRINT_ERROR("Cubemap cannot load in more than 6 faces!\n\tLast filepath: {0}", filepaths[5]);
 			break;
@@ -22,14 +22,12 @@ CubemapFiles::CubemapFiles(const std::vector<std::string>& filepaths) {
 	}
 }
 
-const std::string& CubemapFiles::operator[](const unsigned index) const {
+const std::string& CubemapFiles::operator[](const uint32_t index) const {
 	CAPP_ASSERT(index < 6, "Cannot access cubemap file with index {0}! (Index out of range)", index);
 	return files.at(index);
 }
 
-unsigned CubemapFiles::size() const { return static_cast<unsigned>(files.size()); }
-
-TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat format) :
+TextureCubemap::TextureCubemap(const uint32_t faceSize, const InternalFormat format) :
 	_size(faceSize)
 {
 	switch(format) {
@@ -97,7 +95,7 @@ TextureCubemap::TextureCubemap(const unsigned faceSize, const InternalFormat for
 
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_id);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
-	for(unsigned i = 0; i < 6; ++i) {
+	for(uint32_t i = 0; i < 6; ++i) {
 		glTexImage2D(static_cast<GLenum>(CubemapFace::PositiveX) + i, 0, static_cast<GLenum>(_formats.internalFormat), _size, _size, 0,
 			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), nullptr);
 	}
@@ -115,18 +113,16 @@ TextureCubemap::~TextureCubemap() {
 	glDeleteTextures(1, &_id);
 }
 
-unsigned TextureCubemap::getRendererID() const { return _id; }
-
-void TextureCubemap::bind(const unsigned slot) const { glBindTextureUnit(slot, _id); }
-void TextureCubemap::unbind(const unsigned slot) { glBindTextureUnit(slot, 0); }
+void TextureCubemap::bind(const uint32_t slot) const { glBindTextureUnit(slot, _id); }
+void TextureCubemap::unbind(const uint32_t slot) { glBindTextureUnit(slot, 0); }
 
 void TextureCubemap::setCubemapTextures(const CubemapFiles& filepaths) {
 	const TextureParams params = { WrapMode::ClampToEdge, MinFilter::Linear, MagFilter::Linear };
 	setParameters(params);
 	
-	for(unsigned i = 0; i < filepaths.size(); ++i) {
+	for(uint32_t i = 0; i < filepaths.size(); ++i) {
 		if(filepaths[i].empty()) {
-			CAPP_ASSERT(filepaths[i].empty(), "Could not read filepath on index {0}!", i);
+			CAPP_ASSERT(!filepaths[i].empty(), "Could not read filepath on index {0}!", i);
 			continue;
 		}
 
@@ -167,8 +163,8 @@ void TextureCubemap::setCubemapTextures(const CubemapFiles& filepaths) {
 			glTextureStorage2D(_id, 1, static_cast<GLenum>(_formats.internalFormat), _size, _size);
 		}
 		
-		if(static_cast<unsigned>(image.width) != _size || static_cast<unsigned>(image.height) != _size) {
-			CAPP_ASSERT(_size == 0 || static_cast<unsigned>(image.width) == _size && static_cast<unsigned>(image.height) == _size, "Texture image dimensions do not the set size!\n\tTexture path: {0}", filepaths[i]);
+		if(static_cast<uint32_t>(image.width) != _size || static_cast<uint32_t>(image.height) != _size) {
+			CAPP_ASSERT(_size == 0 || static_cast<uint32_t>(image.width) == _size && static_cast<uint32_t>(image.height) == _size, "Texture image dimensions do not the set size!\n\tTexture path: {0}", filepaths[i]);
 			free(image.data);
 			return;
 		}

@@ -26,7 +26,7 @@ void Font::load(const std::string& name, const std::string& filepath) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);     // Disable byte-alignment restriction
 
 	// Only loading in the first 128 characters of the font
-	for(unsigned char ch = 0; ch < 128; ++ch) {
+	for(uint8_t ch = 0; ch < 128; ++ch) {
 		const int ftLoadCharStatus = FT_Load_Char(typeface, ch, FT_LOAD_RENDER);
 		CAPP_ASSERT(ftLoadCharStatus == 0, "Failed to load glyph!\n\tGlyph: {0}", ch);
 
@@ -41,7 +41,7 @@ void Font::load(const std::string& name, const std::string& filepath) {
 			texture,
 			{ typeface->glyph->bitmap.width, typeface->glyph->bitmap.rows },
 			{ typeface->glyph->bitmap_left, typeface->glyph->bitmap_top },
-			typeface->glyph->advance.x
+			static_cast<uint64_t>(typeface->glyph->advance.x)
 		};
 
 		_glyphs[ch] = glyph;
@@ -50,11 +50,11 @@ void Font::load(const std::string& name, const std::string& filepath) {
 	FT_Done_Face(typeface);
 }
 
-const Glyph& Font::getCharacter(const unsigned char ch) {
+const Glyph& Font::getCharacter(const uint8_t ch) {
 	if(!hasCharacter(ch)) {
-		CAPP_PRINT_WARNING("Font {0} does not have glyph {1}", _name, ch);
+		CAPP_PRINT_WARNING("Font \"{0}\" does not have glyph '{1}'", _name, ch);
 	}
 
 	return _glyphs[ch];
 }
-bool Font::hasCharacter(const unsigned char ch) const { return _glyphs.find(ch) != _glyphs.end(); }
+bool Font::hasCharacter(const uint8_t ch) const { return _glyphs.find(ch) != _glyphs.end(); }

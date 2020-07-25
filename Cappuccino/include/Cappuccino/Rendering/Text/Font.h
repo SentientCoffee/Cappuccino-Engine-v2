@@ -13,7 +13,7 @@ namespace Capp {
 		Ref<Texture2D> texture = nullptr;
 		glm::ivec2 size        = glm::vec2(0.0f);
 		glm::ivec2 bearing     = glm::vec2(0.0f);
-		long advance           = 0;
+		uint64_t advance       = 0;
 	};
 	
 	class Font {
@@ -28,15 +28,15 @@ namespace Capp {
 		}
 
 		const std::string& getName() const { return _name; }
-		const Glyph& getCharacter(unsigned char ch);
+		const Glyph& getCharacter(uint8_t ch);
 
 	private:
 
 		void load(const std::string& name, const std::string& filepath);
-		bool hasCharacter(unsigned char ch) const;
+		bool hasCharacter(uint8_t ch) const;
 
 		std::string _name;
-		std::map<unsigned char, Glyph> _glyphs;
+		std::map<uint8_t, Glyph> _glyphs;
 		
 	};
 	

@@ -30,7 +30,7 @@ namespace Capp {
 		
 	private:
 
-		unsigned int _id = 0;
+		uint32_t _id = 0;
 		VertexBufferList _vertexBuffers;
 		Ref<IndexBuffer> _indexBuffer;
 		

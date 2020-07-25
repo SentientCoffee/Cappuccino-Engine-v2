@@ -2,7 +2,7 @@
 
 namespace Capp {
 	
-	enum class FramebufferBinding : unsigned int {
+	enum class FramebufferBinding : uint32_t {
 		None = 0,
 		// From glad.h
 		DrawOnly = 0x8CA9,		// GL_DRAW_FRAMEBUFFER

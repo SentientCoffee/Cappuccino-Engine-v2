@@ -109,12 +109,12 @@ Window::Window(const WindowProperties& properties) :
 	const int gladStatus = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 	CAPP_ASSERT(gladStatus, "Could not initialize GLAD!");
 
-	#if CAPP_DEBUG
+#if CAPP_DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(glErrorCallback, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	#endif
+#endif
 	
 	CAPP_PRINT_INFO("OpenGL version {0}", glGetString(GL_VERSION));
 	CAPP_PRINT_INFO("GLSL version {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -136,8 +136,8 @@ void Window::update() const {
 	glfwSwapBuffers(_window);
 }
 
-unsigned Window::getWidth() const { return _properties.width; }
-unsigned Window::getHeight() const { return _properties.height; }
+uint32_t Window::getWidth() const { return _properties.width; }
+uint32_t Window::getHeight() const { return _properties.height; }
 
 void Window::setVSyncEnabled(const bool enabled) {
 	_properties.isVSyncEnabled = enabled;

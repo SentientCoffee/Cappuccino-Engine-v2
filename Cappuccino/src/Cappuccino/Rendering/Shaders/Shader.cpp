@@ -112,7 +112,7 @@ uint32_t Shader::compileProgram() const {
 		glGetProgramInfoLog(programHandle, logLength, &logLength, infoLog.data());
 
 		glDeleteProgram(programHandle);
-		for(const auto handle& : _handles) {
+		for(const auto& handle : _handles) {
 			glDeleteShader(handle.second);
 		}
 
@@ -120,7 +120,7 @@ uint32_t Shader::compileProgram() const {
 		return 0;
 	}
 
-	for(const auto handle& : _handles) {
+	for(const auto& handle : _handles) {
 		glDetachShader(programHandle, handle.second);
 	}
 
@@ -137,6 +137,9 @@ void Shader::unbind() {
 }
 
 int Shader::getUniformLocation(const std::string& uniformName) const {
+	// TODO: GET UNIFORM LOCATIONS ON PROGRAM CREATION
+	// https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
+	
 	const int uniformLocation = glGetUniformLocation(_id, uniformName.c_str());
 	if(uniformLocation == -1) {
 		CAPP_PRINT_ERROR("Could not find uniform \"{0}\" in shader \"{1}\"", uniformName, _name);

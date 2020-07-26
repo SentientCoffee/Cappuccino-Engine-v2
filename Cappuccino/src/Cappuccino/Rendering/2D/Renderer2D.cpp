@@ -209,12 +209,12 @@ void Renderer2D::finish() {
 				const float w = glyph.size.x * text->getTransform().getScale().x;
 				const float h = glyph.size.y * text->getTransform().getScale().y;
 
-				std::array<float, 16> vertices = {
+				std::array<float, 16> vertices = { {
 					x,     y,       0.0f, 1.0f,
 					x + w, y,       1.0f, 1.0f,
 					x + w, y - h,   1.0f, 0.0f,
-					x,     y - h,   0.0f, 0.0f,
-				};
+					x,     y - h,   0.0f, 0.0f
+				} };
 
 				std::array<uint32_t, 6> indices = {
 					0, 1, 2,

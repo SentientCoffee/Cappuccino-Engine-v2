@@ -39,7 +39,7 @@ Mesh::Mesh(const std::string& name, const std::vector<Vertex>& vertices, const s
 	_vao->setIndexBuffer(ibo);
 }
 
-Mesh::Mesh(const std::string& name, Vertex* vertices, const uint32_t vertexCount, uint32_t* indices, const uint32_t indexCount) :
+Mesh::Mesh(const std::string& name, const Vertex* vertices, const uint32_t vertexCount, const uint32_t* indices, const uint32_t indexCount) :
 	_name(name)
 {
 	_vao = VertexArray::create();

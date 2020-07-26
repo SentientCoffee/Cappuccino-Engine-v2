@@ -38,13 +38,13 @@ namespace Capp {
 		VertexBuffer() = default;
 		VertexBuffer(const std::vector<float>& vertices, BufferUsage usage = BufferUsage::StaticDraw);
 		VertexBuffer(const std::vector<Vertex>& vertices, BufferUsage usage = BufferUsage::StaticDraw);
-		VertexBuffer(float* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw);
-		VertexBuffer(Vertex* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw);
+		VertexBuffer(const float* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw);
+		VertexBuffer(const Vertex* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw);
 
 		template<size_t Size> VertexBuffer(const std::array<float, Size>& vertices, const BufferUsage usage = BufferUsage::StaticDraw) :
-			VertexBuffer(static_cast<float*>(vertices.data()), Size, usage) {}
+			VertexBuffer(vertices.data(), Size * sizeof(float), usage) {}
 		template<size_t Size> VertexBuffer(const std::array<Vertex, Size>& vertices, const BufferUsage usage = BufferUsage::StaticDraw) :
-			VertexBuffer(static_cast<Vertex*>(vertices.data()), Size, usage) {}
+			VertexBuffer(vertices.data(), Size * sizeof(Vertex), usage) {}
 
 		~VertexBuffer();
 
@@ -62,10 +62,10 @@ namespace Capp {
 		static Ref<VertexBuffer> create(const std::array<Vertex, Size>& vertices, BufferUsage usage = BufferUsage::StaticDraw) {
 			return Memory::createRef<VertexBuffer>(vertices, usage);
 		}
-		static Ref<VertexBuffer> create(float* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw) {
+		static Ref<VertexBuffer> create(const float* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw) {
 			return Memory::createRef<VertexBuffer>(vertices, sizeInBytes, usage);
 		}
-		static Ref<VertexBuffer> create(Vertex* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw) {
+		static Ref<VertexBuffer> create(const Vertex* vertices, uint32_t sizeInBytes, BufferUsage usage = BufferUsage::StaticDraw) {
 			return Memory::createRef<VertexBuffer>(vertices, sizeInBytes, usage);
 		}
 
@@ -79,13 +79,16 @@ namespace Capp {
 
 		void setBufferData(const std::vector<float>& vertices) const;
 		void setBufferData(const std::vector<Vertex>& vertices) const;
-		void setBufferData(float* vertices, uint32_t sizeInBytes) const;
+		void setBufferData(const float* vertices, uint32_t sizeInBytes) const;
+		void setBufferData(const Vertex* vertices, uint32_t sizeInBytes) const;
 
-		template<size_t Size> void setBufferData(const std::array<float, Size>& vertices) const {
-			setBufferData(static_cast<float*>(vertices.data()), vertices.size() * sizeof(float));
+		template<size_t Size>
+		void setBufferData(const std::array<float, Size>& vertices) const {
+			setBufferData(vertices.data(), static_cast<uint32_t>(Size * sizeof(float)));
 		}
-		template<size_t Size> void setBufferData(const std::array<Vertex, Size>& vertices) const {
-			setBufferData(static_cast<Vertex*>(vertices.data()), vertices.size() * sizeof(Vertex));
+		template<size_t Size>
+		void setBufferData(const std::array<Vertex, Size>& vertices) const {
+			setBufferData(vertices.data(), static_cast<uint32_t>(Size * sizeof(Vertex)));
 		}
 
 	private:
@@ -101,10 +104,10 @@ namespace Capp {
 	public:
 
 		IndexBuffer() = default;
-		IndexBuffer(uint32_t* indices, uint32_t count, BufferUsage usage = BufferUsage::StaticDraw);
+		IndexBuffer(const uint32_t* indices, uint32_t count, BufferUsage usage = BufferUsage::StaticDraw);
 		IndexBuffer(const std::vector<uint32_t>& indices, BufferUsage usage = BufferUsage::StaticDraw);
 		template<size_t Size> IndexBuffer(const std::array<uint32_t, Size>& indices, const BufferUsage usage = BufferUsage::StaticDraw) :
-			IndexBuffer(static_cast<uint32_t*>(indices.data()), indices.size(), usage) {}
+			IndexBuffer(indices.data(), Size, usage) {}
 		
 		~IndexBuffer();
 
@@ -115,7 +118,7 @@ namespace Capp {
 		static Ref<IndexBuffer> create(const std::array<uint32_t, Size>& indices, BufferUsage usage = BufferUsage::StaticDraw) {
 			return Memory::createRef<IndexBuffer>(indices, usage);
 		}
-		static Ref<IndexBuffer> create(uint32_t* indices, uint32_t count, BufferUsage usage = BufferUsage::StaticDraw) {
+		static Ref<IndexBuffer> create(const uint32_t* indices, uint32_t count, BufferUsage usage = BufferUsage::StaticDraw) {
 			return Memory::createRef<IndexBuffer>(indices, count, usage);
 		}
 
@@ -125,10 +128,10 @@ namespace Capp {
 		uint32_t getCount() const { return _indexCount; }
 
 		void setBufferData(const std::vector<uint32_t>& indices) const;
-		void setBufferData(uint32_t* indices, uint32_t count) const;
+		void setBufferData(const uint32_t* indices, uint32_t count) const;
 
-		template<size_t Size> void setBufferData(const std::array<uint32_t, Size>& vertices) const {
-			setBufferData(static_cast<uint32_t*>(vertices.data()), vertices.size());
+		template<size_t Size> void setBufferData(const std::array<uint32_t, Size>& indices) const {
+			setBufferData(indices.data(), Size);
 		}
 		
 	private:

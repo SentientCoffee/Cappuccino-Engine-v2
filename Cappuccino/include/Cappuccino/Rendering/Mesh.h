@@ -14,11 +14,11 @@ namespace Capp {
 		Mesh() = default;
 		Mesh(const std::string& name, const std::string& filepath);
 		Mesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
-		Mesh(const std::string& name, Vertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount);
+		Mesh(const std::string& name, const Vertex* vertices, uint32_t vertexCount, const uint32_t* indices, uint32_t indexCount);
 
 		template<size_t VSize, size_t ISize>
 		Mesh(const std::string& name, const std::array<Vertex, VSize>& vertices, const std::array<uint32_t, ISize>& indices) :
-			Mesh(name, static_cast<Vertex*>(vertices.data()), vertices.size(), static_cast<uint32_t*>(indices.data()), indices.size()) {}
+			Mesh(name, vertices.data(), VSize, indices.data(), ISize) {}
 		
 		~Mesh() = default;
 

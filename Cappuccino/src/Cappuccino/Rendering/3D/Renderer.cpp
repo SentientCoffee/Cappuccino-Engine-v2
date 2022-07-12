@@ -103,12 +103,12 @@ void Renderer::init() {
 		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.geom", ShaderStage::Geometry);
 		rStorage->pShadowPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/PointLightShadow.frag", ShaderStage::Fragment);
 		rStorage->pShadowPass->compile();
-		
+
 		rStorage->gBufferPass = Shader::create("Deferred GBuffer Default");
 		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/SimpleGeometry.vert", ShaderStage::Vertex);
 		rStorage->gBufferPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/GBufferPass.frag", ShaderStage::Fragment);
 		rStorage->gBufferPass->compile();
-		
+
 		rStorage->deferredLightingPass = Shader::create("Deferred Lighting Default");
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.vert", ShaderStage::Vertex);
 		rStorage->deferredLightingPass->attach("Assets/Cappuccino/Shaders/DeferredRendering/DeferredLightingShader.frag", ShaderStage::Fragment);
@@ -169,12 +169,12 @@ void Renderer::init() {
 		} };
 
 		const std::array<uint32_t, 36> indices = { {
-			0, 1, 2,	2, 1, 3,	// bottom
-			4, 6, 5,	6, 7, 5,	// top
-			2, 3, 6,	6, 3, 7,	// front
-			0, 1, 4,	4, 1, 5,	// back
-			2, 4, 0,	2, 6, 4,	// left
-			3, 5, 1,	3, 7, 5		// right
+			0, 1, 2,    2, 1, 3,    // bottom
+			4, 6, 5,    6, 7, 5,    // top
+			2, 3, 6,    6, 3, 7,    // front
+			0, 1, 4,    4, 1, 5,    // back
+			2, 4, 0,    2, 6, 4,    // left
+			3, 5, 1,    3, 7, 5     // right
 		} };
 
 		rStorage->skyboxMesh = Mesh::create("Skybox", vertices, indices);
@@ -210,7 +210,7 @@ void Renderer::init() {
 
 		rStorage->fullscreenQuad = Mesh::create("Main framebuffer fullscreen quad", vertices, indices);
 	}
-	
+
 	// --------------------------------------------------
 	// ----- Geometry buffer (GBuffer) ------------------
 	// --------------------------------------------------
@@ -218,12 +218,12 @@ void Renderer::init() {
 	{
 		rStorage->gBuffer = Framebuffer::create(window->getWidth(), window->getHeight());
 		rStorage->gBuffer->setName("GBuffer");
-		const Attachment viewPosition  = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment normal        = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment albedo        = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment specRough     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment emission      = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
-		const Attachment depthStencil  = { AttachmentType::Texture, InternalFormat::Depth24Stencil8 };
+		const Attachment viewPosition = { AttachmentType::Texture, InternalFormat::RGBA32F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment normal       = { AttachmentType::Texture, InternalFormat::RGBA16F, { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment albedo       = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment specRough    = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment emission     = { AttachmentType::Texture, InternalFormat::RGBA8,   { WrapMode::ClampToEdge, MinFilter::Nearest, MagFilter::Linear } };
+		const Attachment depthStencil = { AttachmentType::Texture, InternalFormat::Depth24Stencil8 };
 
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour0, viewPosition);
 		rStorage->gBuffer->addAttachment(AttachmentTarget::Colour1, normal);
@@ -249,12 +249,12 @@ void Renderer::init() {
 	// --------------------------------------------------
 	// ----- Gamma correction post process pass ---------
 	// --------------------------------------------------
-	
+
 	{
 		rStorage->gammaCorrection.buffer = Framebuffer::create(window->getWidth(), window->getHeight());
 		const Attachment mainColour = { AttachmentType::Texture, InternalFormat::RGB8 };
 		rStorage->gammaCorrection.buffer->addAttachment(AttachmentTarget::Colour0, mainColour);
-		
+
 		rStorage->gammaCorrection.shader = Shader::create("Gamma Correction");
 		rStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/PostProcessingShader.vert", ShaderStage::Vertex);
 		rStorage->gammaCorrection.shader->attach("Assets/Cappuccino/Shaders/PostProcessing/GammaCorrectionShader.frag", ShaderStage::Fragment);
@@ -376,7 +376,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// --------------------------------------------------
 	// ----- Model sorting ------------------------------
 	// --------------------------------------------------
-	
+
 	std::sort(rStorage->modelRenderQueue.begin(), rStorage->modelRenderQueue.end(), [](const Ref<Model>& first, const Ref<Model>& second)-> bool {
 		if(second->getMaterial() == nullptr || second->getMesh() == nullptr) {
 			return false;
@@ -384,7 +384,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		if(first->getMaterial() == nullptr || first->getMesh() == nullptr) {
 			return true;
 		}
-		
+
 		// TODO: BLENDING
 #if 0
 		if(first.second->RasterState.Blending.BlendEnabled & !second.second->RasterState.Blending.BlendEnabled)
@@ -404,20 +404,22 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// --------------------------------------------------
 	// ----- Shadow mapping -----------------------------
 	// --------------------------------------------------
-	
+
 	{
 		std::deque<Ref<Light>> allLights;
 		RenderCommand::setCullingMode(CullMode::FrontFace);
 
-		// Directional and spotlights (mono-directional shadow mapping)
-		for(const auto& light : rStorage->activeLights.directionalLights) {
-			allLights.push_back(light);
-		}
-		
-		for(const auto& light : rStorage->activeLights.spotlights) {
-			allLights.push_back(light);
-		}
+		// for(const auto& light : rStorage->activeLights.directionalLights) {
+		// 	allLights.push_back(light);
+		// }
 
+		// for(const auto& light : rStorage->activeLights.spotlights) {
+		// 	allLights.push_back(light);
+		// }
+
+		// Directional and spotlights (mono-directional shadow mapping)
+		allLights.emplace_back(rStorage->activeLights.directionalLights);
+		allLights.emplace_back(rStorage->activeLights.spotlights);
 		while(!allLights.empty()) {
 			// Shadow map
 			const auto& light = allLights.front();
@@ -455,14 +457,14 @@ void Renderer::finish(const PostPasses& postProcessing) {
 			glm::vec3 pos = pLight->getPosition();
 
 			std::array<glm::mat4, 6> shadowTransforms = {
-				proj * glm::lookAt(pos, pos + glm::vec3( 1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
-				proj * glm::lookAt(pos, pos + glm::vec3(-1.0f,  0.0f,  0.0f), { 0.0f, -1.0f,  0.0f }),
-				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  1.0f,  0.0f), { 0.0f,  0.0f,  1.0f }),
-				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f, -1.0f,  0.0f), { 0.0f,  0.0f, -1.0f }),
-				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f,  1.0f), { 0.0f, -1.0f,  0.0f }),
-				proj * glm::lookAt(pos, pos + glm::vec3( 0.0f,  0.0f, -1.0f), { 0.0f, -1.0f,  0.0f })
+				proj * glm::lookAt(pos, pos + glm::vec3{ 1.0f,  0.0f,  0.0f }, { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3{-1.0f,  0.0f,  0.0f }, { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3{ 0.0f,  1.0f,  0.0f }, { 0.0f,  0.0f,  1.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3{ 0.0f, -1.0f,  0.0f }, { 0.0f,  0.0f, -1.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3{ 0.0f,  0.0f,  1.0f }, { 0.0f, -1.0f,  0.0f }),
+				proj * glm::lookAt(pos, pos + glm::vec3{ 0.0f,  0.0f, -1.0f }, { 0.0f, -1.0f,  0.0f })
 			};
-			
+
 			pLight->getShadowBuffer()->bind();
 			RenderCommand::setViewport(0, 0, pLight->getShadowBuffer()->getWidth(), pLight->getShadowBuffer()->getHeight());
 			RenderCommand::clearScreen(ClearFlags::Depth);
@@ -471,7 +473,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				rStorage->pShadowPass->setUniform<Vec3>("uLightPosition", pLight->getPosition());
 				rStorage->pShadowPass->setUniform<Float>("uFarPlane", 100.0f);
 				rStorage->pShadowPass->setUniformArray<Mat4>("uShadowViewProjections", shadowTransforms);
-					
+
 				for(const auto& model : rStorage->modelRenderQueue) {
 					if(model->getMesh() == nullptr || model->getMaterial() == nullptr) {
 						continue;
@@ -498,7 +500,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 	// --------------------------------------------------
 	// ----- Deferred rendering -------------------------
 	// --------------------------------------------------
-	
+
 	{
 		// Geometry pass
 		rStorage->gBuffer->bind(FramebufferBinding::ReadWrite);
@@ -548,7 +550,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		// Lighting and shadow pass
 		RenderCommand::enableBlending();
 		RenderCommand::setBlendFunction(SourceFactor::One, DestinationFactor::One);
-		
+
 		rStorage->deferredComposite->bind();
 		RenderCommand::setViewport(0, 0, rStorage->deferredComposite->getWidth(), rStorage->deferredComposite->getHeight());
 		RenderCommand::clearScreen();
@@ -578,12 +580,12 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				for(const auto& dLight : rStorage->activeLights.directionalLights) {
 					dLight->getShadowBuffer()->getTextureAttachment(AttachmentTarget::Depth)->bind(6);
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(dLight->getViewMatrix());
-				
+
 					shader->setUniform<Vec3>("uDirectionalLight.direction", glm::mat3(lightViewToCameraView) * glm::vec3(0.0f, 0.0f, -1.0f));
 					shader->setUniform<Vec3>("uDirectionalLight.colour", dLight->getColour());
 					shader->setUniform<Mat4>("uLightViewSpace", dLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
 					shader->setUniform<Int>("uShadowMap", 6);
-				
+
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 				}
 			}
@@ -604,18 +606,17 @@ void Renderer::finish(const PostPasses& postProcessing) {
 				shader->setUniform<Mat4>("uToWorldSpace", glm::inverse(rStorage->perspectiveCamera.getViewMatrix()));
 				shader->setUniform<Float>("uFarPlane", 100.0f);
 				shader->setUniform<Float>("uShadowBias", 0.001f);
-				
 
 				for(const auto& pLight : rStorage->activeLights.pointLights) {
 					pLight->getShadowBuffer()->getCubemapAttachment(AttachmentTarget::Depth)->bind(6);
 
 					glm::mat4 lightViewToCameraView = rStorage->perspectiveCamera.getViewMatrix() * glm::inverse(pLight->getViewMatrix());
-				
+
 					shader->setUniform<Vec3>("uPointLight.position", glm::vec3(lightViewToCameraView * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
 					shader->setUniform<Vec3>("uPointLight.colour", pLight->getColour());
 					shader->setUniform<Float>("uPointLight.attenuation", pLight->getAttenuation());
 					shader->setUniform<Int>("uShadowMap", 6);
-				
+
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 				}
 			}
@@ -632,7 +633,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 
 				shader->setUniform<Vec3>("uAmbientColour", glm::vec3(0.2f, 0.4f, 0.6f));
 				shader->setUniform<Float>("uAmbientPower", 0.3f);
-				
+
 				shader->setUniform<Float>("uShadowBias", 0.001f);
 
 				for(const auto& sLight : rStorage->activeLights.spotlights) {
@@ -648,7 +649,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 					shader->setUniform<Float>("uSpotlight.outerCutoffAngle", glm::cos(glm::radians(sLight->getOuterCutoffAngle())));
 					shader->setUniform<Mat4>("uLightViewSpace", sLight->getProjectionMatrix() * glm::inverse(lightViewToCameraView));
 					shader->setUniform<Int>("uShadowMap", 6);
-				
+
 					RenderCommand::drawIndexed(rStorage->fullscreenQuad->getVAO());
 				}
 			}
@@ -835,7 +836,7 @@ void Renderer::finish(const PostPasses& postProcessing) {
 		}
 #endif
 	}
-	
+
 	// --------------------------------------------------
 	// ----- Post-processing passes ---------------------
 	// --------------------------------------------------

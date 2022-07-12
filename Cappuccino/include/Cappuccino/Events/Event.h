@@ -20,9 +20,9 @@ namespace Capp {
 	};
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
-	
+
 #if CAPP_DEBUG || CAPP_RELEASE
-	
+
 #define EVENT_CLASS_TYPE(type)\
 	static EventType getStaticType() { return EventType::##type; }\
 	virtual EventType getEventType() const override { return getStaticType(); }\
@@ -30,12 +30,12 @@ namespace Capp {
 
 #else
 
-	#define EVENT_CLASS_TYPE(type)\
-		static EventType getStaticType() { return EventType::##type; }\
-		virtual EventType getEventType() const override { return getStaticType(); }
+#define EVENT_CLASS_TYPE(type)\
+    static EventType getStaticType() { return EventType::##type; }\
+    virtual EventType getEventType() const override { return getStaticType(); }
 
 #endif
-	
+
 	class Event {
 
 		friend class EventDispatcher;
@@ -50,7 +50,7 @@ namespace Capp {
 
 		virtual const char* getName() const = 0;
 		virtual std::string toString() const { return getName(); };
-		
+
 #endif
 
 	protected:
@@ -59,13 +59,13 @@ namespace Capp {
 		virtual ~Event() = default;
 
 		bool _isHandled = false;
-		
+
 	};
 
 #if CAPP_DEBUG || CAPP_RELEASE
 	inline std::ostream& operator<<(std::ostream& out, const Event& e) { return out << e.toString(); }
 #endif
-	
+
 	class EventDispatcher {
 
 		template<typename EType>
@@ -81,7 +81,7 @@ namespace Capp {
 	private:
 
 		Event& _event;
-		
+
 	};
 
 	template <typename EType, typename>

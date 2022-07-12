@@ -20,7 +20,7 @@ bool Input::mouseButtonPressed(const uint32_t button) {
 }
 
 bool Input::mouseButtonReleased(const uint32_t button) {
-	return glfwGetKey(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_RELEASE;
+	return glfwGetMouseButton(Application::getInstance()->getWindow()->getGlfwWindow(), static_cast<int>(button)) == GLFW_RELEASE;
 }
 
 glm::vec2 Input::getMousePosition() {

@@ -57,7 +57,7 @@ Texture2D::Texture2D(const uint32_t width, const uint32_t height, void* data, co
 			_formats.pixelType = PixelType::UnsignedInt;
 			_formats.pixelFormat = PixelFormat::Stencil;
 			break;
-		
+
 		case InternalFormat::Depth24Stencil8:
 			_formats.pixelType = PixelType::UInt24_UInt8;
 			_formats.pixelFormat = PixelFormat::DepthStencil;
@@ -80,7 +80,7 @@ Texture2D::Texture2D(const uint32_t width, const uint32_t height, void* data, co
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 	glTextureStorage2D(_id, _mipLevels > 0 ? _mipLevels : 1u, static_cast<GLenum>(_formats.internalFormat), _width, _height);
 
-	if(data != nullptr || data != 0) {
+	if(data != nullptr && data != 0) {
 		glTextureSubImage2D(_id, 0, 0, 0, _width, _height,
 			static_cast<GLenum>(_formats.pixelFormat), static_cast<GLenum>(_formats.pixelType), data);
 		if(enableMipmaps == Mipmaps::On) {
